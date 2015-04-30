@@ -21,12 +21,12 @@ function success_json(res, str) {
 }
 
 //여성정보공개설정
-router.post('/public', function (req, res, next) {
+router.post('/user_public', function (req, res, next) {
   var user_no = req.session.user_no | -1;
-  var public = req.body.public;
-  var data = [user_no, public];
+  var user_public = req.body.user_public;
+  var data = [user_no, user_public];
 
-  db_setting.public(data, function (success) {
+  db_setting.user_public(data, function (success) {
     if (success) {
       success_json(res, "여성정보공개설정");
     } else {
@@ -80,21 +80,39 @@ router.get('/herself', function (req, res, next) {
 });
 
 
+//직전주기수정
+router.post('/herself/:period_no', function (req, res, next) {
+  var user_no = req.session.user_no | -1;
+  var period_no = req.params.period_no;
+  var data = [user_no, period_no];
+
+  db_setting.updatePeriod(data, function (datas) {
+    if (!datas) {
+      success_json(res, "직전주기수정");
+    } else {
+      fail_json(res, "직전주기수정");
+    }
+  });
+});
+
+
 //공지사항조회
 router.get('/notice', function (req, res, next) {
   res.json({
-    "success" : 1,
-    "result" : {
+    "success": 1,
+    "result": {
       "message": "공지사항조회 성공",
       "item_cnt": 1,
-      "items" : [{
-        "notice_no" : 0,
-        "notice_date" : "2015-04-30",
-        "notice_title" : "홀딱바나나 런칭!!",
-        "notice_content" : "<p>홀바의 첫번째 공지사항</p>"
+      "items": [{
+        "notice_no": 0,
+        "notice_date": "2015-04-30",
+        "notice_title": "홀딱바나나 런칭!!",
+        "notice_content": "<p>홀바의 첫번째 공지사항</p>"
       }]
     }
   });
 });
+
+
 
 module.exports = router;

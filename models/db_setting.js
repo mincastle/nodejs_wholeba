@@ -4,7 +4,7 @@ var db_config = require('./db_config');
 var pool = mysql.createPool(db_config);
 
 //여성사용자가 공개여부설정
-exports.public = function (data, callback) {
+exports.user_public = function (data, callback) {
   var success = 1;
   callback(success);
 };
