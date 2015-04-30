@@ -77,8 +77,7 @@ router.get('/:year/:month/:orderby', function (req, res, next) {
 
 //미션하나조회
 router.get('/:mlist_no', function (req, res, next) {
-  //var user_no = req.session.user_no;
-  var user_no = 1;
+  var user_no = req.session.user_no | -1;
   var mlist_no = req.params.mlist_no;
   var data = [user_no, mlist_no];
 
@@ -107,11 +106,9 @@ router.get('/:mlist_no', function (req, res, next) {
 
 //미션생성
 router.post('/add', function (req, res, next) {
-  //var user_no = req.session.user_no;
-  //var couple_no = req.session.couple_no;
-  var user_no = 1;
-  var couple_no = 1;
-  var mission_theme = req.body.theme;
+  var user_no = req.session.user_no | -1;
+  var couple_no = req.session.couple_no | -1;
+  var mission_theme = req.body.mission_theme;
   var data = [user_no, couple_no, mission_theme];
 
   db_missions.add(data, function (success) {
@@ -125,8 +122,7 @@ router.post('/add', function (req, res, next) {
 
 //미션확인
 router.post('/:mlist_no/confirm', function (req, res, next) {
-  //var user_no = req.session.user_no;
-  var user_no = 1;
+  var user_no = req.session.user_no | -1;
   var mlist_no = req.params.mlist_no;
   var data = [user_no, mlist_no];
 
@@ -141,8 +137,7 @@ router.post('/:mlist_no/confirm', function (req, res, next) {
 
 //미션성공
 router.post('/:mlist_no/success', function (success) {
-  //var user_no = req.session.user_no;
-  var user_no = 1;
+  var user_no = req.session.user_no | -1;
   var mlist_no = req.params.mlist_no;
   var data = [user_no, mlist_no];
 
@@ -157,8 +152,7 @@ router.post('/:mlist_no/success', function (success) {
 
 //미션삭제
 router.post('/:mlsit_no/delete', function (req, res, next) {
-  //var user_no = req.session.user_no;
-  var user_no = 1;
+  var user_no = req.session.user_no | -1;
   var mlist_no = req.params.mlist_no;
   var data = [user_no, mlist_no];
 
