@@ -22,8 +22,8 @@ function success_json(res, str) {
 
 //커플정보조회(메인)
 router.get('/', function(req, res, next) {
-    //var couple_no = req.session.couple_no;
-    var couple_no = 1;
+    var couple_no = req.session.couple_no | -1;
+
     var data = [couple_no];
 
     db_couple.getinfo(data, function(success) {
@@ -56,7 +56,7 @@ router.get('/', function(req, res, next) {
 
 //커플요청
 router.post('/ask', function (req, res, next) {
-    var user_no = req.session.user_no | 1;
+    var user_no = req.session.user_no | -1;
     var auth_phone = req.body.auth_phone;
     var user_gender = req.body.user_gender;
 
@@ -89,7 +89,7 @@ router.post('/answer', function(req, res, next) {
 //내기분설정
 router.post('/mycondition', function(req, res, next) {
     //var user_no = req.session.user_no;
-    var user_no = 1;
+    var user_no = req.session.user_no | -1;
     var user_condition = req.body.user_condition;
     var data = [user_no, user_condition];
 
@@ -105,9 +105,8 @@ router.post('/mycondition', function(req, res, next) {
 //상대방격려하기
 router.post('/yourcondition', function(req, res, next) {
     //var user_no = req.session.user_no;
-    var user_no = 1;
-    //var couple_no = req.session.couple_no;
-    var couple_no = 1;
+    var user_no = req.session.user_no | -1;
+    var couple_no = req.session.couple_no | -1;
     var your_condition = req.body.your_condition;
     var data = [user_no, couple_no, your_condition];
 
