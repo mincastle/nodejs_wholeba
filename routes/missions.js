@@ -21,12 +21,11 @@ function success_json(res, str) {
 }
 
 //미션리스트조회
-router.get('/', function (req, res, next) {
-  //var couple_no = req.session.couple_no;
-  var couple_no = 1;
-  var orderby = parseInt(req.body.orderby);
-  var year = parseInt(req.body.year);
-  var month = parseInt(req.body.month);
+router.get('/:year/:month/:orderby', function (req, res, next) {
+  var couple_no = req.session.couple_no | -1;
+  var orderby = parseInt(req.params.orderby);
+  var year = parseInt(req.params.year);
+  var month = parseInt(req.params.month);
   var data = [couple_no, year, month, orderby];
 
   db_missions.getlist(data, function (datas) {

@@ -21,7 +21,7 @@ function success_json(res, str) {
 }
 
 //성관계목록조회
-router.get('/', function (req, res, next) {
+router.get('/:year/:month/:orderby', function (req, res, next) {
   var couple_no = req.session.couple_no | -1;
   //var couple_no = 1;
   var orderby = req.params.orderby;
