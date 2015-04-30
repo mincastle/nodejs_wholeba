@@ -80,4 +80,21 @@ router.get('/herself', function (req, res, next) {
 });
 
 
+//공지사항조회
+router.get('/notice', function (req, res, next) {
+  res.json({
+    "success" : 1,
+    "result" : {
+      "message": "공지사항조회 성공",
+      "item_cnt": 1,
+      "items" : [{
+        "notice_no" : 0,
+        "notice_date" : "2015-04-30",
+        "notice_title" : "홀딱바나나 런칭!!",
+        "notice_content" : "<p>홀바의 첫번째 공지사항</p>"
+      }]
+    }
+  });
+});
+
 module.exports = router;
