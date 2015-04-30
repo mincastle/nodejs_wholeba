@@ -82,4 +82,18 @@ var port = 80;
 server.listen(port);
 console.log('서버가 ' + port + '에서 실행중입니다!');
 
+var mysql = require('mysql');
+var connection = mysql.createConnection(require('./models/db_config'));
+
+//
+connection.connect(function (err) {
+  if (err) {
+    console.error('err', err);
+    return;
+  }
+
+  console.log('mariadb connected as id ' + connection.threadId);
+});
+
+
 module.exports = app;
