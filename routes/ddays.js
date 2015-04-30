@@ -22,8 +22,7 @@ function success_json(res, str) {
 
 //dday목록조회
 router.get('/', function(req, res, next) {
-    //var couple_no = req.session.couple_no;
-    var couple_no = 1;
+    var couple_no = req.session.couple_no | -1;
 
     db_ddays.getlist([couple_no], function(datas) {
         if(!datas) {
@@ -88,8 +87,8 @@ router.post('/:dday_no/modify', function (req, res, next) {
 //디데이삭제
 router.post('/:dday_no/delete', function(req, res, next) {
     var dday_no = req.params.dday_no;
-    //var couple_no = req.session.couple_no;
-    var couple_no = 1;
+    var couple_no = req.session.couple_no | -1;
+    //var couple_no = 1;
     var data = [couple_no, dday_no];
 
     db_ddays.delete(data, function (success) {
