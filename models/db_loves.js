@@ -3,25 +3,25 @@ var db_config = require('./db_config');
 
 var pool = mysql.createPool(db_config);
 
-//love格废炼雀
+//霟笇氇╇臁绊殞
 exports.getlist = function(data, callback){
     var success = 1;
     callback(success);
 };
 
-//love格废积己
+//霟笇靸濎劚
 exports.add = function(data, callback){
     var success = 1;
     callback(success);
 };
 
-//love格废荐沥
+//霟笇靾橃爼
 exports.modify = function(data, callback){
     var success = 1;
     callback(success);
 };
 
-//love格废昏力
+//霟笇靷牅
 exports.delete = function(data, callback){
     var success = 1;
     callback(success);

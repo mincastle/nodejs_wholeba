@@ -3,37 +3,37 @@ var db_config = require('./db_config');
 
 var pool = mysql.createPool(db_config);
 
-//missions格废炼雀
+//missions氇╇臁绊殞
 exports.getlist = function(data, callback){
     var success = 1;
     callback(success);
 };
 
-//missions炼雀
+//mission頃橂倶臁绊殞
 exports.get = function(data, callback){
     var success = 1;
     callback(success);
 };
 
-//missions积己
+//missions靸濎劚
 exports.add = function(data, callback){
     var success = 1;
     callback(success);
 };
 
-//missions犬牢
+//missions頇曥澑
 exports.confirm = function(data, callback){
     var success = 1;
     callback(success);
 };
 
-//missions昏力
+//missions靷牅
 exports.delete = function(data, callback){
     var success = 1;
     callback(success);
 };
 
-//missions己傍
+//missions靹标车
 exports.success = function(data, callback){
     var success = 1;
     callback(success);

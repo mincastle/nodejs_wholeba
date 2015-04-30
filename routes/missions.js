@@ -140,6 +140,22 @@ router.post('/:mlist_no/confirm', function(req, res, next) {
     });
 });
 
+//미션성공
+router.post('/:mlist_no/success', function(success) {
+    //var user_no = req.session.user_no;
+    var user_no = 1;
+    var mlist_no = req.params.mlist_no;
+    var data = [user_no, mlist_no];
+
+    db_missions.success(data, function(success) {
+        if(success) {
+            success_json(res, "미션성공등록");
+        } else {
+            fail_json(res, "미션성공등록");
+        }
+    });
+});
+
 //미션삭제
 router.post('/:mlsit_no/delete', function(req, res, next) {
     //var user_no = req.session.user_no;
@@ -155,7 +171,5 @@ router.post('/:mlsit_no/delete', function(req, res, next) {
         }
     });
 });
-
-
 
 module.exports = router;

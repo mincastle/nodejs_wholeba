@@ -60,6 +60,7 @@ router.post('/ask', function (req, res, next) {
     var user_no = 1;
     var auth_phone = req.body.auth_phone;
     var user_gender = req.body.user_gender;
+
     var data = [user_no, auth_phone, user_gender];
 
     db_couple.ask(data, function (success) {

@@ -4,31 +4,31 @@ var db_config = require('./db_config');
 var pool = mysql.createPool(db_config);
 
 
-//Ä¿ÇÃÁ¤º¸Á¶È¸
+//ì»¤í”Œì •ë³´ì¡°íšŒ
 exports.getinfo = function (data, callback) {
     var success = 1;
     callback(success);
 };
 
-//Ä¿ÇÃ¿äÃ»
+//ì»¤í”Œìš”ì²­
 exports.ask = function (data, callback) {
     var success = 1;
     callback(success);
 };
 
-//Ä¿ÇÃ½ÂÀÎ
+//ì»¤í”ŒìŠ¹ì¸
 exports.answer = function (data, callback) {
     var success = 1;
     callback(success);
 };
 
-//³»±âºĞ¼³Á¤
+//ë‚´ê¸°ë¶„ë³€ê²½
 exports.mycondition = function (data, callback) {
     var success = 1;
     callback(success);
 };
 
-//»ó´ë¹æ°İ·ÁÇÏ±â
+//ìƒëŒ€ë°©ê²©ë ¤í•˜ê¸°
 exports.yourcondition = function (data, callback) {
     var success = 1;
     callback(success);

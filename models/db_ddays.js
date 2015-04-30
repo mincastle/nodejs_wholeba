@@ -4,25 +4,25 @@ var db_config = require('./db_config');
 var pool = mysql.createPool(db_config);
 
 
-//µğµ¥ÀÌ ¸ñ·ÏÁ¶È¸
+//ë””ë°ì´ëª©ë¡ì¡°íšŒ
 exports.getlist = function (data, callback) {
     var success = 1;
     callback(success);
 };
 
-//µğµ¥ÀÌ»ı¼º
+//ë””ë°ì´ìƒì„±
 exports.add = function(data, callback) {
     var success = 1;
     callback(success);
 };
 
-//µğµ¥ÀÌ¼öÁ¤
+//ë””ë°ì´ìˆ˜ì •
 exports.modify = function(data, callback) {
     var success = 1;
     callback(success);
 };
 
-//µğµ¥ÀÌ»èÁ¦
+//ë””ë°ì´ì‚­ì œ
 exports.delete = function(data, callback) {
     var success = 1;
     callback(success);

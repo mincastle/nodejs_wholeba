@@ -20,5 +20,8 @@ function success_json(res, str) {
     });
 }
 
+router.get('/buyinfo', function(req, res, next) {
+
+});
 
 module.exports = router;

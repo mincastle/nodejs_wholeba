@@ -3,49 +3,49 @@ var db_config = require('./db_config');
 
 var pool = mysql.createPool(db_config);
 
-//È¸¿ø°¡ÀÔ
+//íšŒì›ê°€ì…
 exports.join = function (data, callback) {
     var success = 1;
     callback(success);
 };
 
-//°¡ÀÔÁ¤º¸Á¶È¸
+//ê°€ì…ì •ë³´ì¡°íšŒ
 exports.join_info = function (data, callback) {
     var success = 1;
     callback(success);
 };
 
-//°øÅëÁ¤º¸µî·Ï
+//ê³µí†µì •ë³´ë“±ë¡
 exports.common = function(data, callback) {
     var success = 1;
     callback(success);
 };
 
-//¿©¼ºÁ¤º¸µî·Ï
+//ì—¬ì„±ì •ë³´ë“±ë¡
 exports.woman = function(data, callback) {
     var success = 1;
     callback(success);
 };
 
-//·Î±×ÀÎ
+//ë¡œê·¸ì¸
 exports.login = function(data, callback) {
     var success = 1;
     callback(success);
 };
 
-//±âº»°ª Á¶È¸
+//ì‚¬ìš©ìê¸°ë³¸ê°’ì¡°íšŒ
 exports.userinfo = function(data, callback) {
     var success = 1;
     callback(success);
 };
 
-//·Î±×¾Æ¿ô
+//ë¡œê·¸ì•„ì›ƒ
 exports.logout = function(data, callback) {
     var success = 1;
     callback(success);
 };
 
-//È¸¿øÅ»Åğ
+//íšŒì›íƒˆí‡´
 exports.withdraw = function(data, callback) {
     var success = 1;
     callback(success);
