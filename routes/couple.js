@@ -23,7 +23,6 @@ function success_json(res, str) {
 //커플정보조회(메인)
 router.get('/', function(req, res, next) {
     var couple_no = req.session.couple_no | -1;
-
     var data = [couple_no];
 
     db_couple.getinfo(data, function(success) {
