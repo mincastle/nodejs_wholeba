@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var db_couple = require('../models/db_couple');
 
-function fail_json(res, str) {
+function failJson(res, str) {
     res.json({
         "success": 0,
         "result": {
