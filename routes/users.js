@@ -20,11 +20,6 @@ function success_json(res, str) {
   });
 }
 
-/* GET users listing. */
-router.get('/', function (req, res, next) {
-  res.send('respond with a resource');
-});
-
 //회원가입
 router.post('/join', function (req, res, next) {
   var user_id = req.body.user_id;
@@ -44,9 +39,8 @@ router.post('/join', function (req, res, next) {
 
 //가입정보조회
 router.get('/join', function (req, res, next) {
-  //var user_no = req.session.user_no;
-  var user_no = 1;
-  data = [user_no];
+  var user_no = req.session.user_no | -1;
+  var data = [user_no];
 
   db_user.join_info(data, function (success) {
     if (success) {
@@ -68,8 +62,8 @@ router.get('/join', function (req, res, next) {
 
 //공통정보등록
 router.post('/common', function (req, res, next) {
-  //var user_no = req.session.user_no;
-  var user_no = 1;
+  var user_no = req.session.user_no | -1;
+
   var couple_birth = req.body.couple_birth;
   var user_birth = req.body.user_birth;
   var data = [user_no, couple_birth, user_birth];
@@ -85,18 +79,17 @@ router.post('/common', function (req, res, next) {
 
 //여성정보등록
 router.post('/woman', function (req, res, next) {
-  //var user_no = req.session.user_no;
-  var user_no = 1;
+  var user_no = req.session.user_no | -1;
 
   var period_start = req.body.period_start;
   var period_end = req.body.period_end;
   var period_cycle = req.body.period_cycle;
   //todo 객체의 배열 받는 법?
-  var syndrome = req.body.syndrome; //객체의 배열
+  var syndromes = req.body.syndromes; //객체의 배열
   var user_pills = req.body.user_pills;
   var pills_date = req.body.pills_date;
   var pills_time = req.body.pills_time;
-  var data = [user_no, period_start, period_end, period_cycle, syndrome, user_pills, pills_date, pills_time];
+  var data = [user_no, period_start, period_end, period_cycle, syndromes, user_pills, pills_date, pills_time];
 
   db_user.woman(data, function (success) {
     if (success) {
@@ -113,7 +106,7 @@ router.post('/login', function (req, res, next) {
   var user_pw = req.body.user_pw;
   var user_phone = req.body.user_phone;
   var user_regid = req.body.user_regid;
-  data = [user_id, user_pw, user_phone, user_regid];
+  var data = [user_id, user_pw, user_phone, user_regid];
 
   db_user.login(data, function (success) {
     if (success) {
@@ -126,8 +119,7 @@ router.post('/login', function (req, res, next) {
 
 //기본값 조회
 router.get('/userinfo', function (req, res, next) {
-  //var user_no = req.session.user_no;
-  var user_no = 1;
+  var user_no = req.session.user_no | -1;
   var data = [user_no];
 
   db_user.userinfo(data, function (success) {
@@ -152,8 +144,8 @@ router.get('/userinfo', function (req, res, next) {
 
 //로그아웃
 router.post('/logout', function (req, res, next) {
-  //var user_no = req.session.user_no;
-  var user_no = 1;
+  var user_no = req.session.user_no | -1;
+  //var user_no = 1;
   var data = [user_no];
 
   db_user.logout(data, function (success) {
@@ -167,9 +159,8 @@ router.post('/logout', function (req, res, next) {
 
 //회원탈퇴
 router.post('/withdraw', function (req, res, next) {
-  //var user_no = req.session.user_no;
-  var user_no = 1;
-  var couple_no = 1;
+  var user_no = req.session.user_no | -1;
+  var couple_no = req.session.couple_no | -1;
   var data = [user_no, couple_no];
 
   db_user.withdraw(data, function (success) {
