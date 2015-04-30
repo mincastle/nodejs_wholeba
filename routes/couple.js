@@ -56,8 +56,7 @@ router.get('/', function(req, res, next) {
 
 //커플요청
 router.post('/ask', function (req, res, next) {
-    //var user_no = req.session.user_no;
-    var user_no = 1;
+    var user_no = req.session.user_no | 1;
     var auth_phone = req.body.auth_phone;
     var user_gender = req.body.user_gender;
 
@@ -74,10 +73,8 @@ router.post('/ask', function (req, res, next) {
 
 //커플승인
 router.post('/answer', function(req, res, next) {
-    //var user_no = req.session.user_no;
-    //var couple_no = req.session.couple_no;
-    var user_no = 1;
-    var couple_no = 1;
+    var user_no = req.session.user_no | -1;
+    var couple_no = req.session.couple_no | -1;
     var data = [user_no, couple_no];
 
     db_couple.answer(data, function(success) {
