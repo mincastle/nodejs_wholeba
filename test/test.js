@@ -14,8 +14,7 @@ router.post('/findAuth', function (req, res, next) {
   var sql = "select count(*) as cnt from couple where auth_phone=?";
   var data = [user_phone];
   db_model.selectOne(sql, data, function (output) {
-
-    res.json({"result" : output});
+    res.json({"result" : output[0]});
   });
 });
 
