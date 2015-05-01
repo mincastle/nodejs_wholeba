@@ -14,6 +14,7 @@ var loves = require('./routes/loves');
 var missions = require('./routes/missions');
 var items = require('./routes/items');
 var setting = require('./routes/setting');
+var mysql = require('mysql');
 
 
 var app = express();
@@ -81,5 +82,11 @@ var server = http.createServer(app);
 var port = 80;
 server.listen(port);
 console.log('서버가 ' + port + '에서 실행중입니다!');
+
+var mariadb = require('./models/db_config');
+mysql.createConnection(mariadb).connect(function (err) {
+  if(err) console.log('err', err);
+  console.log('mariadb connected!');
+});
 
 module.exports = app;

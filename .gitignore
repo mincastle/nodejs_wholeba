@@ -32,3 +32,4 @@ node_modules
 .idea/libraries/nodejs_wholeba_node_modules.xml
 .idea/misc.xml
 .idea/workspace.xml
+models/db_config.json
