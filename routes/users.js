@@ -2,22 +2,16 @@ var express = require('express');
 var router = express.Router();
 var db_user = require('../models/db_user');
 
-function fail_json(res, str) {
-  res.json({
-    "success": 0,
-    "result": {
-      "message": str + " 실패"
-    }
-  });
+var fail_json = {
+  "success": 0,
+  "result": {
+  }
 }
 
-function success_json(res, str) {
-  res.json({
-    "success": 1,
-    "result": {
-      "message": str + " 성공"
-    }
-  });
+var success_json = {
+  "success": 1,
+  "result": {
+  }
 }
 
 //회원가입
@@ -27,12 +21,21 @@ router.post('/join', function (req, res, next) {
   var user_phone = req.body.user_phone;
   var user_regid = req.body.user_regid;
   var data = [user_id, user_pw, user_phone, user_regid];
+  console.log('data',data);
 
-  db_user.join(data, function (success) {
-    if (success) {
-      success_json(res, "회원가입");
+  db_user.join(data, function (err, result) {
+    if (err) {
+      fail_json.result.message = err;
+      res.json(fail_json);
     } else {
-      fail_json(res, "회원가입");
+      if(result.affectedRows == 1) {
+        success_json.result.message = "성공";
+        success_json.result.user_no = result.insertId;
+        success_json.result.couple_no = result.couple_no;
+        //TODO : session user_no, couple_no 저장
+        res.json(success_json);
+        console.log('waterfall result : ', result);
+      } else res.json(fail_json);
     }
   });
 });
@@ -55,7 +58,7 @@ router.get('/join', function (req, res, next) {
         }
       });
     } else {
-      fail_json(res, "가입정보조회");
+      //fail_json(res, "가입정보조회");
     }
   });
 });
@@ -70,9 +73,9 @@ router.post('/common', function (req, res, next) {
 
   db_user.common(data, function (success) {
     if (success) {
-      success_json(res, "공통정보등록");
+      //success_json(res, "공통정보등록");
     } else {
-      fail_json(res, "공통정보등록");
+      //fail_json(res, "공통정보등록");
     }
   });
 });
@@ -93,9 +96,9 @@ router.post('/woman', function (req, res, next) {
 
   db_user.woman(data, function (success) {
     if (success) {
-      success_json(res, "여성정보등록");
+      //success_json(res, "여성정보등록");
     } else {
-      fail_json(res, "여성정보등록");
+      //fail_json(res, "여성정보등록");
     }
   });
 });
@@ -110,9 +113,9 @@ router.post('/login', function (req, res, next) {
 
   db_user.login(data, function (success) {
     if (success) {
-      success_json(res, "로그인");
+      //success_json(res, "로그인");
     } else {
-      fail_json(res, "로그인");
+      //fail_json(res, "로그인");
     }
   });
 });
@@ -137,7 +140,7 @@ router.get('/userinfo', function (req, res, next) {
         }
       });
     } else {
-      fail_json(res, "기본값조회");
+      //fail_json(res, "기본값조회");
     }
   });
 });
@@ -150,9 +153,9 @@ router.post('/logout', function (req, res, next) {
 
   db_user.logout(data, function (success) {
     if (success) {
-      success_json(res, "로그아웃");
+      //success_json(res, "로그아웃");
     } else {
-      fail_json(res, "로그아웃");
+      //fail_json(res, "로그아웃");
     }
   });
 });
@@ -165,9 +168,9 @@ router.post('/withdraw', function (req, res, next) {
 
   db_user.withdraw(data, function (success) {
     if (success) {
-      success_json(res, "회원탈퇴");
+      //success_json(res, "회원탈퇴");
     } else {
-      fail_json(res, "회원탈퇴");
+      //fail_json(res, "회원탈퇴");
     }
   });
 });
