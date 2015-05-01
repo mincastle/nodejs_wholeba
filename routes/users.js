@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 //var db_user = require('../models/db_user');
 var db_model = require('../models/db_model');
-
+var db_sqlscript = require('../models/db_sqlscript');
 
 router.get('/postman_test', function () {
   
@@ -15,25 +15,33 @@ router.post('/join', function (req, res, next) {
   //var user_pw = req.body.user_pw;
   //var user_phone = req.body.user_phone;
   //var user_regid = req.body.user_regid;
-
-
   var result = {
     "success" : "0",
     "result" : {}
   };
-  var sql = 'insert into couple values()';
-  db_model.insert(sql, [], function (output) {
-    // insert 성공시
-    if (output.affectedRows == 1) {
-      var insertId = output.insertId;
-      sql = 'insert into user(couple';
 
-      result.success = "1";
-      result.result.message = '커플 생성 성공';
-      res.json(result);
+  var user_phone = req.body.user_phone;
+  var data = [user_phone];
+
+  //
+  db_model.selectOne(db_sqlscript.sqlFindAuth, data, function (output) {
+    if(output[0] == 0) {
+      sql = 'insert into couple values()';
+      db_model.insert(sql, [], function (output) {
+        // insert 성공시
+        if (output.affectedRows == 1) {
+          var insertId = output.insertId;
+          result.success = "1";
+          result.result.message = output;
+          res.json(result);
+        } else {
+          result.success="0";
+          result.result.message = output;
+          res.json(result);
+        }
+      });
     } else {
-      result.success="0";
-      res.json(result);
+      res.json(output);
     }
   });
 });

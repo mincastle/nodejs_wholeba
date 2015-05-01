@@ -45,7 +45,7 @@ app.use('/ddays', ddays);
 app.use('/missions', missions);
 app.use('/items', items);
 app.use('/setting', setting);
-app.use('/postman_test', test);
+app.use('/test', test);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -4,6 +4,8 @@
 var express = require('express');
 var router = express.Router();
 var db_model = require('../models/db_model');
+var db_sqlscript = require('../models/db_sqlscript');
+
 
 router.post('/findAuth', function (req, res, next) {
   var result = {
@@ -11,9 +13,9 @@ router.post('/findAuth', function (req, res, next) {
     "result" : {}
   };
   var user_phone = req.body.user_phone;
-  var sql = "select count(*) as cnt from couple where auth_phone=?";
   var data = [user_phone];
-  db_model.selectOne(sql, data, function (output) {
+
+  db_model.selectOne(db_sqlscript.sqlFindAuth, data, function (output) {
     res.json({"result" : output[0]});
   });
 });
