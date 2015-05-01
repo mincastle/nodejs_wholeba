@@ -1,41 +1,43 @@
 var express = require('express');
 var router = express.Router();
-var db_user = require('../models/db_user');
+//var db_user = require('../models/db_user');
+var db_model = require('../models/db_model');
 
-function fail_json(res, str) {
-  res.json({
-    "success": 0,
-    "result": {
-      "message": str + " 실패"
-    }
-  });
-}
 
-function success_json(res, str) {
-  res.json({
-    "success": 1,
-    "result": {
-      "message": str + " 성공"
-    }
-  });
-}
+router.get('/test', function () {
+  
+})
+
 
 //회원가입
 router.post('/join', function (req, res, next) {
-  var user_id = req.body.user_id;
-  var user_pw = req.body.user_pw;
-  var user_phone = req.body.user_phone;
-  var user_regid = req.body.user_regid;
-  var data = [user_id, user_pw, user_phone, user_regid];
+  //var user_id = req.body.user_id;
+  //var user_pw = req.body.user_pw;
+  //var user_phone = req.body.user_phone;
+  //var user_regid = req.body.user_regid;
 
-  db_user.join(data, function (success) {
-    if (success) {
-      success_json(res, "회원가입");
+
+  var result = {
+    "success" : "0",
+    "result" : {}
+  };
+  var sql = 'insert into couple values()';
+  db_model.insert(sql, [], function (output) {
+    // insert 성공시
+    if (output.affectedRows == 1) {
+      var insertId = output.insertId;
+      sql = 'insert into user(couple';
+
+      result.success = "1";
+      result.result.message = '커플 생성 성공';
+      res.json(result);
     } else {
-      fail_json(res, "회원가입");
+      result.success="0";
+      res.json(result);
     }
   });
 });
+
 
 //가입정보조회
 router.get('/join', function (req, res, next) {

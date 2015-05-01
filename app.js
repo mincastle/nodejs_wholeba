@@ -15,6 +15,7 @@ var missions = require('./routes/missions');
 var items = require('./routes/items');
 var setting = require('./routes/setting');
 
+var test = require('./test/test');
 
 var app = express();
 
@@ -44,6 +45,7 @@ app.use('/ddays', ddays);
 app.use('/missions', missions);
 app.use('/items', items);
 app.use('/setting', setting);
+app.use('/test', test);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
