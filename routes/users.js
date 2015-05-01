@@ -4,7 +4,7 @@ var router = express.Router();
 var db_model = require('../models/db_model');
 
 
-router.get('/test', function () {
+router.get('/postman_test', function () {
   
 })
 
