@@ -12,6 +12,12 @@
 ## REST API 
 > REST API Definition
 
+First Header  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell
+
+
 | Name | Description          |
 | ------------- | ----------- |
 | Help      | ~~Display the~~ help window.|
