@@ -37,7 +37,7 @@
 | Mission 삭제 |	POST	| /missions/:mlist_no/delete | Incomplete |   |
 | Mission 조회 |	GET	| /missions/:mlist_no | Incomplete |   |
 | Mission 성공 |	POST	| /missions/:mlist_no/success | Incomplete |   |
-| 구매 가능한 아이템 목록조회 |	GET	| /items/buyinfo | Incomplete |   |
+| 구매 가능한 아이템 조회 |	GET	| /items/buyinfo | Incomplete |   |
 | 아이템 구매 |	POST	| /items/:item_no/buy | Incomplete |   |
 | 보유 아이템 조회 |	GET	| /items/own | Incomplete |   |
 | 보유 아이템 사용 |	POST	| /items/:item_no/apply/:mlist_no | Incomplete |   |
