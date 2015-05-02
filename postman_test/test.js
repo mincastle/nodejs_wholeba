@@ -8,10 +8,6 @@ var db_sqlscript = require('../models/db_sqlscript');
 
 
 router.post('/findAuth', function (req, res, next) {
-  var result = {
-    "success" : "0",
-    "result" : {}
-  };
   var user_phone = req.body.user_phone;
   var data = [user_phone];
 
@@ -20,25 +16,21 @@ router.post('/findAuth', function (req, res, next) {
   });
 });
 
-
 router.post('/coupleinsert', function (req, res, next) {
-  var result = {
-    "success" : "0",
-    "result" : {}
-  };
-  var sql = 'insert into couple values()';
-  db_model.insert(sql, [], function (output) {
-    // insert 성공시
-    if (output.affectedRows == 1) {
-      var insertId = output.insertId;
-      result.success = "1";
-      result.result.message = '커플 생성 성공';
-      res.json(result);
-    } else {
-      result.success="0";
-      res.json(result);
-    }
+  db_model.insert(db_sqlscript.sqlSaveCouple, [], function (output) {
+      res.json({"result": output});
   });
 });
+
+router.post('/userinsert', function (req, res, next) {
+  var data = [couple_no, user_id, user_pw, user_phone, user_regid];
+
+  var couple_no = '15', user_id = req.body.user_id, user_pw = req.body.user_pw
+    , user_phone = req.body.user_phone, user_regid = req.body.user_id.user_regid;
+  db_model.insert(db_sqlscript.sqlSaveReqUser, data, function (output) {
+    res.json({"result": output});
+  });
+});
+
 
 module.exports = router;

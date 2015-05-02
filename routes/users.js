@@ -4,46 +4,66 @@ var router = express.Router();
 var db_model = require('../models/db_model');
 var db_sqlscript = require('../models/db_sqlscript');
 
-router.get('/postman_test', function () {
-  
-})
+/* 회원가입
 
+ 작업 순서 :
+ 1. 가입한 회원이 couple table의 authphone에 등록되어있는지 확인한다.(couple_is가 0인 회원 중)
+  1-1. authphone이 등록 되어있지 않는 사람
+    1-1-1. 새로운 couple을 생성한다.
+    1-1-2. 생성된 couple_no값과 함께 user 테이블에 user를 생성한다.(insert)
+  1-2. authphone이 등록 되어있는 사람
+    1-2-1. 기존 가입 사용자의 요청을 받은 사람이므로 커플의 no를 가져온다.
+    1-2-2. 가져온 couple_no값과 함께 user 테이블에 user를 생성한다.(insert)
+    1-2-3. couple table의 couple_is를 1로 업데이트 한다.
+ 2. 처리된 결과를 약속된 형태로 가공한다.
+ 3. 가공된 result 값을 json으로 전송해준다.
+ */
 
-//회원가입
 router.post('/join', function (req, res, next) {
   //var user_id = req.body.user_id;
   //var user_pw = req.body.user_pw;
   //var user_phone = req.body.user_phone;
   //var user_regid = req.body.user_regid;
+
   var result = {
     "success" : "0",
     "result" : {}
   };
-
   var user_phone = req.body.user_phone;
   var data = [user_phone];
 
+
+
+
+
+  //db_model.selectOne(db_sqlscript.sqlFindAuth, data, function (output) {
+  //  if(output[0] == 0) {  // 1-1. authphone이 등록 되어있지 않는 사람
+  //    db_model.insert(db_sqlscript.sqlSaveCouple, [], function (output) { //  1-1-1. 새로운 couple을 생성한다.
+  //      if (output.affectedRows == 1) { // insert 성공시
+  //        var insertId = output.insertId;
   //
-  db_model.selectOne(db_sqlscript.sqlFindAuth, data, function (output) {
-    if(output[0] == 0) {
-      sql = 'insert into couple values()';
-      db_model.insert(sql, [], function (output) {
-        // insert 성공시
-        if (output.affectedRows == 1) {
-          var insertId = output.insertId;
-          result.success = "1";
-          result.result.message = output;
-          res.json(result);
-        } else {
-          result.success="0";
-          result.result.message = output;
-          res.json(result);
-        }
-      });
-    } else {
-      res.json(output);
-    }
-  });
+  //        // 1-1-2. 생성된 couple_no값과 함께 user 테이블에 user를 생성한다.(insert)
+  //
+  //
+  //        // 2. 처리된 결과를 약속된 형태로 가공한다.
+  //        result.success = "1";
+  //        result.result.message = output;
+  //
+  //        // 3. 가공된 result 값을 json으로 전송해준다.
+  //        res.json(result);
+  //      } else {
+  //
+  //        // 2. 처리된 결과를 약속된 형태로 가공한다.
+  //        result.success="0";
+  //        result.result.message = output;
+  //        // 3. 가공된 result 값을 json으로 전송해준다.
+  //        res.json(result);
+  //      }
+  //    });
+  //  } else {  // 1-2. authphone이 등록 되어있는 사람
+  //    res.json(output);
+  //  }
+  //});
 });
 
 
