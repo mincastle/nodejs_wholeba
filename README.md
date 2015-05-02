@@ -13,7 +13,7 @@
 > REST API Definition
 
 | Feature |	Method	| Request URL | Todo Status | Date  |
-| :---------- |	:-------:	| :-----------------| :--------: | :--------: |
+| :-------------|	:-----:	| :-----------------| :--------: | :--------: |
 | 회원가입 |	POST	| /users/join | Incomplete |   |
 | 가입정보 조회 |	GET	| /users/join | Incomplete |   | 
 | 커플 요청 |	POST	| /couple/ask | Incomplete |   |
