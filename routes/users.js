@@ -44,7 +44,7 @@ router.post('/join', function (req, res, next) {
 
 //가입정보조회
 router.get('/join', function (req, res, next) {
-  var user_no = req.session.user_no | 9;
+  var user_no = req.session.user_no | -1;
   var data = [user_no, user_no, user_no];
 
   db_user.join_info(data, function (err, result) {
@@ -52,38 +52,44 @@ router.get('/join', function (req, res, next) {
       fail_json.result.message = err;
       res.json(fail_json);
     } else {
-      //console.log('result', result);
-      //join_code 값 세팅
-      var join_code = result.user_req;
-      if(result.user_req == 0) join_code =1;
-      else join_code = 0;
-      res.json({
-        "success": 1,
-        "result": {
-          "message": "가입정보조회 성공",
-          "items": {
-            "join_code": join_code,
-            "phone": result.phone
+      if(result) {
+        //join_code 값 세팅
+        var join_code;
+        if(result.user_req == 0) join_code =1;
+        else join_code = 0;
+        res.json({
+          "success": 1,
+          "result": {
+            "message": "가입정보조회 성공",
+            "items": {
+              "join_code": join_code,
+              "phone": result.phone
+            }
           }
-        }
-      });
+        });
+      }
     }
   });
 });
 
 //공통정보등록
 router.post('/common', function (req, res, next) {
-  var user_no = req.session.user_no | -1;
+  var user_no = req.session.user_no | 10;
 
   var couple_birth = req.body.couple_birth;
   var user_birth = req.body.user_birth;
   var data = [user_no, couple_birth, user_birth];
 
-  db_user.common(data, function (success) {
-    if (success) {
-      //success_json(res, "공통정보등록");
+  db_user.common(data, function (err, result) {
+    //console.log('result', result);
+    if (err) {
+      fail_json.result.message = err;
+      res.json(fail_json);
     } else {
-      //fail_json(res, "공통정보등록");
+      if(result.affectedRows == 1) {
+        success_json.result.message = "공통정보등록 성공";
+        res.json(success_json);
+      }
     }
   });
 });
@@ -100,9 +106,11 @@ router.post('/woman', function (req, res, next) {
   var user_pills = req.body.user_pills;
   var pills_date = req.body.pills_date;
   var pills_time = req.body.pills_time;
-  var data = [user_no, period_start, period_end, period_cycle, syndromes, user_pills, pills_date, pills_time];
+  var period = [user_no, period_start, period_end, period_cycle];
+  var syndromes = syndromes;
+  var pills = [user_no, user_pills, pills_date, pills_time];
 
-  db_user.woman(data, function (success) {
+  db_user.woman(period, syndromes, pills, function (success) {
     if (success) {
       //success_json(res, "여성정보등록");
     } else {
@@ -119,11 +127,18 @@ router.post('/login', function (req, res, next) {
   var user_regid = req.body.user_regid;
   var data = [user_id, user_pw, user_phone, user_regid];
 
-  db_user.login(data, function (success) {
-    if (success) {
-      //success_json(res, "로그인");
+  db_user.login(data, function (err, result) {
+    if (err) {
+      fail_json.result.message = err;
+      res.json(fail_json);
     } else {
-      //fail_json(res, "로그인");
+      if(result) {
+        //TODO session setting
+        req.session.user_no = result.user_no;
+        req.session.couple_no = result.couple_no;
+        success_json.result.message = "로그인 성공";
+        res.json(success_json);
+      }
     }
   });
 });
@@ -131,24 +146,27 @@ router.post('/login', function (req, res, next) {
 //기본값 조회
 router.get('/userinfo', function (req, res, next) {
   var user_no = req.session.user_no | -1;
-  var data = [user_no];
+  var data = [user_no, user_no];
 
-  db_user.userinfo(data, function (success) {
-    if (success) {
-      res.json({
-        "success": 1,
-        "result": {
-          "message": "기본값조회 성공",
-          "items": {
-            "user_no": 1,
-            "couple_no": 1,
-            "condom": 1,
-            "gender": "F"
-          }
-        }
-      });
+  db_user.userinfo(data, function (err, result) {
+    if (err) {
+      fail_json.result.message = err;
+      res.json(fail_json);
     } else {
-      //fail_json(res, "기본값조회");
+      if(result) {
+        res.json({
+          "success": 1,
+          "result": {
+            "message": "기본값조회 성공",
+            "items": {
+              "user_no": result.user_no,
+              "couple_no": result.couple_no,
+              "condom": result.user_condom,
+              "gender": result.user_gender
+            }
+          }
+        });
+      }
     }
   });
 });
