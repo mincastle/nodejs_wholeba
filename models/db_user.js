@@ -6,28 +6,31 @@ var pool = mysql.createPool(db_config);
 var sql = "";
 
 /*
- *회원가입
- *내 번호가 이미 커플의 인증번호에 있으면 커플을 이어주고 유저생성,
- *없으면 새로운 커플과 유저를 생성
- *1. count(couple의 auth_phone == user_phone)
- *2. insert into couple -> 3. insert into user
- *2. or update couple -> 3. insert into user
+ * 회원가입
+ * 내 번호가 이미 커플의 인증번호에 있으면 커플을 이어주고 유저생성,
+ * 없으면 새로운 커플과 유저를 생성
+ * 1. count(couple의 auth_phone == user_phone)
+ * 2. insert into couple -> 3. insert into user
+ * 2. or update couple -> 3. insert into user
  */
 exports.join = function (data, callback) {
   async.waterfall([
     function(done) {
       checkAuthPhone(data, done);
-    }, function(arg1, done) {
+    },
+    function(arg1, done) {
       getCoupleNo(data, arg1, done);
-    }, function(arg2, done) {
+    },
+    function(arg2, done) {
       insertUser(arg2, done);
-    }], function(err, result) {
-    if(err) {
-      console.log('err', err);
-      callback(err, null);
-    } else {
-      console.log('result', result);
-      callback(null, result);
+    }],
+    function(err, result) {
+      if(err) {
+        console.log('err', err);
+        callback(err, null);
+      } else {
+        console.log('result', result);
+        callback(null, result);
     }
   });
 };
@@ -112,10 +115,26 @@ function insertUser(arg2, done) {
   });
 }
 
-//가입정보조회
+/*
+ * 가입정보조회
+ * 해당 사용자가 커플 요청을 한사람인지, 받은 사람인지의 여부
+ * + 받은사람이라면 상대의 휴대폰 번호를 같이 리턴
+ */
+
 exports.join_info = function (data, callback) {
-  var success = 1;
-  callback(success);
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      console.log('connection err', err);
+      callback(err, null);
+    }
+    sql = 'select distinct (select user_req from user where user_no=?) as user_req, (select user_phone from user where couple_no in (select couple_no from user where user_no=?) and not(user_no = ?) )as phone from user;';
+    conn.query(sql, data, function(err, row) {
+      if(err) callback(err, null);
+      //console.log('row', row[0]);
+      conn.release();
+      callback(null, row[0]);
+    });
+  });
 };
 
 //공통정보등록

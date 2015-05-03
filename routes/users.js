@@ -29,10 +29,12 @@ router.post('/join', function (req, res, next) {
       res.json(fail_json);
     } else {
       if(result.affectedRows == 1) {
-        success_json.result.message = "성공";
-        success_json.result.user_no = result.insertId;
-        success_json.result.couple_no = result.couple_no;
+        success_json.result.message = "회원가입 성공";
+        //success_json.result.user_no = result.insertId;
+        //success_json.result.couple_no = result.couple_no;
         //TODO : session user_no, couple_no 저장
+        req.session.user_no = result.insertId;
+        req.session.couple_no = result.couple_no;
         res.json(success_json);
         console.log('waterfall result : ', result);
       } else res.json(fail_json);
@@ -42,23 +44,29 @@ router.post('/join', function (req, res, next) {
 
 //가입정보조회
 router.get('/join', function (req, res, next) {
-  var user_no = req.session.user_no | -1;
-  var data = [user_no];
+  var user_no = req.session.user_no | 9;
+  var data = [user_no, user_no, user_no];
 
-  db_user.join_info(data, function (success) {
-    if (success) {
+  db_user.join_info(data, function (err, result) {
+    if (err) {
+      fail_json.result.message = err;
+      res.json(fail_json);
+    } else {
+      //console.log('result', result);
+      //join_code 값 세팅
+      var join_code = result.user_req;
+      if(result.user_req == 0) join_code =1;
+      else join_code = 0;
       res.json({
         "success": 1,
         "result": {
           "message": "가입정보조회 성공",
           "items": {
-            "join_code": 0,
-            "phone": "010-0000-0000"
+            "join_code": join_code,
+            "phone": result.phone
           }
         }
       });
-    } else {
-      //fail_json(res, "가입정보조회");
     }
   });
 });
