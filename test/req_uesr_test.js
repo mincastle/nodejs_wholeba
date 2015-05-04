@@ -3,8 +3,6 @@ var expect = require('expect.js');
 var db_sqlscript = require('../models/db_sqlscript');
 
 describe('First Join Test', function () {
-  var cnt;
-
   var couple_no;
   var user_id = 'aaaa';
   var user_pw = 'aaaa';
@@ -13,6 +11,7 @@ describe('First Join Test', function () {
 
   beforeEach('AuthPhone exist', function (done) {
     var data = [user_phone];
+
     db_model.remove(db_sqlscript.sqlClearUser, function (output) {
       db_model.remove(db_sqlscript.sqlClearCouple, function (output) {
         db_model.selectOne(db_sqlscript.sqlFindAuth, data, function (output) {

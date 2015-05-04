@@ -5,6 +5,8 @@
 exports.sqlClearUser = 'delete from user';
 exports.sqlClearCouple = 'delete from couple';
 
+// user_id 조회하는 쿼리문
+exports.sqlFindUser = "select count(*) as cnt from user where user_id = ?";
 
 // authphone을 조회하는 쿼리문
 exports.sqlFindAuth = "select couple_no, count(*) as cnt from couple where auth_phone=? and couple_is=0";

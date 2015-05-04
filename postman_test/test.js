@@ -7,6 +7,18 @@ var db_model = require('../models/db_model');
 var db_sqlscript = require('../models/db_sqlscript');
 
 
+router.post('/findUser', function (req, res, next) {
+  var user_id = req.body.user_id;
+  var data = [user_id];
+
+  db_model.selectOne(db_sqlscript.sqlFindUser, data, function (output) {
+
+    res.json({"result" : output[0]});
+  });
+});
+
+
+// 처음 가입자인지 아니면 요청 받은 사람인지 찾아보기 위해서 (0이면 새로운 가입자, 1이면 요청 받은 사람)
 router.post('/findAuth', function (req, res, next) {
   var user_phone = req.body.user_phone;
   var data = [user_phone];
