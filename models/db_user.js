@@ -10,6 +10,7 @@ var params = [];
  * 회원가입
  * 내 번호가 이미 커플의 인증번호에 있으면 커플을 이어주고 유저생성,
  * 없으면 새로운 커플과 유저를 생성
+ * 0. 아이디 중복 검사
  * 1. count(couple의 auth_phone == user_phone)
  * 2. insert into couple -> 3. insert into user
  * 2. or update couple -> 3. insert into user
@@ -18,13 +19,16 @@ var params = [];
 exports.join = function (data, callback) {
   async.waterfall([
       function (done) {
+        checkUserId(data, done);
+      },
+      function (done) {
         checkAuthPhone(data, done);
       },
-      function (arg1, done) {
-        getCoupleNo(data, arg1, done);
-      },
       function (arg2, done) {
-        insertUser(arg2, done);
+        getCoupleNo(data, arg2, done);
+      },
+      function (arg3, done) {
+        insertUser(arg3, done);
       }],
     function (err, result) {
       if (err) {
@@ -132,7 +136,7 @@ exports.userinfo = function (data, callback) {
         else {
           console.log('userinfo : ', row);
           callback(null, row[0]);
-          conn.release();
+          conn.release();d
         }
       });
     }
@@ -152,8 +156,32 @@ exports.withdraw = function (data, callback) {
 };
 
 
+//입력받은 user_id가 중복된 값인지 아닌지 확인
+function checkUserId(data, done) {
+  pool.getConnection(function(err, conn) {
+    if(err) console.log('connection error : ', err);
+    else {
+      sql = 'select count(*) as cnt from user where user_id=?';
+      conn.query(sql, [data[0]], function(err, row) {
+        if(err) {
+          console.log('err', err);
+          return;
+        } else {
+          console.log('check id : ', row[0]);
+          if(row[0].cnt == 1) {
+            done("이미 존재하는 아이디입니다");
+          } else {
+            done(null)
+          }
+        }
+      });
+    }
+  });
+}
+
 //check auth_phone
 function checkAuthPhone(data, done) {
+
   pool.getConnection(function (err, conn) {
     if (err) console.log('err', err);
     else {
@@ -164,11 +192,12 @@ function checkAuthPhone(data, done) {
         if (err) {
           console.log('err', err);
           done(err, null);
+          return;
         } else {
-          console.log('row', row[0]);
-          conn.release();
+          console.log('check auth phone : ', row[0]);
           done(null, row[0]);
         }
+        conn.release();
       });
     }
   });
@@ -178,9 +207,12 @@ function checkAuthPhone(data, done) {
 function getCoupleNo(data, arg1, done) {
 
   var user_req = 1;
+  //console.log('data', data);
 
   pool.getConnection(function (err, conn) {
-    if (err) console.log('connection err', err);
+    if (err) {
+      console.log('connection err', err);
+    }
     else {
       // auth_phone이 없으므로 couple 생성으로 couple_no를 얻는다
       if (arg1.cnt == 0) {
@@ -189,14 +221,14 @@ function getCoupleNo(data, arg1, done) {
           if (err) {
             console.log('err', err);
             done(err, null);
-            conn.release();
+            return;
           } else {
             console.log('row', row);
             data.push(row.insertId);  //새로 생성된 couple_no 넣기
             data.push(user_req);  //커플 요청자
-            conn.release();
             done(null, data);
           }
+          conn.release();
         });
       }
       // auth_phone이 있으므로 있는 couple_no를 갖다씀
@@ -207,11 +239,10 @@ function getCoupleNo(data, arg1, done) {
           data.push(arg1.couple_no);   //기존에 존재하던 couple_no 넣기
           data.push(user_req);         //커플승인자
           done(null, data);
-          conn.release();
         } else {
           console.log('arg1.couple_no', arg1.couple_no);
-          conn.release();
           done('couple_no undefined', null);
+          return;
         }
       }
     }
@@ -220,14 +251,22 @@ function getCoupleNo(data, arg1, done) {
 
 //insert user
 function insertUser(arg2, done) {
+  console.log('arg2', arg2);
   pool.getConnection(function (err, conn) {
-    if (err) console.log('connection err : ', err);
+    if (err) {
+      console.log('connection err : ', err);
+      done(err, null);
+    }
     sql = 'insert into user(user_id, user_pw, user_phone, user_regid, couple_no, user_req) values(?, ?, ?, ?, ?, ?)';
     conn.query(sql, arg2, function (err, row) {
-      if (err) done(err, null);
-      row.couple_no = arg2[4];  //couple_no 넘겨주기
+      if (err) {
+        done(err, null);
+        return;
+      } else {
+        row.couple_no = arg2[4];  //couple_no 넘겨주기
+        done(null, row);
+      }
       conn.release();
-      done(null, row);
     });
   });
 }
@@ -235,16 +274,19 @@ function insertUser(arg2, done) {
 //selectUserReq
 function selectUserReq(data, done) {
   pool.getConnection(function (err, conn) {
-    if (err) callback(err, null);
+    if (err) done(err, null);
     else {
       sql = 'select user_req from user where user_no=?';
       conn.query(sql, [data[0]], function (err, row) {
-        if (err) callback(err, null);
+        if (err) {
+          done(err, null);
+          return;
+        }
         else {
           //console.log('select user_req : ', row);
-          conn.release();
           done(null, row[0]);
         }
+        conn.release();
       });
     }
   });
@@ -261,8 +303,12 @@ function updateBirth(data, arg, done) {
         sql = 'update couple set couple_birth=? where couple_no in (select couple_no from user where user_no = ?);';
         params = [data[1], data[0]];
         conn.query(sql, params, function (err, row) {
-          if (err) done(err, null);
+          if (err) {
+            done(err, null);
+            return;
+          }
           else updateUserBirth(data, done);
+          conn.release();
         });
       }
       //user_req = 0이면 커플요청받은사람 이므로 생일만 update
@@ -270,7 +316,6 @@ function updateBirth(data, arg, done) {
         updateUserBirth(data, done);
       }
     }
-    conn.release();
   });
 }
 
@@ -282,12 +327,15 @@ function updateUserBirth(data, done) {
       sql = 'update user set user_birth=? where user_no=?';
       params = [data[2], data[0]];
       conn.query(sql, params, function (err, row) {
-        if (err) done(err, null);
+        if (err) {
+          done(err, null);
+          return;
+        }
         else {
           //console.log('update user birth : ', row);
           done(null, row);
-          conn.release();
         }
+        conn.release();
       });
     }
   });
@@ -301,14 +349,17 @@ function doLogin(data, done) {
       sql = 'select user_no, couple_no, user_phone, user_regid, count(*) as cnt from user where user_id=? and user_pw=?';
       params = [data[0], data[1]];
       conn.query(sql, params, function(err, row) {
-        if(err) done(err, null);
+        if(err) {
+          done(err, null);
+          return;
+        }
         else {
           //console.log('do login : ', row[0]);
           if(row[0].cnt == 1) {
             done(null, row[0]);
-            conn.release();
           } else done('login error', null);
         }
+        conn.release();
       });
     }
   });
@@ -334,7 +385,10 @@ function updateUserInfo(data, arg, done) {
               sql = 'update user set user_regid=? where user_no=?;';
               params = [data[3], arg.user_no];
               conn.query(sql, params, function(err, row) {
-                if(err) done(err, null);
+                if(err) {
+                  done(err, null);
+                  return;
+                }
                 else {
                   console.log('update user_regid : ', row);
                   //전화번호도 달라졌을 경우
@@ -346,10 +400,10 @@ function updateUserInfo(data, arg, done) {
                     done(null, arg);
                   }
                 }
+                conn.release();
               });  //gcm id update
             }
-            conn.release();
-          });  //get connection
+          });
         }
         // 전화번호만 다를경우
         else {
@@ -369,12 +423,15 @@ function updateUserPhone(data, arg, done) {
       sql = 'update user set user_phone=? where user_no=?';
       params = [data[2], arg.user_no];
       conn.query(sql, params, function(err, row) {
-        if(err) done(err, null);
+        if(err) {
+          done(err, null);
+          return;
+        }
         else {
           console.log('update user_phone : ', row);
           done(null, arg);
-          conn.release();
         }
+        conn.release();
       });
     }
   });

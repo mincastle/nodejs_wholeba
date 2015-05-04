@@ -25,8 +25,10 @@ router.post('/join', function (req, res, next) {
 
   db_user.join(data, function (err, result) {
     if (err) {
-      fail_json.result.message = err;
-      res.json(fail_json);
+      console.log('err', err);
+        fail_json.result.message = err;
+        console.log('fail_json', fail_json);
+        res.json(fail_json);
     } else {
       if(result.affectedRows == 1) {
         success_json.result.message = "회원가입 성공";
@@ -134,6 +136,7 @@ router.post('/login', function (req, res, next) {
     } else {
       if(result) {
         //TODO session setting
+        //user_phone과 user_regid가 넘어오긴하지만 최신정보가 아니므로 사용하면 안됨!
         req.session.user_no = result.user_no;
         req.session.couple_no = result.couple_no;
         success_json.result.message = "로그인 성공";
@@ -161,6 +164,7 @@ router.get('/userinfo', function (req, res, next) {
             "items": {
               "user_no": result.user_no,
               "couple_no": result.couple_no,
+
               "condom": result.user_condom,
               "gender": result.user_gender
             }
@@ -203,3 +207,29 @@ router.post('/withdraw', function (req, res, next) {
 
 
 module.exports = router;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
