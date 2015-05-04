@@ -1,9 +1,9 @@
 var mysql = require('mysql');
 var db_config = require('./db_config');
+var sql = require('./db_sqlscript');
 var async = require('async');
 
 var pool = mysql.createPool(db_config);
-var sql = "";
 var params = [];
 
 /*
@@ -54,8 +54,7 @@ exports.join_info = function (data, callback) {
       console.log('connection err', err);
       callback(err, null);
     }
-    sql = 'select distinct (select user_req from user where user_no=?) as user_req, (select user_phone from user where couple_no in (select couple_no from user where user_no=?) and not(user_no = ?) )as phone from user;';
-    conn.query(sql, data, function (err, row) {
+    conn.query(sql.selectUserJoinInfo, data, function (err, row) {
       if (err) callback(err, null);
       //console.log('row', row[0]);
       conn.release();
@@ -130,8 +129,7 @@ exports.userinfo = function (data, callback) {
   pool.getConnection(function(err, conn) {
     if(err) callback(err, null);
     else {
-      sql = "select user_no, couple_no, user_gender, (select user_condom from user where couple_no in (select couple_no from user where user_no=?)and user_gender='f') as user_condom from user where user_no = ?;";
-      conn.query(sql, data, function(err, row) {
+      conn.query(sql.selectUserInfo, data, function(err, row) {
         if(err) callback(err, null);
         else {
           console.log('userinfo : ', row);
@@ -161,8 +159,7 @@ function checkUserId(data, done) {
   pool.getConnection(function(err, conn) {
     if(err) console.log('connection error : ', err);
     else {
-      sql = 'select count(*) as cnt from user where user_id=?';
-      conn.query(sql, [data[0]], function(err, row) {
+      conn.query(sql.selectUserId, [data[0]], function(err, row) {
         if(err) {
           console.log('err', err);
           return;
@@ -187,8 +184,7 @@ function checkAuthPhone(data, done) {
     else {
       //auth_phone에 user_phone이 있는지 없는지 확인
       //있을 경우의 user insert를 위해 couple_no도 조회한다
-      sql = 'select couple_no, count(*) as cnt from couple where auth_phone=? and couple_is = 0;';
-      conn.query(sql, [data[2]], function (err, row) {
+      conn.query(sql.selectAuthPhone, [data[2]], function (err, row) {
         if (err) {
           console.log('err', err);
           done(err, null);
@@ -216,8 +212,7 @@ function getCoupleNo(data, arg1, done) {
     else {
       // auth_phone이 없으므로 couple 생성으로 couple_no를 얻는다
       if (arg1.cnt == 0) {
-        sql = 'insert into couple values();';
-        conn.query(sql, [], function (err, row) {
+        conn.query(sql.insertCouple, [], function (err, row) {
           if (err) {
             console.log('err', err);
             done(err, null);
@@ -257,8 +252,7 @@ function insertUser(arg2, done) {
       console.log('connection err : ', err);
       done(err, null);
     }
-    sql = 'insert into user(user_id, user_pw, user_phone, user_regid, couple_no, user_req) values(?, ?, ?, ?, ?, ?)';
-    conn.query(sql, arg2, function (err, row) {
+    conn.query(sql.insertUser, arg2, function (err, row) {
       if (err) {
         done(err, null);
         return;
@@ -276,8 +270,7 @@ function selectUserReq(data, done) {
   pool.getConnection(function (err, conn) {
     if (err) done(err, null);
     else {
-      sql = 'select user_req from user where user_no=?';
-      conn.query(sql, [data[0]], function (err, row) {
+      conn.query(sql.selectUserReq, [data[0]], function (err, row) {
         if (err) {
           done(err, null);
           return;
@@ -300,9 +293,8 @@ function updateBirth(data, arg, done) {
       //user_req = 1 이면 커플요청자이므로 사귄날 update
       //그 후에 user_birth update
       if (arg.user_req = 1) {
-        sql = 'update couple set couple_birth=? where couple_no in (select couple_no from user where user_no = ?);';
         params = [data[1], data[0]];
-        conn.query(sql, params, function (err, row) {
+        conn.query(sql.updateCoupleBirth, params, function (err, row) {
           if (err) {
             done(err, null);
             return;
@@ -324,9 +316,8 @@ function updateUserBirth(data, done) {
   pool.getConnection(function (err, conn) {
     if (err) done(err, null);
     else {
-      sql = 'update user set user_birth=? where user_no=?';
       params = [data[2], data[0]];
-      conn.query(sql, params, function (err, row) {
+      conn.query(sql.updateUserBirth, params, function (err, row) {
         if (err) {
           done(err, null);
           return;
@@ -346,9 +337,8 @@ function doLogin(data, done) {
   pool.getConnection(function(err, conn) {
     if(err) done(err, null);
     else {
-      sql = 'select user_no, couple_no, user_phone, user_regid, count(*) as cnt from user where user_id=? and user_pw=?';
       params = [data[0], data[1]];
-      conn.query(sql, params, function(err, row) {
+      conn.query(sql.selectLogin, params, function(err, row) {
         if(err) {
           done(err, null);
           return;
@@ -382,9 +372,8 @@ function updateUserInfo(data, arg, done) {
           pool.getConnection(function(err, conn) {
             if(err) done(err, null);
             else {
-              sql = 'update user set user_regid=? where user_no=?;';
               params = [data[3], arg.user_no];
-              conn.query(sql, params, function(err, row) {
+              conn.query(sql.updateUserRegId, params, function(err, row) {
                 if(err) {
                   done(err, null);
                   return;
@@ -420,9 +409,8 @@ function updateUserPhone(data, arg, done) {
   pool.getConnection(function(err, conn) {
     if(err) done(err, null);
     else {
-      sql = 'update user set user_phone=? where user_no=?';
       params = [data[2], arg.user_no];
-      conn.query(sql, params, function(err, row) {
+      conn.query(sql.updateUserPhone, params, function(err, row) {
         if(err) {
           done(err, null);
           return;
