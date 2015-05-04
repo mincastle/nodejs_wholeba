@@ -39,23 +39,30 @@ router.post('/join', function (req, res, next) {
 
 //가입정보조회
 router.get('/join', function (req, res, next) {
-  var user_no = req.session.user_no | -1;
-  var data = [user_no];
+  var user_no = req.session.user_no | 10;
+  var data = [user_no, user_no, user_no];
 
-  db_user.join_info(data, function (success) {
-    if (success) {
-      res.json({
-        "success": 1,
-        "result": {
-          "message": "가입정보조회 성공",
-          "items": {
-            "join_code": 0,
-            "phone": "010-0000-0000"
-          }
-        }
-      });
+  db_user.join_info(data, function (err, result) {
+    if (err) {
+      fail_json.result.message = err;
+      res.json(fail_json);
     } else {
-      fail_json(res, "가입정보조회");
+      if(result) {
+        //join_code 값 세팅
+        var join_code;
+        if(result.user_req == 0) join_code =1;
+        else join_code = 0;
+        res.json({
+          "success": 1,
+          "result": {
+            "message": "가입정보조회 성공",
+            "items": {
+              "join_code": join_code,
+              "phone": result.phone
+            }
+          }
+        });
+      }
     }
   });
 });
