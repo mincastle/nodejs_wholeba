@@ -14,14 +14,14 @@
 
 | Feature |	Method	| Request URL | Todo Status | Date  |
 | :---------- |	:-------:	| :-----------------| :--------: | :--------: |
-| 회원가입 |	POST	| /users/join | Incomplete |   |
-| 가입정보 조회 |	GET	| /users/join | Incomplete |   | 
-| 공통정보 등록 |	POST	| /users/common | Incomplete |   |
+| 회원가입 |	POST	| /users/join | complete |   |
+| 가입정보 조회 |	GET	| /users/join | complete |   | 
+| 공통정보 등록 |	POST	| /users/common | complete |   |
 | 여성정보 등록 |	POST	| /users/woman | Incomplete |   |
-| 로그인 |	POST	| /users/login | Incomplete |   |
-| 기본값조회 |	GET	| /users/userinfo | Incomplete |   |
-| 로그아웃 |	POST	| /users/logout | Incomplete |   |
-| 회원 탈퇴 |	POST	| /users/withdraw | Incomplete |   |
+| 기본값조회 |	GET	| /users/userinfo | complete |   |
+| 로그아웃 |	POST	| /users/logout | complete |   |
+| 로그인 |	POST	| /users/login | complete |   |
+| 회원 탈퇴 |	POST	| /users/withdraw | complete |   |
 | 커플정보 조회 |	GET	| /couple | Incomplete |   |
 | 커플 요청 |	POST	| /couple/ask | Incomplete |   |
 | 커플 승인 |	POST	| /couple/answer | Incomplete |   |
