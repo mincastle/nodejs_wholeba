@@ -193,13 +193,17 @@ function checkUserId(data, done) {
       conn.query(sql.selectUserId, [data[0]], function(err, row) {
         if(err) {
           console.log('err', err);
+          done(err);
+          conn.release();
           return;
         } else {
           console.log('check id : ', row[0]);
           if(row[0].cnt == 1) {
             done("이미 존재하는 아이디입니다");
+            conn.release();
           } else {
-            done(null)
+            done(null);
+            conn.release();
           }
         }
       });
@@ -219,12 +223,13 @@ function checkAuthPhone(data, done) {
         if (err) {
           console.log('err', err);
           done(err, null);
+          conn.release();
           return;
         } else {
           console.log('check auth phone : ', row[0]);
           done(null, row[0]);
+          conn.release();
         }
-        conn.release();
       });
     }
   });
@@ -247,6 +252,7 @@ function getCoupleNo(data, arg1, done) {
           if (err) {
             console.log('err', err);
             done(err, null);
+            conn.release();
             return;
           } else {
             console.log('row', row);
@@ -286,6 +292,7 @@ function insertUser(arg2, done) {
     conn.query(sql.insertUser, arg2, function (err, row) {
       if (err) {
         done(err, null);
+        conn.release();
         return;
       } else {
         row.couple_no = arg2[4];  //couple_no 넘겨주기
@@ -304,6 +311,7 @@ function selectUserReq(data, done) {
       conn.query(sql.selectUserReq, [data[0]], function (err, row) {
         if (err) {
           done(err, null);
+          conn.release();
           return;
         }
         else {
@@ -328,6 +336,7 @@ function updateBirth(data, arg, done) {
         conn.query(sql.updateCoupleBirth, params, function (err, row) {
           if (err) {
             done(err, null);
+            conn.release();
             return;
           }
           else updateUserBirth(data, done);
@@ -351,6 +360,7 @@ function updateUserBirth(data, done) {
       conn.query(sql.updateUserBirth, params, function (err, row) {
         if (err) {
           done(err, null);
+          conn.release();
           return;
         }
         else {
@@ -372,6 +382,7 @@ function doLogin(data, done) {
       conn.query(sql.selectLogin, params, function(err, row) {
         if(err) {
           done(err, null);
+          conn.release();
           return;
         }
         else {
@@ -407,6 +418,7 @@ function updateUserInfo(data, arg, done) {
               conn.query(sql.updateUserRegId, params, function(err, row) {
                 if(err) {
                   done(err, null);
+                  conn.release();
                   return;
                 }
                 else {
@@ -444,6 +456,7 @@ function updateUserPhone(data, arg, done) {
       conn.query(sql.updateUserPhone, params, function(err, row) {
         if(err) {
           done(err, null);
+          conn.release();
           return;
         }
         else {
