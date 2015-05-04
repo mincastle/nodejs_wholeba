@@ -1,8 +1,10 @@
+
 create table couple(
 	couple_no int not null auto_increment comment'커플번호',
 	couple_birth date comment'사귀기시작한날',
 	couple_is int not null default 0 comment'커플승인여부',
 	auth_phone char(13) comment'커플인증번호',
+	couple_condom int comment'여성일경우 피임여부',
 	primary key(couple_no)
 );
 
@@ -12,13 +14,13 @@ create table user(
 	user_id varchar(30) not null unique comment'아이디(이메일)',
 	user_pw varchar(48) not null comment'비밀번호',
 	user_req int not null default 1 comment'커플요청자여부',
+	user_regid varchar(50) not null comment 'GCM ID',
 	user_phone char(13) not null comment'휴대폰번호',
 	user_gender char(1) comment'성별',
 	user_birth date comment'생일',
 	user_condition varchar(10) comment'기분',
 	user_level int not null default 1 comment'레벨',
 	user_public int comment'여성일경우 정보공개여부',
-	user_condom int comment'여성일경우 피임여부',
 	user_pills int comment'여성일경우 피임약복용여부',
 	primary key(user_no),
 	foreign key(couple_no) references couple(couple_no)
