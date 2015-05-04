@@ -4,7 +4,6 @@ var sql = require('./db_sql');
 var async = require('async');
 
 var pool = mysql.createPool(db_config);
-var params = [];
 
 /*
  * 회원가입
@@ -332,7 +331,7 @@ function updateBirth(data, arg, done) {
       //user_req = 1 이면 커플요청자이므로 사귄날 update
       //그 후에 user_birth update
       if (arg.user_req = 1) {
-        params = [data[1], data[0]];
+        var params = [data[1], data[0]];
         conn.query(sql.updateCoupleBirth, params, function (err, row) {
           if (err) {
             done(err, null);
@@ -356,7 +355,7 @@ function updateUserBirth(data, done) {
   pool.getConnection(function (err, conn) {
     if (err) done(err, null);
     else {
-      params = [data[2], data[0]];
+      var params = [data[2], data[0]];
       conn.query(sql.updateUserBirth, params, function (err, row) {
         if (err) {
           done(err, null);
@@ -378,7 +377,7 @@ function doLogin(data, done) {
   pool.getConnection(function(err, conn) {
     if(err) done(err, null);
     else {
-      params = [data[0], data[1]];
+      var params = [data[0], data[1]];
       conn.query(sql.selectLogin, params, function(err, row) {
         if(err) {
           done(err, null);
@@ -414,7 +413,7 @@ function updateUserInfo(data, arg, done) {
           pool.getConnection(function(err, conn) {
             if(err) done(err, null);
             else {
-              params = [data[3], arg.user_no];
+              var params = [data[3], arg.user_no];
               conn.query(sql.updateUserRegId, params, function(err, row) {
                 if(err) {
                   done(err, null);
@@ -452,7 +451,7 @@ function updateUserPhone(data, arg, done) {
   pool.getConnection(function(err, conn) {
     if(err) done(err, null);
     else {
-      params = [data[2], arg.user_no];
+      var params = [data[2], arg.user_no];
       conn.query(sql.updateUserPhone, params, function(err, row) {
         if(err) {
           done(err, null);
