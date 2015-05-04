@@ -76,7 +76,7 @@ router.get('/join', function (req, res, next) {
 
 //공통정보등록
 router.post('/common', function (req, res, next) {
-  var user_no = req.session.user_no | 10;
+  var user_no = req.session.user_no | -1;
 
   var couple_birth = req.body.couple_birth;
   var user_birth = req.body.user_birth;
@@ -164,8 +164,7 @@ router.get('/userinfo', function (req, res, next) {
             "items": {
               "user_no": result.user_no,
               "couple_no": result.couple_no,
-
-              "condom": result.user_condom,
+              "condom": result.condom,
               "gender": result.user_gender
             }
           }

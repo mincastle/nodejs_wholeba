@@ -134,7 +134,7 @@ exports.userinfo = function (data, callback) {
         else {
           console.log('userinfo : ', row);
           callback(null, row[0]);
-          conn.release();d
+          conn.release();
         }
       });
     }

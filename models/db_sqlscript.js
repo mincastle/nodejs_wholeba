@@ -18,7 +18,7 @@ exports.insertUser = 'insert into user(user_id, user_pw, user_phone, user_regid,
 exports.selectUserJoinInfo = 'select distinct (select user_req from user where user_no=?) as user_req, (select user_phone from user where couple_no in (select couple_no from user where user_no=?) and not(user_no = ?) )as phone from user;';
 
 //사용자 기본값조회(user_no, couple_no, gender, condom(피임여부)
-exports.selectUserInfo = "select user_no, couple_no, user_gender, (select user_condom from user where couple_no in (select couple_no from user where user_no=?)and user_gender='f') as user_condom from user where user_no = ?;";
+exports.selectUserInfo = 'select user_no, couple_no, user_gender, (select couple_condom from couple where couple_no in (select couple_no from user where user_no=?)) as condom from user where user_no = ?';
 
 //사용자의 요청자여부 조회
 exports.selectUserReq = 'select user_req from user where user_no=?';
