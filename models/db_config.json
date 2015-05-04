@@ -3,9 +3,5 @@
   "host": "127.0.0.1",
   "user": "root",
   "password": "9158",
-<<<<<<< HEAD
-  "database": "wholeba_dummy"
-=======
   "database": "banana_exam"
->>>>>>> hansol
 }

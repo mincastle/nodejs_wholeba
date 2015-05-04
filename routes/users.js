@@ -46,11 +46,7 @@ router.post('/join', function (req, res, next) {
 
 //가입정보조회
 router.get('/join', function (req, res, next) {
-<<<<<<< HEAD
-  var user_no = req.session.user_no | 10;
-=======
   var user_no = req.session.user_no | -1;
->>>>>>> hansol
   var data = [user_no, user_no, user_no];
 
   db_user.join_info(data, function (err, result) {

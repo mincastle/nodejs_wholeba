@@ -25,6 +25,7 @@ build/Release
 # Dependency directory
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
+models/db_config.json
 .idea/banana_exam.iml
 .idea/deployment.xml
 .idea/encodings.xml
@@ -32,4 +33,3 @@ node_modules
 .idea/libraries/nodejs_wholeba_node_modules.xml
 .idea/misc.xml
 .idea/workspace.xml
-models/db_config.json

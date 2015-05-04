@@ -1,11 +1,7 @@
 var mysql = require('mysql');
 var db_config = require('./db_config');
-<<<<<<< HEAD
 var sql = require('./db_sql');
-=======
-var sql = require('./db_sqlscript');
 var async = require('async');
->>>>>>> hansol
 
 var pool = mysql.createPool(db_config);
 var params = [];
@@ -59,17 +55,12 @@ exports.join_info = function (data, callback) {
       callback(err, null);
     }
     conn.query(sql.selectUserJoinInfo, data, function (err, row) {
-<<<<<<< HEAD
       if (err) {
         callback(err, null);
         conn.release();
         return;
       }
       console.log('row', row);
-=======
-      if (err) callback(err, null);
-      //console.log('row', row[0]);
->>>>>>> hansol
       conn.release();
       callback(null, row[0]);
     });
