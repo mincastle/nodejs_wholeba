@@ -2,6 +2,8 @@
  * Created by 장 한솔 on 2015-05-04.
  */
 
+//****************************** USER ************************************//
+
 //아이디 중복 체크
 exports.selectUserId = 'select count(*) as cnt from user where user_id=?';
 
@@ -38,3 +40,10 @@ exports.updateUserRegId = 'update user set user_regid=? where user_no=?;';
 //사용자의 전화번호 갱신
 exports.updateUserPhone = 'update user set user_phone=? where user_no=?';
 
+//****************************** COUPLE ************************************//
+
+//커플 승인 후, couple테이블의 auth_phone, couple_birth 업데이트
+exports.updateAuthandBirth = 'update couple set auth_phone=?, couple_birth=? where couple_no=?';
+
+//커플 승인 후, user테이블의 user_gender 업데이트
+exports.updateUserGender = 'update user set user_gender=? where user_no=?';

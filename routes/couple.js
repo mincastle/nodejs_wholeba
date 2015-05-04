@@ -2,23 +2,70 @@ var express = require('express');
 var router = express.Router();
 var db_couple = require('../models/db_couple');
 
-function fail_json(res, str) {
-  res.json({
-    "success": 0,
-    "result": {
-      "message": str + " 실패"
-    }
-  });
+var fail_json = {
+  "success": 0,
+  "result": {
+  }
+};
 
-}
-function success_json(res, str) {
-  res.json({
-    "success": 1,
-    "result": {
-      "message": str + " 성공"
+var success_json = {
+  "success": 1,
+  "result": {
+  }
+};
+
+/*
+ 커플요청 Parameter [user_no, couple_no, couple_date, auth_phone, user_gender]
+ 1.
+ */
+router.post('/ask', function (req, res, next) {
+  var user_no = req.session.user_no;
+  var couple_no = req.session.couple_no;
+
+  // Session 검사
+  if (!user_no) {
+    fail_json.result.message = '세션정보 없음';
+    res.json(fail_json);
+  }
+
+  var auth_phone = req.body.auth_phone;
+  var user_gender = req.body.user_gender;
+  var couple_birth = req.body.couple_birth;
+
+  var data = {
+    user_no : user_no,
+    couple_no : couple_no,
+    auth_phone : auth_phone,
+    user_gender : user_gender,
+    couple_birth : couple_birth
+  };
+
+  db_couple.ask(data, function (err) {
+    if(err){
+      fail_json.result.message = err;
+      res.json(fail_json);;
+    } else {
+      success_json.result.message = '커플요청 성공';
+      res.json(success_json);
     }
   });
-}
+});
+
+//커플승인
+router.post('/answer', function (req, res, next) {
+  var user_no = req.session.user_no | -1;
+  var couple_no = req.session.couple_no | -1;
+  var data = [user_no, couple_no];
+
+  db_couple.answer(data, function (success) {
+    if (success) {
+      success_json.result.message = '커플승인 성공';
+    } else {
+      fail_json.result.message = '커플승인 실패';
+    }
+  });
+});
+
 
 //커플정보조회(메인)
 router.get('/', function (req, res, next) {
@@ -47,43 +94,11 @@ router.get('/', function (req, res, next) {
         }
       });
     } else {
-      fail_json(res, "커플정보조회");
+      //fail_json(res, "커플정보조회");
     }
   });
 });
 
-
-//커플요청
-router.post('/ask', function (req, res, next) {
-  var user_no = req.session.user_no | -1;
-  var auth_phone = req.body.auth_phone;
-  var user_gender = req.body.user_gender;
-
-  var data = [user_no, auth_phone, user_gender];
-
-  db_couple.ask(data, function (success) {
-    if (success) {
-      success_json(res, "커플요청");
-    } else {
-      fail_json(res, "커플요청");
-    }
-  });
-});
-
-//커플승인
-router.post('/answer', function (req, res, next) {
-  var user_no = req.session.user_no | -1;
-  var couple_no = req.session.couple_no | -1;
-  var data = [user_no, couple_no];
-
-  db_couple.answer(data, function (success) {
-    if (success) {
-      success_json(res, "커플승인");
-    } else {
-      fail_json(res, "커플승인");
-    }
-  });
-});
 
 //내기분설정
 router.post('/mycondition', function (req, res, next) {
@@ -94,9 +109,9 @@ router.post('/mycondition', function (req, res, next) {
 
   db_couple.mycondition(data, function (success) {
     if (success) {
-      success_json(res, "내기분설정");
+      //success_json(res, "내기분설정");
     } else {
-      fail_json(res, "내기분설정");
+      //fail_json(res, "내기분설정");
     }
   });
 });
@@ -111,9 +126,9 @@ router.post('/yourcondition', function (req, res, next) {
 
   db_couple.yourcondition(data, function (success) {
     if (success) {
-      success_json(res, "상대방격려하기");
+      //success_json(res, "상대방격려하기");
     } else {
-      fail_json(res, "상대방격려하기");
+      //fail_json(res, "상대방격려하기");
     }
   });
 });
