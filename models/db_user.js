@@ -88,10 +88,37 @@ exports.common = function (data, callback) {
     });
 };
 
-//여성정보등록
-exports.woman = function (period, syndormes, pills, callback) {
-  var success = 1;
-  callback(success);
+/*
+ * 여성정보등록
+ * 1. pills 배열이 비었는지 안비었는지 확인
+ * 2. 데이터가 있을 경우 user_pills = 1, pills테이블에 insert
+ * 3. period insert
+ * 4. syndrome insert
+ */
+exports.woman = function (pills, period, syndormes, callback) {
+  //비어있지 않으면 pills테이블에 데이터 추가
+  if(pills.length != 0 ) {
+
+  }
+  async.waterfall([
+    function(done) {
+      //insert pills
+    },
+    function(done) {
+      //insert period
+    },
+    function(done) {
+      //insert syndrome
+    }
+  ], function(err, result) {
+    if (err) {
+      console.log('err', err);
+      callback(err, null);
+    } else {
+      console.log('result', result);
+      callback(null, result);
+    }
+  });
 };
 
 /*

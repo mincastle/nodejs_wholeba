@@ -105,18 +105,25 @@ router.post('/woman', function (req, res, next) {
   var period_cycle = req.body.period_cycle;
   //todo 객체의 배열 받는 법?
   var syndromes = req.body.syndromes; //객체의 배열
-  var user_pills = req.body.user_pills;
+  var user_pills = req.body.user_pills; //현재에 약을 먹는지 안먹는지
   var pills_date = req.body.pills_date;
   var pills_time = req.body.pills_time;
   var period = [user_no, period_start, period_end, period_cycle];
   var syndromes = syndromes;
-  var pills = [user_no, user_pills, pills_date, pills_time];
+  var pills = [];
+  if(user_pills == 1) {
+    pills = [user_no, user_pills, pills_date, pills_time];
+  }
 
-  db_user.woman(period, syndromes, pills, function (success) {
-    if (success) {
-      //success_json(res, "여성정보등록");
+  db_user.woman(pills, period, syndromes, function (err, result) {
+    if (err) {
+      fail_json.result.message = err;
+      res.json(fail_json);
     } else {
-      //fail_json(res, "여성정보등록");
+      if(result) {
+        success_json.result.message = "여성정보등록 성공";
+        res.json(success_json);
+      }
     }
   });
 });
@@ -177,16 +184,26 @@ router.get('/userinfo', function (req, res, next) {
 //로그아웃
 router.post('/logout', function (req, res, next) {
   var user_no = req.session.user_no | -1;
-  //var user_no = 1;
-  var data = [user_no];
+  //var data = [user_no];
 
-  db_user.logout(data, function (success) {
-    if (success) {
-      //success_json(res, "로그아웃");
+  //TODO redis세션 처리
+  req.session.destroy(function(err) {
+    if(err) {
+      fail_json.result.message = err;
+      res.json(fail_json);
     } else {
-      //fail_json(res, "로그아웃");
+      success_json.result.message = "로그아웃 성공";
+      res.json(success_json);
     }
   });
+
+  //db_user.logout(data, function (success) {
+  //  if (success) {
+  //    //success_json(res, "로그아웃");
+  //  } else {
+  //    //fail_json(res, "로그아웃");
+  //  }
+  //});
 });
 
 //회원탈퇴
