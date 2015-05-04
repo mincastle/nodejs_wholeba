@@ -16,13 +16,17 @@
 | :---------- |	:-------:	| :-----------------| :--------: | :--------: |
 | 회원가입 |	POST	| /users/join | Incomplete |   |
 | 가입정보 조회 |	GET	| /users/join | Incomplete |   | 
-| 커플 요청 |	POST	| /couple/ask | Incomplete |   |
-| 커플 승인 |	POST	| /couple/answer | Incomplete |   |
 | 공통정보 등록 |	POST	| /users/common | Incomplete |   |
 | 여성정보 등록 |	POST	| /users/woman | Incomplete |   |
 | 로그인 |	POST	| /users/login | Incomplete |   |
 | 기본값조회 |	GET	| /users/userinfo | Incomplete |   |
+| 로그아웃 |	POST	| /users/logout | Incomplete |   |
+| 회원 탈퇴 |	POST	| /users/withdraw | Incomplete |   |
 | 커플정보 조회 |	GET	| /couple | Incomplete |   |
+| 커플 요청 |	POST	| /couple/ask | Incomplete |   |
+| 커플 승인 |	POST	| /couple/answer | Incomplete |   |
+| 내기분 설정 |	POST	| /couple/mycondition | Incomplete |   |
+| 상대방격려하기 |	POST	| /couple/yourcondition | Incomplete |   |
 | D-day 목록 조회 |	GET	| /ddays | Incomplete |   |
 | D-day 생성 |	POST	| /ddays/add | Incomplete |   |
 | D-day 수정 |	POST	| /ddays/:dday_no/modify | Incomplete |   |
@@ -41,11 +45,7 @@
 | 아이템 구매 |	POST	| /items/:item_no/buy | Incomplete |   |
 | 보유 아이템 조회 |	GET	| /items/own | Incomplete |   |
 | 보유 아이템 사용 |	POST	| /items/:item_no/apply/:mlist_no | Incomplete |   |
-| 내기분 설정 |	POST	| /couple/mycondition | Incomplete |   |
-| 상대방격려하기 |	POST	| /couple/yourcondition | Incomplete |   |
 | 여성정보공개설정 |	POST	| /setting/public | Incomplete |   |
 | 여성정보 조회 |	GET	| /setting/herself | Incomplete |   |
 | 직전주기수정 |	POST	| /setting/herself/:period_no | Incomplete |   |
 | 공지사항 조회 |	GET	| /setting/notice | Incomplete |   |
-| 로그아웃 |	POST	| /users/logout | Incomplete |   |
-| 회원 탈퇴 |	POST	| /users/withdraw | Incomplete |   |
