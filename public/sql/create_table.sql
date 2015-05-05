@@ -13,7 +13,6 @@ create table user(
 	couple_no int comment'커플번호',
 	user_id varchar(30) not null unique comment'아이디(이메일)',
 	user_pw varchar(48) not null comment'비밀번호',
---	user_req int comment'커플요청자여부',
 	user_regid varchar(50) not null comment 'GCM ID',
 	user_phone char(13) not null comment'휴대폰번호',
 	user_gender char(1) comment'성별',
@@ -121,7 +120,7 @@ create table dday(
 	couple_no int not null comment'커플번호',
 	dday_name varchar(30) not null comment'디데이명',
 	dday_date date not null comment'디데이',
-	dday_repeat int not null comment'반복여부',
+	dday_repeat int not null default 0 comment'반복여부',
 	dday_delete int not null default 0 comment'삭제여부',
 	primary key(dday_no),
 	foreign key(couple_no) references couple(couple_no)

@@ -30,7 +30,7 @@ router.post('/join', function (req, res, next) {
     } else {
       if (result.affectedRows == 1) {
         success_json.result.message = "회원가입 성공";
-        //success_json.result.user_no = result.insertId;
+        success_json.result.user_no = result.insertId;
         //TODO : session user_no, couple_no 저장
         req.session.user_no = result.insertId;
         res.json(success_json);
@@ -42,30 +42,27 @@ router.post('/join', function (req, res, next) {
 
 //가입정보조회
 router.get('/join', function (req, res, next) {
-  var user_no = req.session.user_no;
+  var user_no = req.session.user_no | 1;
+  var couple_no = req.session.couple_no;
   //세션 체크
   if (!user_no) {
     fail_json.result.message = "세션정보 없음";
     res.json(fail_json);
     return;
   }
-  var data = [user_no, user_no, user_no];
+  var data = {"user_no" : user_no, "couple_no" : couple_no};
   db_user.join_info(data, function (err, result) {
     if (err) {
       fail_json.result.message = err;
       res.json(fail_json);
     } else {
       if (result) {
-        //join_code 값 세팅
-        var join_code;
-        if (result.user_req == 0) join_code = 1;
-        else join_code = 0;
         res.json({
           "success": 1,
           "result": {
             "message": "가입정보조회 성공",
             "items": {
-              "join_code": join_code,
+              "join_code": result.join_code,
               "phone": result.phone
             }
           }
@@ -158,7 +155,10 @@ router.post('/login', function (req, res, next) {
         //TODO session setting
         //user_phone과 user_regid가 넘어오긴하지만 최신정보가 아니므로 사용하면 안됨!
         req.session.user_no = result.user_no;
-        //req.session.couple_no = result.couple_no;
+        //null이 아니면 세션에 저장
+        if(result.couple_no != null) {
+          req.session.couple_no = result.couple_no;
+        }
         success_json.result.message = "로그인 성공";
         res.json(success_json);
       }
