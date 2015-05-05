@@ -7,16 +7,16 @@ var dao = require('./db_couple_dao');
 
 /*
  커플요청 Parameter [user_no, couple_no, couple_date, auth_phone, user_gender]
- 1. user의 user_gender를 업데이트 해준다.
- 2. 생성된 couple의 couple_date, auth_phone을 업데이트 한다.
+ 1. 커플 요청을 하면 couple을 생성(couple_birth, auth_phone) 한다.
+ 2. 요청한 user_no의 couple_no와 gender를 업데이트해준다.
  */
 
 exports.ask = function (data, callback) {
 
-  async.parallel([function (done) {
-      dao.UpdateCoupleIs(data, done);
-    }, function (done) {
-      dao.UpdateUserGender(data, done);
+  async.waterfall([function (done) {
+      dao.insertMakeCouple(data, done);
+    }, function (arg1, done) {
+      dao.updateUserGenderandCoupleNo(data, arg1, done);
     }],
     function (err) {
       if (err) {

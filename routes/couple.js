@@ -15,12 +15,12 @@ var success_json = {
 };
 
 /*
- 커플요청 Parameter [user_no, couple_no, couple_date, auth_phone, user_gender]
+ 커플요청 Parameter [user_no, couple_date, auth_phone, user_gender]
  1.
  */
 router.post('/ask', function (req, res, next) {
   var user_no = req.session.user_no;
-  var couple_no = req.session.couple_no;
+  //var couple_no = req.session.couple_no;
 
   // Session 검사
   if (!user_no) {
@@ -34,7 +34,6 @@ router.post('/ask', function (req, res, next) {
 
   var data = {
     user_no : user_no,
-    couple_no : couple_no,
     auth_phone : auth_phone,
     user_gender : user_gender,
     couple_birth : couple_birth
@@ -43,7 +42,7 @@ router.post('/ask', function (req, res, next) {
   db_couple.ask(data, function (err) {
     if(err){
       fail_json.result.message = err;
-      res.json(fail_json);;
+      res.json(fail_json);
     } else {
       success_json.result.message = '커플요청 성공';
       res.json(success_json);
