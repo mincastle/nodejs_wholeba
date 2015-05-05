@@ -14,10 +14,10 @@ exports.selectAuthPhone = 'select couple_no, count(*) as cnt from couple where a
 exports.insertCouple = 'insert into couple values();';
 
 //사용자 생성
-exports.insertUser = 'insert into user(user_id, user_pw, user_phone, user_regid, couple_no, user_req) values(?, ?, ?, ?, ?, ?)';
+exports.insertUser = 'insert into user(user_id, user_pw, user_phone, user_regid) values(?, ?, ?, ?)';
 
 //가입정보조회 (user의 커플요청여부와 요청받았을경우 상대방의 전화번호 조회)
-exports.selectUserJoinInfo = 'select distinct (select user_req from user where user_no=?) as user_req, (select user_phone from user where couple_no in (select couple_no from user where user_no=?) and not(user_no = ?) )as phone from user;';
+//exports.selectUserJoinInfo = 'select distinct (select user_req from user where user_no=?) as user_req, (select user_phone from user where couple_no in (select couple_no from user where user_no=?) and not(user_no = ?) )as phone from user;';
 
 //사용자 기본값조회(user_no, couple_no, gender, condom(피임여부)
 exports.selectUserInfo = 'select user_no, couple_no, user_gender, (select couple_condom from couple where couple_no in (select couple_no from user where user_no=?)) as condom from user where user_no = ?';
