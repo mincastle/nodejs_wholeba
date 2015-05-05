@@ -42,10 +42,13 @@ exports.updateUserPhone = 'update user set user_phone=? where user_no=?';
 
 //****************************** COUPLE ************************************//
 
-//커플 요청 후, couple 생성
-exports.insertMakeCouple = 'insert into couple(couple_birth, auth_phone) values (?, ?)';
+//커플 요청 시, 이미 커플 요청을 했는지 여부 확인하기
+exports.selectCheckAskCouple = 'select couple_no from user where user_no=?';
 
-//커플 요청 후, user테이블의 user_gender 업데이트
+//커플 요청 시, couple 생성
+exports.insertMakeCouple = 'insert into couple(auth_phone) values (?)';
+
+//커플 요청 시, 요청 user의 user_gender, couple_no 업데이트
 exports.updateUserGenderandCoupleNo = 'update user set user_gender=?, couple_no=? where user_no=?';
 
 //커플 승인 후, couple_is 업데이트

@@ -6,7 +6,34 @@ var mysql = require('mysql');
 var db_config = require('./db_config');
 var pool = mysql.createPool(db_config);
 
-//커플 승인 후, couple 테이블에서 couple 생성
+
+//커플 요청 시, 이미 커플 요청을 했는지 여부 확인하기
+function selectCheckAskCouple (data, done) {
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      console.log('connection err', err);
+      done(err);
+      return;
+    }
+    var datas = [data.user_no];
+    conn.query(sql.selectCheckAskCouple, datas, function (err, row) {
+      //console.log('updateCoupleIs_row', row);
+      if (err) {
+        conn.release();
+        done(err);
+      } else {
+        if (!row.couple_no) {
+          done("상대방의 승인 대기중입니다..");
+        }else{
+          done(null);
+        }
+      }
+      conn.release();
+    });
+  });
+}
+
+//커플 요청 시, couple 테이블에서 couple 생성
 function insertMakeCouple (data, done) {
   pool.getConnection(function (err, conn) {
     if (err) {
@@ -14,7 +41,7 @@ function insertMakeCouple (data, done) {
       done(err);
       return;
     }
-    var datas = [data.couple_birth, data.auth_phone];
+    var datas = [data.auth_phone];
     conn.query(sql.insertMakeCouple, datas, function (err, row) {
       //console.log('updateCoupleIs_row', row);
       if (err) {
@@ -30,7 +57,7 @@ function insertMakeCouple (data, done) {
   });
 }
 
-// 커플 승인 후, user_gender, couple_no 업데이트
+//커플 요청 시, 요청 user의 user_gender, couple_no 업데이트
 function updateUserGenderandCoupleNo (data, insertId, done) {
   pool.getConnection(function (err, conn) {
     if (err) {
@@ -54,6 +81,11 @@ function updateUserGenderandCoupleNo (data, insertId, done) {
     });
   });
 };
+
+
+function selectCheckAnswerCouple (data, done){
+
+}
 
 function updateCoupleIs(data, done) {
   // couple_no에 couple_is 1로 변경
@@ -135,10 +167,11 @@ function insertMakeDday(data, done) {
   });
 }
 
-
+exports.selectCheckAskCouple = selectCheckAskCouple;
 exports.insertMakeCouple = insertMakeCouple;
 exports.updateUserGenderandCoupleNo = updateUserGenderandCoupleNo;
 
+exports.selectCheckAnswerCouple = selectCheckAnswerCouple;
 exports.updateCoupleIs = updateCoupleIs;
 exports.updateUserCoupleNo = updateUserCoupleNo;
 exports.insertMakeDday = insertMakeDday;
