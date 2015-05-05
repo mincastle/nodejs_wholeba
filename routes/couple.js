@@ -15,12 +15,12 @@ var success_json = {
 };
 
 /*
- 커플요청 Parameter [user_no, couple_date, auth_phone, user_gender]
- 1.
+ 커플요청 Parameter { user_no, auth_phone, user_gender, couple_birth }
+ 1. 커플 요청을 하면 couple을 생성(couple_birth, auth_phone) 한다.
+ 2. 요청한 user_no의 couple_no와 gender를 업데이트해준다.
  */
 router.post('/ask', function (req, res, next) {
   var user_no = req.session.user_no;
-  //var couple_no = req.session.couple_no;
 
   // Session 검사
   if (!user_no) {
@@ -39,28 +39,46 @@ router.post('/ask', function (req, res, next) {
     couple_birth : couple_birth
   };
 
-  db_couple.ask(data, function (err) {
+  db_couple.ask(data, function (err, result) {
     if(err){
       fail_json.result.message = err;
       res.json(fail_json);
     } else {
       success_json.result.message = '커플요청 성공';
+      success_json.result.insertId = result;
+      req.session.couple_no = result;
       res.json(success_json);
     }
   });
 });
 
-//커플승인
+/*
+ 커플승인 Parameter [user_no, couple_no]
+ 1. 해당 couple_no에 couple_is를 1로 변경해준다.
+ 2. 해당 user_no의 couple_no를 업데이트 해준다.
+ */
 router.post('/answer', function (req, res, next) {
-  var user_no = req.session.user_no | -1;
-  var couple_no = req.session.couple_no | -1;
-  var data = [user_no, couple_no];
+  var user_no = req.session.user_no;
 
-  db_couple.answer(data, function (success) {
-    if (success) {
-      success_json.result.message = '커플승인 성공';
+  // Session 검사
+  if (!user_no) {
+    fail_json.result.message = '세션정보 없음';
+    res.json(fail_json);
+  }
+
+  var couple_no = req.session.couple_no;
+  var data = {
+    user_no: user_no,
+    couple_no: couple_no
+  };
+
+  db_couple.answer(data, function (err) {
+    if(err){
+      fail_json.result.message = err;
+      res.json(fail_json);
     } else {
-      fail_json.result.message = '커플승인 실패';
+      success_json.result.message = '커플승인 성공';
+      res.json(success_json);
     }
   });
 });

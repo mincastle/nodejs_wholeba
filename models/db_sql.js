@@ -47,3 +47,7 @@ exports.insertMakeCouple = 'insert into couple(couple_birth, auth_phone) values 
 
 //커플 승인 후, user테이블의 user_gender 업데이트
 exports.updateUserGenderandCoupleNo = 'update user set user_gender=?, couple_no=? where user_no=?';
+
+exports.updateCoupleIs = 'update couple set couple_is=1 where couple_no=?';
+
+exports.updateUserCoupleNo = 'update user set couple_no=? where user_no=?';

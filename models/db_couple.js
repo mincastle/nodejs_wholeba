@@ -18,23 +18,34 @@ exports.ask = function (data, callback) {
     }, function (arg1, done) {
       dao.updateUserGenderandCoupleNo(data, arg1, done);
     }],
-    function (err) {
+    function (err, insertId) {
       if (err) {
         callback(err);
       } else {
-        callback(null);
+        callback(null, insertId);
       }
     });
 };
 
 /*
  커플승인 Parameter [user_no, couple_no]
-
- TODO : 커플 승인 안하면...???
+  1. 해당 couple_no에 couple_is를 1로 변경해준다.
+  2. 해당 user_no의 couple_no를 업데이트 해준다.
  */
 exports.answer = function (data, callback) {
-  var success = 1;
-  callback(success);
+
+  async.series([function (done) {
+      dao.updateCoupleIs(data, done);
+    }, function (done) {
+      dao.updateUserCoupleNo(data, done);
+    }],
+    function (err) {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null);
+      }
+  });
 };
 
 //커플정보조회
