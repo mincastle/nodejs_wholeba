@@ -106,14 +106,13 @@ router.post('/common', function (req, res, next) {
 
 //여성정보등록
 router.post('/woman', function (req, res, next) {
-  var user_no = req.session.user_no | -1;
+  var user_no = req.session.user_no | 30;
   //세션체크
   if (!user_no) {
     fail_json.result.message = "세션정보 없음";
     res.json(fail_json);
     return;
   }
-
   var period_start = req.body.period_start;
   var period_end = req.body.period_end;
   var period_cycle = req.body.period_cycle;
@@ -122,11 +121,12 @@ router.post('/woman', function (req, res, next) {
   var user_pills = req.body.user_pills; //현재에 약을 먹는지 안먹는지
   var pills_date = req.body.pills_date;
   var pills_time = req.body.pills_time;
-  var period = [user_no, period_start, period_end, period_cycle];
-  var syndromes = syndromes;
+  var period = {"user_no" : user_no, "period_start" : period_start, "period_end" : period_end, "period_cycle" : period_cycle};
+  //var syndromes = syndromes;
+  var syndromes = {"user_no" : user_no, "items" : [{"syndrome_name" : "우울", "syndrome_before" : 1, "syndrome_after" : 0}, {"syndrome_name" : "폭식", "syndrome_before" : 1, "syndrome_after" : 1}]};
   var pills = [];
   if (user_pills == 1) {
-    pills = [user_no, user_pills, pills_date, pills_time];
+    pills = {"user_no" : user_no, "user_pills" : user_pills, "pills_date" : pills_date, "pills_time" : pills_time};
   }
 
   db_user.woman(pills, period, syndromes, function (err, result) {
