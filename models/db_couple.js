@@ -6,9 +6,9 @@ var dao = require('./db_couple_dao');
 //var pool = mysql.createPool(db_config);
 
 /*
- 커플요청 Parameter [user_no, couple_no, couple_date, auth_phone, user_gender]
- 1. 커플 요청을 하면 couple을 생성(couple_birth, auth_phone) 한다.
- 2. 요청한 user_no의 couple_no와 gender를 업데이트해준다.
+ 커플요청 Parameter { user_no, auth_phone, user_gender, couple_birth }
+  1. 커플 요청을 하면 couple을 생성(couple_birth, auth_phone) 한다.
+  2. 요청한 user_no의 couple_no와 gender를 업데이트해준다.
  */
 
 exports.ask = function (data, callback) {
@@ -29,7 +29,7 @@ exports.ask = function (data, callback) {
 
 /*
  커플승인 Parameter [user_no, couple_no]
- 1. couple의 couple_is를 1로 수정한다.
+
  TODO : 커플 승인 안하면...???
  */
 exports.answer = function (data, callback) {
