@@ -31,6 +31,7 @@ exports.ask = function (data, callback) {
  커플승인 Parameter [user_no, couple_no]
   1. 해당 couple_no에 couple_is를 1로 변경해준다.
   2. 해당 user_no의 couple_no를 업데이트 해준다.
+  3. dday 테이블에 couple_birth를 추가시켜준다.
  */
 exports.answer = function (data, callback) {
 
@@ -38,6 +39,8 @@ exports.answer = function (data, callback) {
       dao.updateCoupleIs(data, done);
     }, function (done) {
       dao.updateUserCoupleNo(data, done);
+    }, function (done) {
+      dao.insertMakeDday(data, done);
     }],
     function (err) {
       if (err) {

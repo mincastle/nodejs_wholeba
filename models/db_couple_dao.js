@@ -12,6 +12,7 @@ function insertMakeCouple (data, done) {
     if (err) {
       console.log('connection err', err);
       done(err);
+      return;
     }
     var datas = [data.couple_birth, data.auth_phone];
     conn.query(sql.insertMakeCouple, datas, function (err, row) {
@@ -20,7 +21,7 @@ function insertMakeCouple (data, done) {
         conn.release();
         done(err);
       } else if (row.affectedRows == 0) {
-        done('정상적으로 업데이트 되지 않았습니다.');
+        done('정상적으로 생성되지 않았습니다.');
       } else {
         done(null, row.insertId);
       }
@@ -35,6 +36,7 @@ function updateUserGenderandCoupleNo (data, insertId, done) {
     if (err) {
       console.log('connection err', err);
       done(err);
+      return;
     }
     var datas = [data.user_gender, insertId, data.user_no];
     conn.query(sql.updateUserGenderandCoupleNo, datas, function (err, row) {
@@ -59,6 +61,7 @@ function updateCoupleIs(data, done) {
     if (err) {
       console.log('connection err', err);
       done(err);
+      return;
     }
     var datas = [data.couple_no];
     conn.query(sql.updateCoupleIs, datas, function (err, row) {
@@ -83,6 +86,7 @@ function updateUserCoupleNo(data, done) {
     if (err) {
       console.log('connection err', err);
       done(err);
+      return;
     }
     var datas = [data.couple_no, data.user_no];
     conn.query(sql.updateUserCoupleNo, datas, function (err, row) {
@@ -101,9 +105,40 @@ function updateUserCoupleNo(data, done) {
   });
 }
 
+function insertMakeDday(data, done) {
+  // dday 테이블에 dday 추가
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      console.log('connection err', err);
+      done(err);
+      return;
+    }
+
+    var dday_name = data.dday_name | '처음 만난 날';
+    var dday_date = data.dday_date | data.couple_birth;
+    var dday_repeat = data.repeat | 0;
+
+    var datas = [data.couple_no, dday_name, dday_date, dday_repeat];
+    conn.query(sql.insertMakeDday, datas, function (err, row) {
+      //console.log('updateUserGender_row', row);
+      if (err) {
+        done(err);
+        conn.release();
+        return;
+      } else if (row.affectedRows == 0) {
+        done('정상적으로 생성되지 않았습니다.');
+      } else {
+        done(null, row.insertId);
+      }
+      conn.release();
+    });
+  });
+}
+
 
 exports.insertMakeCouple = insertMakeCouple;
 exports.updateUserGenderandCoupleNo = updateUserGenderandCoupleNo;
 
 exports.updateCoupleIs = updateCoupleIs;
 exports.updateUserCoupleNo = updateUserCoupleNo;
+exports.insertMakeDday = insertMakeDday;

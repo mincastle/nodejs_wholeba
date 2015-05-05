@@ -47,6 +47,8 @@ router.post('/ask', function (req, res, next) {
       success_json.result.message = '커플요청 성공';
       success_json.result.insertId = result;
       req.session.couple_no = result;
+      req.session.couple_birth = couple_birth;
+      console.log('req.session.couple_birth', req.session.couple_birth);
       res.json(success_json);
     }
   });
@@ -67,17 +69,20 @@ router.post('/answer', function (req, res, next) {
   }
 
   var couple_no = req.session.couple_no;
+  var couple_birth = req.session.couple_birth;
   var data = {
     user_no: user_no,
-    couple_no: couple_no
+    couple_no: couple_no,
+    couple_birth: couple_birth
   };
 
-  db_couple.answer(data, function (err) {
+  db_couple.answer(data, function (err, result) {
     if(err){
       fail_json.result.message = err;
       res.json(fail_json);
     } else {
       success_json.result.message = '커플승인 성공';
+      success_json.result.insertId = result;
       res.json(success_json);
     }
   });

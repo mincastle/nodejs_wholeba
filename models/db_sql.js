@@ -42,12 +42,18 @@ exports.updateUserPhone = 'update user set user_phone=? where user_no=?';
 
 //****************************** COUPLE ************************************//
 
-//커플 승인 후, couple 생성
+//커플 요청 후, couple 생성
 exports.insertMakeCouple = 'insert into couple(couple_birth, auth_phone) values (?, ?)';
 
-//커플 승인 후, user테이블의 user_gender 업데이트
+//커플 요청 후, user테이블의 user_gender 업데이트
 exports.updateUserGenderandCoupleNo = 'update user set user_gender=?, couple_no=? where user_no=?';
 
+//커플 승인 후, couple_is 업데이트
 exports.updateCoupleIs = 'update couple set couple_is=1 where couple_no=?';
 
+//커플 승인 후, 해당 user의 couple_no 업데이트
 exports.updateUserCoupleNo = 'update user set couple_no=? where user_no=?';
+
+// dday 추가하는 sql
+exports.insertMakeDday = 'insert into dday(couple_no, dday_name, dday_date, dday_repeat) ' +
+                         'values (?, ?, ?, ?)';
