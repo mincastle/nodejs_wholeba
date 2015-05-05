@@ -18,7 +18,7 @@ router.post('/join', function (req, res, next) {
   var user_pw = req.body.user_pw;
   var user_phone = req.body.user_phone;
   var user_regid = req.body.user_regid;
-  var data = [user_id, user_pw, user_phone, user_regid];
+  var data = {"user_id" : user_id, "user_pw" : user_pw, "user_phone" : user_phone, "user_regid" : user_regid};
   console.log('data', data);
 
   db_user.join(data, function (err, result) {
@@ -31,10 +31,8 @@ router.post('/join', function (req, res, next) {
       if (result.affectedRows == 1) {
         success_json.result.message = "회원가입 성공";
         //success_json.result.user_no = result.insertId;
-        //success_json.result.couple_no = result.couple_no;
         //TODO : session user_no, couple_no 저장
         req.session.user_no = result.insertId;
-        req.session.couple_no = result.couple_no;
         res.json(success_json);
         console.log('waterfall result : ', result);
       } else res.json(fail_json);

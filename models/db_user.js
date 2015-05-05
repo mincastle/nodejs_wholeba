@@ -7,27 +7,17 @@ var pool = mysql.createPool(db_config);
 
 /*
  * 회원가입
- * 내 번호가 이미 커플의 인증번호에 있으면 커플을 이어주고 유저생성,
- * 없으면 새로운 커플과 유저를 생성
  * 0. 아이디 중복 검사
- * 1. count(couple의 auth_phone == user_phone)
- * 2. insert into couple -> 3. insert into user
- * 2. or update couple -> 3. insert into user
- * data = [user_id, user_pw, user_phone, user_regid]
+ * 1. insert into user
+ * data = {user_id, user_pw, user_phone, user_regid}
  */
 exports.join = function (data, callback) {
   async.waterfall([
       function (done) {
         checkUserId(data, done);
       },
-      function (done) {
-        checkAuthPhone(data, done);
-      },
-      function (arg2, done) {
-        getCoupleNo(data, arg2, done);
-      },
-      function (arg3, done) {
-        insertUser(arg3, done);
+      function (arg1, done) {
+        insertUser(data, arg1, done);
       }],
     function (err, result) {
       if (err) {
@@ -194,12 +184,15 @@ exports.withdraw = function (data, callback) {
 //입력받은 user_id가 중복된 값인지 아닌지 확인
 function checkUserId(data, done) {
   pool.getConnection(function (err, conn) {
-    if (err) console.log('connection error : ', err);
+    if (err) {
+      console.log('connection error : ', err);
+      done(err, null);
+    }
     else {
-      conn.query(sql.selectUserId, [data[0]], function (err, row) {
+      conn.query(sql.selectUserId, [data.user_id], function (err, row) {
         if (err) {
           console.log('err', err);
-          done(err);
+          done(err, null);
           conn.release();
           return;
         } else {
@@ -208,7 +201,7 @@ function checkUserId(data, done) {
             done("이미 존재하는 아이디입니다");
             conn.release();
           } else {
-            done(null);
+            done(null, row[0]);
             conn.release();
           }
         }
@@ -288,25 +281,27 @@ function getCoupleNo(data, arg1, done) {
 }
 
 //insert user
-function insertUser(arg2, done) {
-  console.log('arg2', arg2);
-  pool.getConnection(function (err, conn) {
-    if (err) {
-      console.log('connection err : ', err);
-      done(err, null);
-    }
-    conn.query(sql.insertUser, arg2, function (err, row) {
+function insertUser(data, arg1, done) {
+  console.log('arg1', arg1);
+  if( arg1.cnt == 0 ){
+    pool.getConnection(function (err, conn) {
       if (err) {
+        console.log('connection err : ', err);
         done(err, null);
-        conn.release();
-        return;
-      } else {
-        row.couple_no = arg2[4];  //couple_no 넘겨주기
-        done(null, row);
       }
-      conn.release();
+      var params = [data.user_id, data.user_pw, data.user_phone, data.user_regid];
+      conn.query(sql.insertUser, params, function (err, row) {
+        if (err) {
+          done(err, null);
+          conn.release();
+          return;
+        } else {
+          done(null, row);
+        }
+        conn.release();
+      });
     });
-  });
+  } else done("이미 존재하는 아이디입니다", null);
 }
 
 //selectUserReq
