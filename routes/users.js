@@ -146,7 +146,7 @@ router.post('/login', function (req, res, next) {
   var user_pw = req.body.user_pw;
   var user_phone = req.body.user_phone;
   var user_regid = req.body.user_regid;
-  var data = [user_id, user_pw, user_phone, user_regid];
+  var data = {"user_id" : user_id, "user_pw" : user_pw, "user_phone" : user_phone, "user_regid" : user_regid};
 
   db_user.login(data, function (err, result) {
     if (err) {
@@ -154,10 +154,11 @@ router.post('/login', function (req, res, next) {
       res.json(fail_json);
     } else {
       if (result) {
+        console.log('login result', result);
         //TODO session setting
         //user_phone과 user_regid가 넘어오긴하지만 최신정보가 아니므로 사용하면 안됨!
         req.session.user_no = result.user_no;
-        req.session.couple_no = result.couple_no;
+        //req.session.couple_no = result.couple_no;
         success_json.result.message = "로그인 성공";
         res.json(success_json);
       }

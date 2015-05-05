@@ -126,7 +126,7 @@ exports.woman = function (pills, period, syndromes, callback) {
  * user_id와 user_pw 비교하여 로그인
  * + user_phone과 user_regid가 달라졌을경우 update
  * users.js에서 세션 저장
- * data = [user_id, user_pw, user_phone, user_regid]
+ * data = {user_id, user_pw, user_phone, user_regid}
  */
 exports.login = function (data, callback) {
   async.waterfall([
@@ -198,7 +198,7 @@ function checkUserId(data, done) {
         } else {
           console.log('check id : ', row[0]);
           if (row[0].cnt == 1) {
-            done("이미 존재하는 아이디입니다");
+            done("이미 존재하는 아이디입니다", null);
             conn.release();
           } else {
             done(null, row[0]);
@@ -375,11 +375,12 @@ function updateUserBirth(data, done) {
 }
 
 //login
+//user_no, couple_no, user_phone, user_regid 를 row로 반환
 function doLogin(data, done) {
   pool.getConnection(function (err, conn) {
     if (err) done(err, null);
     else {
-      var params = [data[0], data[1]];
+      var params = [data.user_id, data.user_pw];
       conn.query(sql.selectLogin, params, function (err, row) {
         if (err) {
           done(err, null);
@@ -387,8 +388,8 @@ function doLogin(data, done) {
           return;
         }
         else {
-          //console.log('do login : ', row[0]);
-          if (row[0].cnt == 1) {
+          console.log('do login : ', row[0]);
+          if (row) {
             done(null, row[0]);
           } else done('login error', null);
         }
@@ -400,50 +401,41 @@ function doLogin(data, done) {
 
 
 //사용자의 전화번호와 gcm id가 변경되면 갱신
+//arg는 조회된 값, data는 입력받은 값
 function updateUserInfo(data, arg, done) {
-  if (data[2] == arg.user_phone && data[3] == arg.user_regid) {
-    //기존것과 같으면 바꿀필요 없이 break;
-    done(null, arg);
-  }
-  //달라졌을 경우 db에 update 한다
-  else {
-    pool.getConnection(function (err, conn) {
-      if (err) done(err, null);
-      else {
-        //gcm 아이디가 다를경우
-        if (data[3] != arg.user_regid) {
-          pool.getConnection(function (err, conn) {
-            if (err) done(err, null);
+  //결과값이 하나인지 체크
+  if(arg.cnt == 1) {
+    //gcm id가 다를경우
+    if (data.user_regid != arg.user_regid && data.user_regid != "") {
+      pool.getConnection(function (err, conn) {
+        if(err) done(err, null);
+        else {
+          var params = [data.user_regid, arg.user_no];
+          conn.query(sql.updateUserRegId, params, function(err, row) {
+            if(err) done(err, null);
             else {
-              var params = [data[3], arg.user_no];
-              conn.query(sql.updateUserRegId, params, function (err, row) {
-                if (err) {
-                  done(err, null);
-                  conn.release();
-                  return;
+              if(row) {
+                //전화번호도 다를경우
+                if(data.user_phone == arg.user_phone && arg.user_phone != "") {
+                  //기존것과 같으면 바꿀필요 없이 break;
+                  done(null, arg);
+                } else {
+                  console.log('update user_regid row', row);
+                  updateUserPhone(data, arg, done);
                 }
-                else {
-                  console.log('update user_regid : ', row);
-                  //전화번호도 달라졌을 경우
-                  if (data[2] != arg.user_phone) {
-                    updateUserPhone(data, arg, done);
-                  }
-                  //gcmid만 달라졌을 경우 break
-                  else {
-                    done(null, arg);
-                  }
-                }
-                conn.release();
-              });  //gcm id update
+              } //row
             }
+            conn.release();
           });
         }
-        // 전화번호만 다를경우
-        else {
-          updateUserPhone(data, arg, done);
-        }
-      }
-    });
+      });
+    } else if(data.user_phone != arg.user_phone && data.user_phone.trim() != "") {
+      //전화번호만 다를경우
+      updateUserPhone(data, arg, done);
+    } else {
+      //다같을경우
+      done(null, arg);
+    }
   }
 }
 
@@ -453,7 +445,7 @@ function updateUserPhone(data, arg, done) {
   pool.getConnection(function (err, conn) {
     if (err) done(err, null);
     else {
-      var params = [data[2], arg.user_no];
+      var params = [data.user_phone, arg.user_no];
       conn.query(sql.updateUserPhone, params, function (err, row) {
         if (err) {
           done(err, null);
