@@ -18,6 +18,8 @@ create table user(
 	user_phone char(13) not null comment'휴대폰번호',
 	user_gender char(1) comment'성별',
 	user_birth date comment'생일',
+	user_req int comment'커플요청자여부',
+	user_addition int not null default 0 comment'추가정보입력여부',
 	user_condition varchar(10) comment'기분',
 	user_level int not null default 1 comment'레벨',
 	user_public int comment'여성일경우 정보공개여부',
