@@ -126,7 +126,8 @@ function updateUserCoupleNoandGenderandUserReq(couple_no, other_gender, data, do
       } else if (row.affectedRows == 0) {
         done('정상적으로 업데이트 되지 않았습니다.');
       } else {
-        done(null, couple_no);
+        var result = {couple_no : couple_no, other_gender:other_gender, user_req :0};
+        done(null, result);
       }
       conn.release();
     });
@@ -152,6 +153,32 @@ function selectOtherGender(couple_no, data, done) {
           done("성별 조회 실패");
         }else{
           done(null, couple_no, row[0].other_gender);
+        }
+      }
+      conn.release();
+    });
+  });
+}
+
+function selectCoupleInfo(data, done) {
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      console.log('connection err', err);
+      done(err);
+      return;
+    }
+    var datas = [data.couple_no];
+    conn.query(sql.selectCoupleInfo, datas, function (err, row) {
+      console.log('selectCoupleInfo_row', row);
+      if (err) {
+        conn.release();
+        done(err);
+      } else {
+        //console.log('selectCoupleInfo row', row);
+        if (!row[0]) {
+          done("couple 정보를 불러오는데에 실패했습니다.");
+        }else{
+          done(null, row[0]);
         }
       }
       conn.release();
@@ -196,5 +223,10 @@ exports.updateCoupleIs = updateCoupleIs;
 exports.updateUserCoupleNoandGenderandUserReq = updateUserCoupleNoandGenderandUserReq;
 exports.selectOtherGender = selectOtherGender;
 
+exports.selectCoupleInfo = selectCoupleInfo;
 
+
+// 나중에 dday때 사용
 exports.insertMakeDday = insertMakeDday;
+
+

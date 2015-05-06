@@ -32,6 +32,8 @@ exports.ask = function (data, callback) {
   1. 커플 요청을 받은 사람인지 확인한 후, 조회한 couple_id를 갖고 온다.
   2. 해당 couple_no에 couple_is를 1로 변경해준다.
   3. 승인한 user의 couple_no, user_gender(남->여, 여->남), user_req를 업데이트 해준다.
+
+  4. //TODO : 승인된 커플들의 reward를 생성한다.???
  */
 exports.answer = function (data, callback) {
 
@@ -45,6 +47,7 @@ exports.answer = function (data, callback) {
       dao.updateUserCoupleNoandGenderandUserReq(couple_no, other_gender, data, done);
     }],
     function (err, result) {
+      console.log('result', result);
       if (err) {
         callback(err);
       } else {
@@ -55,8 +58,10 @@ exports.answer = function (data, callback) {
 
 //커플정보조회
 exports.getinfo = function (data, callback) {
-  var success = 1;
-  callback(success);
+  //var success = 1;
+  //callback(success);
+  dao.selectCoupleInfo(data, callback);
+
 };
 
 //내기분변경

@@ -23,8 +23,8 @@
 | 로그인 |	POST	| /users/login | complete |   |
 | 회원 탈퇴 |	POST	| /users/withdraw | complete |   |
 | 커플정보 조회 |	GET	| /couple | Incomplete |   |
-| 커플 요청 |	POST	| /couple/ask | Incomplete |   |
-| 커플 승인 |	POST	| /couple/answer | Incomplete |   |
+| 커플 요청 |	POST	| /couple/ask | complete |   |
+| 커플 승인 |	POST	| /couple/answer | complete |   |
 | 내기분 설정 |	POST	| /couple/mycondition | Incomplete |   |
 | 상대방격려하기 |	POST	| /couple/yourcondition | Incomplete |   |
 | D-day 목록 조회 |	GET	| /ddays | Incomplete |   |

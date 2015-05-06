@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var db_couple = require('../models/db_couple');
+var moment = require('moment');
 
 var fail_json = {
   "success": 0,
@@ -71,10 +72,8 @@ router.post('/answer', function (req, res, next) {
     res.json(fail_json);
   }
 
-  var couple_birth = req.session.couple_birth;
   var data = {
-    user_no: user_no,
-    couple_birth : couple_birth
+    user_no: user_no
   };
 
   db_couple.answer(data, function (err, result) {
@@ -83,7 +82,11 @@ router.post('/answer', function (req, res, next) {
       res.json(fail_json);
     } else {
       success_json.result.message = '커플승인 성공';
-      success_json.result.insertId = result;
+      success_json.result.items = {
+        "couple_no" : result.couple_no,
+        "gender" : result.other_gender,
+        "user_req" :  result.user_req
+      };
       res.json(success_json);
     }
   });
@@ -92,33 +95,47 @@ router.post('/answer', function (req, res, next) {
 
 //커플정보조회(메인)
 router.get('/', function (req, res, next) {
-  var couple_no = req.session.couple_no | -1;
-  var data = [couple_no];
+  var user_no = req.session.user_no;
 
-  db_couple.getinfo(data, function (success) {
-    if (success) {
-      res.json({
-        "success": 1,
-        "result": {
-          "message": "커플정보조회 성공",
-          "items": {
-            "m_reward": 0,
-            "m_condition": "햄볶",
-            "m_level": 1,
-            "m_mission_stage": 1,
-            "f_reward": 1,
-            "f_condition": "존좋",
-            "f_level": 1,
-            "f_mission_stage": 1,
-            "f_period": 2,
-            "f_contra": 30,
-            "couple_birth": "2014-10-01"
-          }
-        }
-      });
+  // Session 검사
+  if (!user_no) {
+    fail_json.result.message = '세션정보 없음';
+    res.json(fail_json);
+  }
+
+  var couple_no = req.session.couple_no || 9;
+  var data = {couple_no : couple_no};
+
+  db_couple.getinfo(data, function (err, success) {
+    if(err){
+      fail_json.result.message = err;
+      res.json(fail_json);
     } else {
-      //fail_json(res, "커플정보조회");
+      success_json.result.message = '조회 성공';
+      success_json.result.items = {
+        "m_reward": success.m_reward,
+        "m_condition": success.m_condition,
+        "m_level": success.m_level,
+        //"m_mission_stage": 1,
+        "f_reward": success.f_reward,
+        "f_condition": success.f_condition,
+        "f_level": success.f_level,
+        //"f_mission_stage": 1,
+        //"f_period": 2,
+        //"f_pregnancy": 30,
+        "couple_birth": moment(success.couple_birth).format('YYYY-MM-DD')
+      };
+      res.json(success_json);
     }
+      //res.json({
+      //  "success": 1,
+      //  "result": {
+      //    "message": "커플정보조회 성공",
+      //    "items": {
+
+      //    }
+      //  }
+      //});
   });
 });
 
