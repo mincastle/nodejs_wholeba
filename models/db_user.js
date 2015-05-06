@@ -216,10 +216,10 @@ exports.login = function (data, callback) {
       }],
     function (err, result) {
       if (err) {
-        //console.log('err', err);
+        console.log('err', err);
         callback(err, null);
       } else {
-        //console.log('result', result);
+        console.log('result', result);
         callback(null, result);
       }
     });
@@ -568,8 +568,6 @@ function updateUserPhone(data, arg, done) {
       conn.query(sql.updateUserPhone, params, function (err, row) {
         if (err) {
           done(err, null);
-          conn.release();
-          return;
         }
         else {
           console.log('update user_phone : ', row);

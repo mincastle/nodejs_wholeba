@@ -32,25 +32,29 @@ exports.ask = function (data, callback) {
 
 /*
  커플승인 Parameter [user_no, couple_no]
-  1. 커플 요청을 받은 사람인지 확인한다.
+  1. 커플 요청을 받은 사람인지 확인한 후, 조회한 couple_id를 갖고 온다.
   2. 해당 couple_no에 couple_is를 1로 변경해준다.
   3. 승인한 user의 couple_no, user_gender(남->여, 여->남)를 업데이트 해준다.
   4. dday 테이블에 couple_birth를 추가시켜준다.
  */
 exports.answer = function (data, callback) {
 
-  async.series([function (done) {
-      dao.updateCoupleIs(data, done);
-    }, function (done) {
-      dao.updateUserCoupleNo(data, done);
-    }, function (done) {
-      dao.insertMakeDday(data, done);
+  async.waterfall([function (done) {
+      dao.selectCheckAnswerCouple(data, done);
+    },function (couple_no, done) {
+      dao.updateCoupleIs(couple_no, done);
+    }, function (couple_no, done) {
+      dao.selectOtherGender(couple_no, data, done);
+    }, function (couple_no, other_gender, done) {
+      dao.updateUserCoupleNoandGender(couple_no, other_gender, data, done);
+    //}, function (couple_no, done) {
+    //  dao.insertMakeDday(couple_no, data, done);
     }],
-    function (err) {
+    function (err, result) {
       if (err) {
         callback(err);
       } else {
-        callback(null);
+        callback(null, result);
       }
   });
 };
