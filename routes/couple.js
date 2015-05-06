@@ -48,7 +48,7 @@ router.post('/ask', function (req, res, next) {
     } else {
       success_json.result.message = '커플요청 성공';
       success_json.result.insertId = result;
-      req.session.couple_no = result;
+      //req.session.couple_no = result;
       req.session.couple_birth = couple_birth;
       console.log('req.session.couple_birth', req.session.couple_birth);
       res.json(success_json);
@@ -58,7 +58,7 @@ router.post('/ask', function (req, res, next) {
 
 /*
  커플승인 Parameter [user_no, couple_no]
- 1. 커플 요청을 받은 사람인지 확인한다.
+ 1. 커플 요청을 받은 사람인지 확인한 후, 조회한 couple_id를 갖고 온다.
  2. 해당 couple_no에 couple_is를 1로 변경해준다.
  3. 승인한 user의 couple_no, user_gender(남->여, 여->남)를 업데이트 해준다.
  4. dday 테이블에 couple_birth를 추가시켜준다.
@@ -72,12 +72,10 @@ router.post('/answer', function (req, res, next) {
     res.json(fail_json);
   }
 
-  var couple_no = req.session.couple_no;
   var couple_birth = req.session.couple_birth;
   var data = {
     user_no: user_no,
-    couple_no: couple_no,
-    couple_birth: couple_birth
+    couple_birth : couple_birth
   };
 
   db_couple.answer(data, function (err, result) {
