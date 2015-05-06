@@ -7,32 +7,6 @@ var db_config = require('./db_config');
 var pool = mysql.createPool(db_config);
 
 
-//커플 요청 시, 이미 커플 요청을 했는지 여부 확인하기
-function selectCheckAskCouple (data, done) {
-  pool.getConnection(function (err, conn) {
-    if (err) {
-      console.log('connection err', err);
-      done(err);
-      return;
-    }
-    var datas = [data.user_no];
-    conn.query(sql.selectCheckAskCouple, datas, function (err, row) {
-      //console.log('updateCoupleIs_row', row);
-      if (err) {
-        conn.release();
-        done(err);
-      } else {
-        if (!row[0].couple_no) {
-          done("상대방의 승인 대기중입니다..");
-        }else{
-          done(null);
-        }
-      }
-      conn.release();
-    });
-  });
-}
-
 //커플 요청 시, couple 테이블에서 couple 생성
 function insertMakeCouple (data, done) {
   pool.getConnection(function (err, conn) {
@@ -58,7 +32,7 @@ function insertMakeCouple (data, done) {
 }
 
 //커플 요청 시, 요청 user의 user_gender, couple_no 업데이트
-function updateUserGenderandCoupleNo (data, insertId, done) {
+function updateUserGenderandCoupleNoandUserReq (data, insertId, done) {
   pool.getConnection(function (err, conn) {
     if (err) {
       console.log('connection err', err);
@@ -66,7 +40,7 @@ function updateUserGenderandCoupleNo (data, insertId, done) {
       return;
     }
     var datas = [data.user_gender, insertId, data.user_no];
-    conn.query(sql.updateUserGenderandCoupleNo, datas, function (err, row) {
+    conn.query(sql.updateUserGenderandCoupleNoandUserReq, datas, function (err, row) {
       //console.log('updateUserGender_row', row);
       if (err) {
         done(err);
@@ -134,7 +108,7 @@ function updateCoupleIs(couple_no, done) {
   });
 }
 
-function updateUserCoupleNoandGender(couple_no, other_gender, data, done) {
+function updateUserCoupleNoandGenderandUserReq(couple_no, other_gender, data, done) {
   // user_no에 couple_no를 변경
   pool.getConnection(function (err, conn) {
     if (err) {
@@ -143,7 +117,7 @@ function updateUserCoupleNoandGender(couple_no, other_gender, data, done) {
       return;
     }
     var datas = [couple_no, other_gender, data.user_no];
-    conn.query(sql.updateUserCoupleNoandGender, datas, function (err, row) {
+    conn.query(sql.updateUserCoupleNoandGenderandUserReq, datas, function (err, row) {
       //console.log('updateUserGender_row', row);
       if (err) {
         done(err);
@@ -174,7 +148,7 @@ function selectOtherGender(couple_no, data, done) {
         done(err);
       } else {
         console.log('other gender', row);
-        if (!row[0].other_gender) {
+        if (!row[0]) {
           done("성별 조회 실패");
         }else{
           done(null, couple_no, row[0].other_gender);
@@ -214,12 +188,13 @@ function insertMakeDday(coupleNo, data, done) {
   });
 }
 
-exports.selectCheckAskCouple = selectCheckAskCouple;
 exports.insertMakeCouple = insertMakeCouple;
-exports.updateUserGenderandCoupleNo = updateUserGenderandCoupleNo;
+exports.updateUserGenderandCoupleNoandUserReq = updateUserGenderandCoupleNoandUserReq;
 
 exports.selectCheckAnswerCouple = selectCheckAnswerCouple;
 exports.updateCoupleIs = updateCoupleIs;
-exports.updateUserCoupleNoandGender = updateUserCoupleNoandGender;
+exports.updateUserCoupleNoandGenderandUserReq = updateUserCoupleNoandGenderandUserReq;
 exports.selectOtherGender = selectOtherGender;
+
+
 exports.insertMakeDday = insertMakeDday;

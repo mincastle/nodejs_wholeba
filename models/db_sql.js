@@ -42,14 +42,11 @@ exports.updateUserPhone = 'update user set user_phone=? where user_no=?';
 
 //****************************** COUPLE ************************************//
 
-//커플 요청 시, 이미 커플 요청을 했는지 여부 확인하기
-exports.selectCheckAskCouple = 'select couple_no from user where user_no=?';
-
 //커플 요청 시, couple 생성
 exports.insertMakeCouple = 'insert into couple(auth_phone) values (?)';
 
 //커플 요청 시, 요청 user의 user_gender, couple_no 업데이트
-exports.updateUserGenderandCoupleNo = 'update user set user_gender=?, couple_no=? where user_no=?';
+exports.updateUserGenderandCoupleNoandUserReq = 'update user set user_gender=?, couple_no=?, user_req=1 where user_no=?';
 
 //커플 승인자가 맞는지 확인
 exports.selectCheckAnswerCouple = 'select couple_no from couple where couple_is=0 and auth_phone=(select user_phone from user where user_no=?)';
@@ -61,7 +58,7 @@ exports.updateCoupleIs = 'update couple set couple_is=1 where couple_no=?';
 exports.selectOtherGender = 'select (case user_gender when "M" then "F" when "F" then "M" end) as other_gender from user where couple_no=? and user_no <> ?';
 
 //커플 승인 후, 해당 user의 couple_no, gender 업데이트
-exports.updateUserCoupleNoandGender = 'update user set couple_no=?, user_gender=? where user_no=?';
+exports.updateUserCoupleNoandGenderandUserReq = 'update user set couple_no=?, user_gender=?, user_req=0 where user_no=?';
 
 // dday 추가하는 sql
 exports.insertMakeDday = 'insert into dday(couple_no, dday_name, dday_date, dday_repeat) ' +
