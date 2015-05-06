@@ -5,6 +5,7 @@ create table couple(
 	couple_is int not null default 0 comment'커플승인여부',
 	auth_phone char(13) comment'커플인증번호',
 	couple_condom int comment'여성일경우 피임여부',
+	couple_withdraw int not null default 0 comment'커플탈퇴여부',
 	primary key(couple_no)
 );
 
