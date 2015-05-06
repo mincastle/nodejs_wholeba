@@ -57,13 +57,19 @@ router.get('/join', function (req, res, next) {
       res.json(fail_json);
     } else {
       if (result) {
-        res.json({
+        //공백일 경우 채워넣기
+        if(!result.phone) result.phone = "";
+        if(!result.gender) result.phone = "";
+        if(!result.user_req) result.phone = "";
+          res.json({
           "success": 1,
           "result": {
             "message": "가입정보조회 성공",
             "items": {
               "join_code": result.join_code,
-              "phone": result.phone
+              "phone": result.phone,
+              "gender" : result.gender,
+              "user_req" : result.user_req
             }
           }
         });
