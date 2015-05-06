@@ -8,7 +8,7 @@
 exports.selectUserId = 'select count(*) as cnt from user where user_id=?';
 
 //커플인증번호에 사용자 번호가 있는지 체크
-exports.selectAuthPhone = 'select couple_no, count(*) as cnt from couple where auth_phone=? and couple_is = 0;';
+exports.selectAuthPhone = 'select couple_no, count(*) as cnt from couple where auth_phone in (select user_phone from user where user_no=?) and couple_is = 0;';
 
 //커플 생성
 exports.insertCouple = 'insert into couple values();';
