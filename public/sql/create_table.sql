@@ -14,6 +14,7 @@ create table user(
 	user_id varchar(30) not null unique comment'아이디(이메일)',
 	user_pw varchar(48) not null comment'비밀번호',
 	user_regid varchar(50) not null comment 'GCM ID',
+	user_req int not null default 0 comment '요청자 구분',
 	user_phone char(13) not null comment'휴대폰번호',
 	user_gender char(1) comment'성별',
 	user_birth date comment'생일',

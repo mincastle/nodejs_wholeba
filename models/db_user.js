@@ -490,6 +490,7 @@ function doLogin(data, done) {
     if (err) done(err, null);
     else {
       var params = [data.user_id, data.user_pw];
+      console.log('do login params', params);
       conn.query(sql.selectLogin, params, function (err, row) {
         if (err) {
           done(err, null);
@@ -497,10 +498,12 @@ function doLogin(data, done) {
           return;
         }
         else {
-          console.log('do login : ', row[0]);
-          if (row) {
+          console.log('do login : ', row);
+          if (row[0].cnt != 0) {
             done(null, row[0]);
-          } else done('login error', null);
+          } else {
+            done('존재하지 않는 아이디거나 비밀번호가 틀렸습니다.', null);
+          }
         }
         conn.release();
       });
@@ -538,7 +541,7 @@ function updateUserInfo(data, arg, done) {
           });
         }
       });
-    } else if (data.user_phone != arg.user_phone && data.user_phone.trim() != "") {
+    } else if (data.user_phone != arg.user_phone && data.user_phone != "") {
       //전화번호만 다를경우
       updateUserPhone(data, arg, done);
     } else {

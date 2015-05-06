@@ -161,6 +161,9 @@ router.post('/login', function (req, res, next) {
         }
         success_json.result.message = "로그인 성공";
         res.json(success_json);
+      } else {
+        fail_json.result.message = err;
+        res.json(fail_json);
       }
     }
   });
