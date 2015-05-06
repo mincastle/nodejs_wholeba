@@ -60,9 +60,9 @@ exports.join_info = function (data, callback) {
     function (arg2, done) {
       console.log('arg2', arg2);
       //couple_no가 있는 경우는 auth_phone이 있는 경우에만 해당
-      if(arg2.couple_no == null) {
+      if (arg2.couple_no == null) {
 
-        if(arg2.couple_is == null) {
+        if (arg2.couple_is == null) {
           //couple도 없고 auth_phone에도 없는 상황, 요청페이지 띄워야함
           result.join_code = 3;
           result.phone = "";
@@ -73,7 +73,7 @@ exports.join_info = function (data, callback) {
           result.join_code = 0;
           result.phone = "";
           done(null, result);
-        } else{
+        } else {
           //couple_is == 0 인상황
           result.join_code = 1;
           result.phone = "";
@@ -81,13 +81,13 @@ exports.join_info = function (data, callback) {
         }
       } else {
         //couple_no가 있으면 상대방의 전화번호 조회해야함
-        pool.getConnection(function(err, conn) {
-          if(err) done(err, null);
+        pool.getConnection(function (err, conn) {
+          if (err) done(err, null);
           else {
             var sql = 'select user_phone from user where couple_no in (select couple_no from user where user_no=?) and not(user_no = ?);';
             var params = [data.user_no, data.user_no];
-            conn.query(sql, params, function(err, row) {
-              if(err) done(err, null);
+            conn.query(sql, params, function (err, row) {
+              if (err) done(err, null);
               else {
                 console.log('상대전화번호 : ', row[0]);
                 result.join_code = 2;
@@ -397,12 +397,12 @@ function insertUser(data, arg1, done) {
 
 function getCoupleIs(arg1, done) {
   pool.getConnection(function (err, conn) {
-    if(err) done(err, null);
+    if (err) done(err, null);
     else {
       var sql = 'select couple_is from couple where couple_no=?;';
       var params = [arg1.couple_no];
-      conn.query(sql, params, function(err, row) {
-        if(err) done(err, null);
+      conn.query(sql, params, function (err, row) {
+        if (err) done(err, null);
         else {
           console.log('get couple_is row : ', row);
           done(null, row[0]);
@@ -499,7 +499,11 @@ function doLogin(data, done) {
         else {
           console.log('do login : ', row[0]);
           if (row) {
-            done(null, row[0]);
+            if (row[0].cnt == 1) {
+              done(null, row[0]);
+            } else {
+              done('존재하지 않는 아이디이거나 비밀번호가 틀렸습니다', null);
+            }
           } else done('login error', null);
         }
         conn.release();
@@ -511,40 +515,38 @@ function doLogin(data, done) {
 
 //사용자의 전화번호와 gcm id가 변경되면 갱신
 //arg는 조회된 값, data는 입력받은 값
-function updateUserInfo(data, arg, done) {
+function updateUserInfo(data, done) {
   //결과값이 하나인지 체크
-  if (arg.cnt == 1) {
-    //gcm id가 다를경우
-    if (data.user_regid != arg.user_regid && data.user_regid != "") {
-      pool.getConnection(function (err, conn) {
-        if (err) done(err, null);
-        else {
-          var params = [data.user_regid, arg.user_no];
-          conn.query(sql.updateUserRegId, params, function (err, row) {
-            if (err) done(err, null);
-            else {
-              if (row) {
-                //전화번호도 다를경우
-                if (data.user_phone == arg.user_phone && arg.user_phone != "") {
-                  //기존것과 같으면 바꿀필요 없이 break;
-                  done(null, arg);
-                } else {
-                  console.log('update user_regid row', row);
-                  updateUserPhone(data, arg, done);
-                }
-              } //row
-            }
-            conn.release();
-          });
-        }
-      });
-    } else if (data.user_phone != arg.user_phone && data.user_phone.trim() != "") {
-      //전화번호만 다를경우
-      updateUserPhone(data, arg, done);
-    } else {
-      //다같을경우
-      done(null, arg);
-    }
+  //gcm id가 다를경우
+  if (data.user_regid != arg.user_regid && data.user_regid != "") {
+    pool.getConnection(function (err, conn) {
+      if (err) done(err, null);
+      else {
+        var params = [data.user_regid, arg.user_no];
+        conn.query(sql.updateUserRegId, params, function (err, row) {
+          if (err) done(err, null);
+          else {
+            if (row) {
+              //전화번호도 다를경우
+              if (data.user_phone == arg.user_phone && arg.user_phone != "") {
+                //기존것과 같으면 바꿀필요 없이 break;
+                done(null, arg);
+              } else {
+                console.log('update user_regid row', row);
+                updateUserPhone(data, arg, done);
+              }
+            } //row
+          }
+          conn.release();
+        });
+      }
+    });
+  } else if (data.user_phone != arg.user_phone && data.user_phone.trim() != "") {
+    //전화번호만 다를경우
+    updateUserPhone(data, arg, done);
+  } else {
+    //다같을경우
+    done(null, arg);
   }
 }
 
