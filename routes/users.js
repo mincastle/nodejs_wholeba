@@ -67,12 +67,14 @@ router.post('/join', function (req, res, next) {
     } else {
       if (result.affectedRows == 1) {
         success_json.result.message = "회원가입 성공";
-        success_json.result.user_no = result.insertId;
+        success_json.result.user_no = result.user_no;
         //TODO : session user_no, couple_no 저장
-        req.session.user_no = result.insertId;
+        req.session.user_no = result.user_no;
         res.json(success_json);
-        console.log('waterfall result : ', result);
-      } else res.json(fail_json);
+        console.log('join waterfall result : ', result);
+      } else {
+        res.json(fail_json);
+      }
     }
   });
 });

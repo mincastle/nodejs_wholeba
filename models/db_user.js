@@ -36,6 +36,7 @@ function isAutoLogin(data, done) {
 
 /*
  * 회원가입
+ * todo 트랜잭션 처리 추가해야함
  * 0. 아이디 중복 검사
  * 1. insert into user
  * data = {user_id, user_pw, user_phone, user_regid}
@@ -47,7 +48,11 @@ exports.join = function (data, callback) {
       },
       function (arg1, done) {
         insertUser(data, arg1, done);
-      }],
+      },
+      function(arg2, done){
+        insertReward(arg2, done);
+      }
+    ],
     function (err, result) {
       if (err) {
         console.log('err', err);
@@ -58,6 +63,33 @@ exports.join = function (data, callback) {
       }
     });
 };
+
+//해당 사용자의 리워드 행 추가
+//arg2.insertId = user_no
+function insertReward(arg2, done) {
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      done(err, null);
+    } else {
+      var sql = 'insert into reward(user_no) values(?);';
+      var params = [arg2.insertId];
+      conn.query(sql, params, function(err, row) {
+        if(err) {
+          done(err, null);
+        } else {
+          if(row.affectedRows == 1) {
+            row.user_no = arg2.insertId; //waterfall에서 넘겨받은 user_no
+            console.log('insert reward row : ', row);
+            done(null, row);
+          } else {
+            done('사용자의 리워드정보 추가 실패', null);
+          }
+        }
+        conn.release();
+      });
+    }
+  });
+}
 
 /*
  * 가입정보조회
@@ -474,8 +506,6 @@ function insertUser(data, arg1, done) {
       conn.query(sql.insertUser, params, function (err, row) {
         if (err) {
           done(err, null);
-          conn.release();
-          return;
         } else {
           done(null, row);
         }
