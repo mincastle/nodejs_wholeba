@@ -89,7 +89,7 @@ router.post('/common', function (req, res, next) {
   }
   var couple_birth = req.body.couple_birth;
   var user_birth = req.body.user_birth;
-  var data = [user_no, couple_birth, user_birth];
+  var data = {"user_no" : user_no, "couple_birth" : couple_birth, "user_birth" : user_birth};
 
   db_user.common(data, function (err, result) {
     //console.log('result', result);
@@ -162,9 +162,7 @@ router.post('/login', function (req, res, next) {
         //user_phone과 user_regid가 넘어오긴하지만 최신정보가 아니므로 사용하면 안됨!
         req.session.user_no = result.user_no;
         //null이 아니면 세션에 저장
-        if(result.couple_no != null) {
-          req.session.couple_no = result.couple_no;
-        }
+        req.session.couple_no = result.couple_no;
         success_json.result.message = "로그인 성공";
         res.json(success_json);
       } else {

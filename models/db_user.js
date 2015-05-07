@@ -107,29 +107,13 @@ exports.join_info = function (data, callback) {
       }
     }
   });
-  //pool.getConnection(function (err, conn) {
-  //  if (err) {
-  //    console.log('connection err', err);
-  //    callback(err, null);
-  //  }
-  //  conn.query(sql.selectUserJoinInfo, data, function (err, row) {
-  //    if (err) {
-  //      callback(err, null);
-  //      conn.release();
-  //      return;
-  //    }
-  //    console.log('row', row);
-  //    conn.release();
-  //    callback(null, row[0]);
-  //  });
-  //});
 };
 
 /*
  * 공통정보등록
  * 1.user_req = 0 이면 생일만
  * 2.user_req = 1 이면 사귄날과 생일
- * data = [user_no, couple_birth, user_birth]
+ * data = {user_no, couple_birth, user_birth}
  */
 exports.common = function (data, callback) {
   async.waterfall([
@@ -541,52 +525,55 @@ function getCoupleIs(result, done) {
 }
 
 //selectUserReq
-//function selectUserReq(data, done) {
-//  pool.getConnection(function (err, conn) {
-//    if (err) done(err, null);
-//    else {
-//      conn.query(sql.selectUserReq, [data[0]], function (err, row) {
-//        if (err) {
-//          done(err, null);
-//          conn.release();
-//          return;
-//        }
-//        else {
-//          //console.log('select user_req : ', row);
-//          done(null, row[0]);
-//        }
-//        conn.release();
-//      });
-//    }
-//  });
-//}
-
-//update couple_birth, user_birth
-function updateBirth(data, arg, done) {
+function selectUserReq(data, done) {
   pool.getConnection(function (err, conn) {
     if (err) done(err, null);
+    else {
+      conn.query(sql.selectUserReq, [data.user_no], function (err, row) {
+        if (err) {
+          done(err, null);
+        }
+        else {
+          //console.log('select user_req : ', row);
+          done(null, row[0]);
+        }
+        conn.release();
+      });
+    }
+  });
+}
+
+//update couple_birth, user_birth
+function updateCoupleandUserBirth(data, arg, done) {
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      done(err, null);
+    }
     else {
       //user_req = 1 이면 커플요청자이므로 사귄날 update
       //그 후에 user_birth update
       if (arg.user_req = 1) {
-        var params = [data[1], data[0]];
+        var params = [data.couple_birth, data.user_no];
         conn.query(sql.updateCoupleBirth, params, function (err, row) {
           if (err) {
             done(err, null);
-            conn.release();
-            return;
           }
-          else updateUserBirth(data, done);
+          else {
+            updateUserBirth(data, done);
+          }
           conn.release();
         });
       }
       //user_req = 0이면 커플요청받은사람 이므로 생일만 update
-      else {
+      else if (arg.user_req == 0) {
         updateUserBirth(data, done);
+      } else {
+        done('사용자의 커플요청여부 에러', null);
       }
     }
   });
 }
+
 
 //update user_birth
 function updateUserBirth(data, done) {
