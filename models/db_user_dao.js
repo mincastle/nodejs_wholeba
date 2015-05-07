@@ -410,6 +410,7 @@ function updateUserInfo(data, arg, done) {
                 done(null, arg);
               } else {
                 console.log('update user_regid row', row);
+                row.user_no = arg.user_no; //islogin 바꾸기 위해 보냄
                 updateUserPhone(data, arg, done);
               }
             } //row
@@ -439,8 +440,13 @@ function updateUserPhone(data, arg, done) {
           done(err, null);
         }
         else {
-          console.log('update user_phone : ', row);
-          done(null, arg);
+          if(row.affectedRows == 1) {
+            console.log('update user_phone : ', row);
+            row.user_no = arg.user_no;
+            done(null, arg);
+          } else {
+            done('전화번호 갱신 실패', null);
+          }
         }
         conn.release();
       });

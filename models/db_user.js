@@ -202,7 +202,10 @@ exports.login = function (data, callback) {
       },
       function (arg, done) {
         dao.updateUserInfo(data, arg, done);
-      }],
+      },
+      function(arg2, done){
+        dao.updateUserIsLogin(arg2, 1, done);
+    }],
     function (err, result) {
       if (err) {
         console.log('err', err);
