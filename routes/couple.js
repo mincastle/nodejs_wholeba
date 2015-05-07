@@ -33,13 +33,11 @@ router.post('/ask', function (req, res, next) {
 
   var auth_phone = req.body.auth_phone;
   var user_gender = req.body.user_gender;
-  var couple_birth = req.body.couple_birth;
 
   var data = {
     user_no : user_no,
     auth_phone : auth_phone,
-    user_gender : user_gender,
-    couple_birth : couple_birth
+    user_gender : user_gender
   };
 
   db_couple.ask(data, function (err, result) {
@@ -49,9 +47,8 @@ router.post('/ask', function (req, res, next) {
     } else {
       success_json.result.message = '커플요청 성공';
       success_json.result.insertId = result;
-      //req.session.couple_no = result;
-      req.session.couple_birth = couple_birth;
-      console.log('req.session.couple_birth', req.session.couple_birth);
+      req.session.couple_no = result;
+      //console.log('req.session.couple_birth', req.session.couple_birth);
       res.json(success_json);
     }
   });
@@ -127,15 +124,6 @@ router.get('/', function (req, res, next) {
       };
       res.json(success_json);
     }
-      //res.json({
-      //  "success": 1,
-      //  "result": {
-      //    "message": "커플정보조회 성공",
-      //    "items": {
-
-      //    }
-      //  }
-      //});
   });
 });
 
