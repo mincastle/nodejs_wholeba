@@ -137,6 +137,7 @@ exports.common = function (data, callback) {
 /*
  * 여성정보등록
  * 단순히 여러가지의 정보를 등록하는 기능이므로 병렬로 처리
+ * todo 트랜잭션 처리 : 3개 모두 성공했을 때만 commit
  * 1. pills 배열이 비었는지 안비었는지 확인
  * 2. 데이터가 있을 경우 user_pills = 1, pills테이블에 insert
  * 3. period insert
@@ -146,19 +147,21 @@ exports.common = function (data, callback) {
  * syndromes = [{syndrome_name, syndrome_before, syndrome_after}]
  */
 exports.woman = function (pills, period, syndromes, callback) {
-  //console.log('pills', pills);
-  //console.log('period',period );
-  //console.log('syndromes', syndromes);
+  console.log('pills', pills);
+  console.log('period',period );
+  console.log('syndromes', syndromes);
   async.parallel([
     function (done) {
       if (pills.user_pills == 1) {
         insertPills(pills, done);
       }
       //약복용안할경우 user_pills만 0으로 갱신
-      else updateUserPills(pills, done);
+      else {
+        updateUserPills(pills, done);
+      }
     },
     function (done) {
-      insertPeriod(period, done);
+      insertPeriods(period, done);
     },
     function (done) {
       insertSyndromes(syndromes, done)
@@ -427,51 +430,6 @@ function getCoupleNo(data, done) {
       });
     }
   });
-  //
-  // auth_phone 검색한 뒤에 결과가 있으면 그 해당 couple_no를 가져오고
-  // 없으면 새로운 커플을 생성하는 코드 -> 추후 couple.ask 에서 사용예정
-  //
-  //var user_req = 1;
-  ////console.log('data', data);
-  //
-  //pool.getConnection(function (err, conn) {
-  //  if (err) {
-  //    console.log('connection err', err);
-  //  }
-  //  else {
-  //    // auth_phone이 없으므로 couple 생성으로 couple_no를 얻는다
-  //    if (arg1.cnt == 0) {
-  //      conn.query(sql.insertCouple, [], function (err, row) {
-  //        if (err) {
-  //          console.log('err', err);
-  //          done(err, null);
-  //          conn.release();
-  //          return;
-  //        } else {
-  //          console.log('row', row);
-  //          data.push(row.insertId);  //새로 생성된 couple_no 넣기
-  //          data.push(user_req);  //커플 요청자
-  //          done(null, data);
-  //        }
-  //        conn.release();
-  //      });
-  //    }
-  //    // auth_phone이 있으므로 있는 couple_no를 갖다씀
-  //    else {
-  //      if (arg1.couple_no) {
-  //        //console.log('null', null);
-  //        user_req = 0;
-  //        data.push(arg1.couple_no);   //기존에 존재하던 couple_no 넣기
-  //        data.push(user_req);         //커플승인자
-  //        done(null, data);
-  //      } else {
-  //        console.log('arg1.couple_no', arg1.couple_no);
-  //        done('couple_no undefined', null);
-  //        return;
-  //      }
-  //    }
-  //  }
-  //});
 }
 
 //insert user
@@ -534,8 +492,16 @@ function selectUserReq(data, done) {
           done(err, null);
         }
         else {
-          console.log('select user_req : ', row);
-          done(null, row[0]);
+          if(row) {
+            if(!row[0].user_req) {
+              done('커플요청여부 조회 실패', null);
+            } else {
+              console.log('select user_req : ', row[0]);
+              done(null, row[0]);
+            }
+          } else {
+            done('커플요청여부 조회 실패', null);
+          }
         }
         conn.release();
       });
@@ -587,8 +553,6 @@ function updateUserBirth(data, done) {
       conn.query(sql.updateUserBirth, params, function (err, row) {
         if (err) {
           done(err, null);
-          conn.release();
-          return;
         }
         else {
           //console.log('update user birth : ', row);
@@ -730,9 +694,11 @@ function updateUserPills(pills, done) {
       if (err) {
         done(err);
       } else {
-        if (row) {
+        if (row.affectedRows == 1) {
           console.log('update user_pills row : ', row);
           done(null);
+        } else {
+          done('사용자 피임약복용여부 등록 실패', null);
         }
       }
       conn.release();
@@ -741,33 +707,68 @@ function updateUserPills(pills, done) {
 }
 
 //insert period
-function insertPeriod(period, done) {
+function insertPeriods(period, callback) {
   //string to date
   var startDate = new Date(period.period_start);
   var endDate = new Date(period.period_end);
-  /*
-   todo : 배란일 계산 수정요망
-   일단, 시작일 + (주기-14)
-   */
+  //지난 배란일 : (다음 시작예정일:시작일+주기)-14
   var dangerDate = new Date(period.period_start);
+  var cycle = parseInt(period.period_cycle);
   //시작일에서 날짜만 변경
-  dangerDate.setDate(startDate.getDate() + (period.period_cycle - 14));
+  dangerDate.setDate(startDate.getDate() - 14);
+  var thisParams = [period.user_no, startDate, endDate, dangerDate, cycle];
 
+  //다음 예정일도 저장
+  var nextStartDate = new Date(startDate);
+  nextStartDate.setDate(nextStartDate.getDate() + cycle);  //다음달 예정 시작일
+  var nextEndDate = new Date(nextStartDate);
+  var nextDangerDate = new Date(nextStartDate);
+  nextEndDate.setDate(nextEndDate.getDate() + 5);  //디폴트 생리기간 : 5일
+
+  nextDangerDate.setDate(nextStartDate.getDate() - 14);
+  var nextCycle = (nextStartDate - startDate)/(24 * 3600 * 1000); //millisecond to day
+  var nextParams = [period.user_no, nextStartDate, nextEndDate, nextDangerDate, nextCycle];
+  console.log('nextParams', nextParams[1].toLocaleDateString());
+  console.log('nextParams', nextParams[2].toLocaleDateString());
+  console.log('nextParams', nextParams[3].toLocaleDateString());
+  console.log('nextParams', nextParams[4]);
+
+  async.parallel([
+      function(done){
+        insertPeri(thisParams, done);
+      },
+      function(done) {
+        insertPeri(nextParams, done);
+      }],
+    function(err, result) {
+      if(err) {
+        console.log('insert period err : ', err);
+        callback(err, null);
+      } else {
+        console.log('insert period result : ', result);
+        callback(null, result);
+      }
+  });
+}
+
+function insertPeri(params, done) {
   pool.getConnection(function (err, conn) {
     if (err) {
-      done(err);
-      return;
+      done(err, null);
     }
     var sql = 'insert into period(user_no, period_start, period_end, period_danger, period_cycle) values(?, ?, ?, ?, ?);';
-    var params = [period.user_no, startDate, endDate, dangerDate, period.period_cycle];
     conn.query(sql, params, function (err, row) {
       if (err) {
-        done(err);
+        done(err, null);
       } else {
         if (row) {
           console.log('insert period row : ', row);
-          done(null);
-        } else done('생리주기 정보 등록 실패');
+          if(row.affectedRows == 1) {
+            done(null, row);
+          } else {
+            done()
+          }
+        } else done('생리주기 정보 등록 실패', null);
       }
       conn.release();
     });
@@ -777,63 +778,79 @@ function insertPeriod(period, done) {
 //insert 생리증후군
 function insertSyndromes(syndromes, done) {
   var user_no = syndromes.user_no;
-  var isError = false;
+  var syn = syndromes.items;
   //var arrayQuery = [];
-  for (syn in syndromes.items) {
-    //arrayQuery.push(insertSyn(user_no, syn, done));
+  var length = syn.length;
+  var params = [];
+  console.log('length', length);
 
-    pool.getConnection(function (err, conn) {
-      if (err) isError = true;
-      else {
-        var sql = 'insert into syndrome(user_no, syndrome_name, syndrome_before, syndrome_after) values(?, ?, ?, ?);';
-        var params = [user_no, syn.syndrome_name, parseInt(syn.syndrome_before), parseInt(syn.syndrome_after)];
-        //사용자가 등록한 증후군 갯수만큼 저장
-        //params = [user_no, syndromes.items[0].syndrome_name, parseInt(syndromes.items[0].syndrome_before), parseInt(syndromes.items[0].syndrome_after)];
-        //console.log('params', params);
-        conn.query(sql, params, function (err, row) {
-          if (err) {
-            isErr = true;
+  async.parallel([
+      function(done) {
+        if (0 < length) {
+          params = [user_no, syn[0].syndrome_name,
+            parseInt(syn[0].syndrome_before), parseInt(syn[0].syndrome_after)];
+          console.log(params);
+          insertSyn(params, done);
+        } else {
+          done('증후군 입력값 이상', null);
+        }
+      },
+      function(done){
+        if(1 < length) {
+          params = [user_no, syn[1].syndrome_name,
+            parseInt(syn[1].syndrome_before), parseInt(syn[1].syndrome_after)];
+          insertSyn(params, done);
+        } else {
+          done(null, 'syndrome num : ' + length);
+        }
+      },
+      function(done){
+        if(2 < length) {
+          params = [user_no, syn[2].syndrome_name,
+            parseInt(syn[2].syndrome_before), parseInt(syn[2].syndrome_after)];
+          insertSyn(params, done);
+        } else {
+          done(null, 'syndrome num : ' + length);
+        }
+      }
+    ]
+    , function(err, result) {
+        if(err) {
+          console.log('err', err);
+          done(err, null);
+        } else {
+          if(result) {
+            //console.log('woman info result', result);
+            done(null, result);
+          } else {
+            done('증후군 등록 실패', null);
           }
-          else {
-            if (row.affectedRows == 1) {
-              //done(null, row);
-              console.log('insert syndrome row : ', row);
-            } else {
-              //done('증후군 등록 실패 : ' + syn.syndrome_name);
-              //break;
-              isError = true;
-            }
-          }
-        });
-      } //
-      conn.release();
-    });
-  } //for
+        }
+  });
 }
 
-//function insertSyn(user_no, syndrome, done) {
-//  pool.getConnection(function (err, conn) {
-//    if (err) done(err, null);
-//    else {
-//      var sql = 'insert into syndrome(user_no, syndrome_name, syndrome_before, syndrome_after) values(?, ?, ?, ?);';
-//      var params = [user_no, syndrome.syndrome_name, parseInt(syndrome.syndrome_before), parseInt(syndrome.syndrome_after)];
-//      //사용자가 등록한 증후군 갯수만큼 저장
-//      //params = [user_no, syndromes.items[0].syndrome_name, parseInt(syndromes.items[0].syndrome_before), parseInt(syndromes.items[0].syndrome_after)];
-//      //console.log('params', params);
-//      conn.query(sql, params, function (err, row) {
-//        if (err) {
-//          done(err, null);
-//        }
-//        else {
-//          if (row) {
-//            done(null, row);
-//          } else {
-//            done('증후군 등록 실패 : ' + syn.syndrome_name);
-//            //break;
-//          }
-//        }
-//      });
-//    } //
-//    conn.release();
-//  });
-//}
+function insertSyn(params, done) {
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      done(err, null);
+    }
+    else {
+      var sql = 'insert into syndrome(user_no, syndrome_name, syndrome_before, syndrome_after) values(?, ?, ?, ?);';
+      //사용자가 등록한 증후군 갯수만큼 저장
+      //console.log('params', params);
+      conn.query(sql, params, function(err, row) {
+        if(err) {
+          done(err, null);
+        } else {
+          if(row.affectedRows == 1) {
+            console.log('insert syndrome row : ', row);
+            done(null, row);
+          } else {
+            done('생리증후군 등록 실패', null);
+          }
+        }
+        conn.release();
+      });
+    }
+  });
+}
