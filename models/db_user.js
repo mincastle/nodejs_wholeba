@@ -5,6 +5,35 @@ var async = require('async');
 
 var pool = mysql.createPool(db_config);
 
+exports.autologin = function (data, callback) {
+  isAutoLogin(data, callback);
+};
+
+
+function isAutoLogin(data, done) {
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      done(err, null);
+    } else {
+      var sql = "select couple_no, count(user_no) cnt from user where user_no=? and user_phone=?";
+      var params = [data.user_no, data.user_phone];
+      console.log('params', params);
+      conn.query(sql, params, function(err, row) {
+        if(err){
+          done(err, null);
+        } else {
+          if(!row[0] || row[0].cnt ==0) {
+            done('로그인 정보가 변경되었습니다.', null);
+          }else{
+            done(null, row[0]);
+          }
+        }
+        conn.release();
+      });
+    }
+  });
+};
+
 /*
  * 회원가입
  * 0. 아이디 중복 검사
@@ -453,7 +482,9 @@ function insertUser(data, arg1, done) {
         conn.release();
       });
     });
-  } else done("이미 존재하는 아이디입니다", null);
+  } else {
+    done("이미 존재하는 아이디입니다", null);
+  }
 }
 
 function getCoupleIs(result, done) {
