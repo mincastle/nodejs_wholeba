@@ -25,6 +25,9 @@ exports.updateUserRegId = 'update user set user_regid=? where user_no=?;';
 //로그인시, 사용자의 전화번호 갱신
 exports.updateUserPhone = 'update user set user_phone=? where user_no=?';
 
+//로그인 + 로그아웃시, user_islogin 갱신
+exports.updateUserIsLogin = 'update user set user_islogin=? where user_no=?;';
+
 //가입정보조회시, 커플인증번호에 사용자 번호가 있는지 체크
 exports.selectAuthPhone = 'select couple_no, count(*) as cnt from couple where auth_phone in (select user_phone from user where user_no=?) and couple_is = 0;';
 

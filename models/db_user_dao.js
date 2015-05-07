@@ -644,6 +644,30 @@ function insertSyn(params, done) {
   });
 }
 
+//update user_islogin
+function updateUserIsLogin(data, islogin, done) {
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      done(err, null);
+    } else {
+      var params = [islogin, data.user_no];
+      conn.query(sql.updateUserIsLogin, params, function(err, row) {
+        if(err) {
+          done(err, null);
+        } else {
+          if(row.affectedRows == 1){
+            done(null, row);
+          } else {
+            done('user_islogin 변경 실패', null);
+          }
+        }
+        conn.release();
+      });
+    }
+  });
+}
+
+
 //자동로그인 (/autologin)
 exports.isAutoLogin = isAutoLogin;
 
@@ -656,6 +680,7 @@ exports.insertUser = insertUser;
 exports.updateUserPhone = updateUserPhone; //private
 exports.updateUserInfo = updateUserInfo;
 exports.doLogin = doLogin;
+exports.updateUserIsLogin = updateUserIsLogin; //로그인과 로그아웃에서 사용
 
 //가입정보조회 (/join)
 exports.getCoupleIs = getCoupleIs;

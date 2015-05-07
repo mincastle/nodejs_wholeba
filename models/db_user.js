@@ -236,9 +236,10 @@ exports.userinfo = function (data, callback) {
 };
 
 //로그아웃
+//user_islogin = 0으로 갱신한다
 exports.logout = function (data, callback) {
-  var success = 1;
-  callback(success);
+  //islogin 을 0으로 갱신
+  dao.updateUserIsLogin(data, 0, callback);
 };
 
 //회원탈퇴

@@ -263,26 +263,30 @@ router.post('/logout', function (req, res, next) {
     fail_json.result.message = "세션정보 없음";
     res.json(fail_json);
     return;
+  } else {
+    var data = {"user_no" : user_no};
+
+    db_user.logout(data, function (err, result) {
+      if (err) {
+        fail_json.result.message = err;
+        res.json(fail_json);
+      } else if (result) {
+        //TODO redis세션 처리
+        req.session.destroy(function (err) {
+          if (err) {
+            fail_json.result.message = err;
+            res.json(fail_json);
+          } else {
+            success_json.result.message = "로그아웃 성공";
+            res.json(success_json);
+          }
+        });
+      } else {
+        fail_json.result.message = '로그아웃 실패';
+        res.json(fail_json);
+      }
+    });
   }
-
-  //TODO redis세션 처리
-  req.session.destroy(function (err) {
-    if (err) {
-      fail_json.result.message = err;
-      res.json(fail_json);
-    } else {
-      success_json.result.message = "로그아웃 성공";
-      res.json(success_json);
-    }
-  });
-
-  db_user.logout(data, function (success) {
-    if (success) {
-      //success_json(res, "로그아웃");
-    } else {
-      //fail_json(res, "로그아웃");
-    }
-  });
 });
 
 //회원탈퇴
@@ -298,11 +302,11 @@ router.post('/withdraw', function (req, res, next) {
   var couple_no = req.session.couple_no;
   var data = [user_no, couple_no];
 
-  db_user.withdraw(data, function (success) {
+  db_user.withdraw(data, function (err, result) {
     if (success) {
-      //success_json(res, "회원탈퇴");
+      //success_json(res, "로그아웃");
     } else {
-      //fail_json(res, "회원탈퇴");
+      //fail_json(res, "로그아웃");
     }
   });
 });
