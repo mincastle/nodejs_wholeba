@@ -121,7 +121,7 @@ exports.common = function (data, callback) {
         selectUserReq(data, done);
       },
       function (arg1, done) {
-        updateBirth(data, arg1, done);
+        updateCoupleandUserBirth(data, arg1, done);
       }],
     function (err, result) {
       if (err) {
@@ -534,7 +534,7 @@ function selectUserReq(data, done) {
           done(err, null);
         }
         else {
-          //console.log('select user_req : ', row);
+          console.log('select user_req : ', row);
           done(null, row[0]);
         }
         conn.release();
@@ -553,13 +553,16 @@ function updateCoupleandUserBirth(data, arg, done) {
       //user_req = 1 이면 커플요청자이므로 사귄날 update
       //그 후에 user_birth update
       if (arg.user_req = 1) {
+        if(!data.couple_birth) {
+          done('커플의 사귄날 입력정보 없음', null);
+        }
         var params = [data.couple_birth, data.user_no];
         conn.query(sql.updateCoupleBirth, params, function (err, row) {
           if (err) {
             done(err, null);
           }
           else {
-            updateUserBirth(data, done);
+              updateUserBirth(data, done);
           }
           conn.release();
         });
@@ -580,7 +583,7 @@ function updateUserBirth(data, done) {
   pool.getConnection(function (err, conn) {
     if (err) done(err, null);
     else {
-      var params = [data[2], data[0]];
+      var params = [data.user_birth, data.user_no];
       conn.query(sql.updateUserBirth, params, function (err, row) {
         if (err) {
           done(err, null);

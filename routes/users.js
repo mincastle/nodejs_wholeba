@@ -86,7 +86,11 @@ router.post('/common', function (req, res, next) {
     fail_json.result.message = "세션정보 없음";
     res.json(fail_json);
     return;
+  } else if(!req.body.user_birth) {
+    fail_json.result.message = "사용자의 생일 입력값 없음";
+    res.json(fail_json);
   }
+
   var couple_birth = req.body.couple_birth;
   var user_birth = req.body.user_birth;
   var data = {"user_no" : user_no, "couple_birth" : couple_birth, "user_birth" : user_birth};
