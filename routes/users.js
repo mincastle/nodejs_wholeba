@@ -42,7 +42,7 @@ router.post('/join', function (req, res, next) {
 
 //가입정보조회
 router.get('/join', function (req, res, next) {
-  var user_no = req.session.user_no | 1;
+  var user_no = req.session.user_no;
   var couple_no = req.session.couple_no;
   //세션 체크
   if (!user_no) {
@@ -59,8 +59,8 @@ router.get('/join', function (req, res, next) {
       if (result) {
         //공백일 경우 채워넣기
         if(!result.phone) result.phone = "";
-        if(!result.gender) result.phone = "";
-        if(!result.user_req) result.phone = "";
+        if(!result.gender) result.gender = "";
+        if(!result.user_req) result.user_req = "";
           res.json({
           "success": 1,
           "result": {

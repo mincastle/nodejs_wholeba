@@ -298,7 +298,7 @@ function checkAuthPhone(result, done) {
           } else if(row[0].cnt == 0){
             // couple도 아니고 auth_phone에도 없음
             // 커플요청페이지 보여줘야함
-            result.join_code = 1;
+            result.join_code = "1";
             done(null, result);
           }
         }
@@ -319,7 +319,7 @@ function checkCoupleWithdrawandUserAddition(result2, done){
       } else {
         if(row[0].couple_withdraw == 1) {
           //상대방이 탈퇴, 알림다이얼로그로 이동
-          result2.join_code = 5;
+          result2.join_code = "5";
           done(null, result2);
         } else if (row[0].couple_withdraw == 0) {
           //user_addition 추가로 조회하여 메인으로 이동하거나(join_code = 0),
@@ -355,7 +355,7 @@ function checkUserAddition(result2, done) {
             done(null, result2);
           }else if(row[0].user_addition == 1) {
             //couple_withdraw == 0 && user_addition == 1 이므로 메인으로 이동
-            result2.join_code = 0;
+            result2.join_code = "0";
             done(null, result2);
           }else {
             done('사용자의 추가정보입력여부 값 이상', null);
@@ -382,9 +382,10 @@ function getRespondentInfo(result3, done) {
           done(err, null);
         } else {
           if(row[0]) {
-            result3.user_req = row[0].user_req;
+            //console.log('result3', row[0]);
+            result3.user_req = row[0].user_req.toString();
             result3.gender = row[0].user_gender;
-            result3.join_code = 4;
+            result3.join_code = "4";
             done(null, result3);
           } else {
             done('사용자 커플요청정보, 성별 조회 실패',null);
@@ -403,14 +404,14 @@ function getPartnerPhone(result2, done) {
       done(err, null);
     } else {
       var sql = 'select user_phone from user where couple_no=? and not(user_no=?);';
-      var params = [result2.couple_no, result2.user_no];
+      var params = [result2.row.couple_no, result2.user_no];
       conn.query(sql, params, function(err, row) {
         if(err) {
           done(err, null);
         } else {
           if(row[0].user_phone) {
             result2.phone = row[0].user_phone;
-            result2.join_code = 2;
+            result2.join_code = "2";
             done(null, result2);
           } else {
             done('상대방 전화번호 조회 실패', null);
@@ -526,7 +527,7 @@ function getCoupleIs(result, done) {
           if(row[0].couple_is == 0) {
             // 커플요청은 했으나 상대방이 승인아직 안함,
             // 버튼이 비활성화된 커플 요청페이지로 이동
-            result.join_code = 3;
+            result.join_code = "3";
             done(null, result);
           } else if(row[0].couple_is == 1) {
             //user_addition, couple_withdraw 조회해야함
@@ -540,25 +541,25 @@ function getCoupleIs(result, done) {
 }
 
 //selectUserReq
-function selectUserReq(data, done) {
-  pool.getConnection(function (err, conn) {
-    if (err) done(err, null);
-    else {
-      conn.query(sql.selectUserReq, [data[0]], function (err, row) {
-        if (err) {
-          done(err, null);
-          conn.release();
-          return;
-        }
-        else {
-          //console.log('select user_req : ', row);
-          done(null, row[0]);
-        }
-        conn.release();
-      });
-    }
-  });
-}
+//function selectUserReq(data, done) {
+//  pool.getConnection(function (err, conn) {
+//    if (err) done(err, null);
+//    else {
+//      conn.query(sql.selectUserReq, [data[0]], function (err, row) {
+//        if (err) {
+//          done(err, null);
+//          conn.release();
+//          return;
+//        }
+//        else {
+//          //console.log('select user_req : ', row);
+//          done(null, row[0]);
+//        }
+//        conn.release();
+//      });
+//    }
+//  });
+//}
 
 //update couple_birth, user_birth
 function updateBirth(data, arg, done) {
@@ -669,7 +670,7 @@ function updateUserInfo(data, arg, done) {
         });
       }
     });
-  } else if (data.user_phone != arg.user_phone && data.user_phone.trim() != "") {
+  } else if (data.user_phone != arg.user_phone && data.user_phone != "") {
     //전화번호만 다를경우
     updateUserPhone(data, arg, done);
   } else {
