@@ -51,10 +51,12 @@ router.post('/autologin', function (req, res, next) {
 
 //회원가입
 router.post('/join', function (req, res, next) {
-  var user_id = req.body.user_id;
-  var user_pw = req.body.user_pw;
-  var user_phone = req.body.user_phone;
-  var user_regid = req.body.user_regid;
+  var bodydata = req.body;
+
+  var user_id = bodydata.user_id;
+  var user_pw = bodydata.user_pw;
+  var user_phone = bodydata.user_phone;
+  var user_regid = bodydata.user_regid;
   var data = {"user_id" : user_id, "user_pw" : user_pw, "user_phone" : user_phone, "user_regid" : user_regid};
   console.log('data', data);
 
@@ -119,6 +121,8 @@ router.get('/join', function (req, res, next) {
 
 //공통정보등록
 router.post('/common', function (req, res, next) {
+  var bodydata = req.body;
+
   var user_no = req.session.user_no;
   //세션체크
   if (!user_no) {
@@ -130,8 +134,8 @@ router.post('/common', function (req, res, next) {
     res.json(fail_json);
   }
 
-  var couple_birth = req.body.couple_birth;
-  var user_birth = req.body.user_birth;
+  var couple_birth = bodydata.couple_birth;
+  var user_birth = bodydata.user_birth;
   var data = {"user_no" : user_no, "couple_birth" : couple_birth, "user_birth" : user_birth};
 
   db_user.common(data, function (err, result) {
@@ -150,6 +154,8 @@ router.post('/common', function (req, res, next) {
 
 //여성정보등록
 router.post('/woman', function (req, res, next) {
+  var bodydata = req.body;
+
   var user_no = req.session.user_no;
   //세션체크
   if (!user_no) {
@@ -157,18 +163,17 @@ router.post('/woman', function (req, res, next) {
     res.json(fail_json);
     return;
   }
-  var period_start = req.body.period_start;
-  var period_end = req.body.period_end;
-  var period_cycle = req.body.period_cycle;
+  var period_start = bodydata.period_start;
+  var period_end = bodydata.period_end;
+  var period_cycle = bodydata.period_cycle;
   //todo 객체의 배열 받는 법?
-  var syndromes = req.body.syndromes; //객체의 배열
-  var user_pills = req.body.user_pills; //현재에 약을 먹는지 안먹는지
-  var pills_date = req.body.pills_date;
-  var pills_time = req.body.pills_time;
+  var syndromes = bodydata.syndromes; //객체의 배열
+  var user_pills = bodydata.user_pills; //현재에 약을 먹는지 안먹는지
+  var pills_date = bodydata.pills_date;
+  var pills_time = bodydata.pills_time;
   var period = {"user_no" : user_no, "period_start" : period_start, "period_end" : period_end, "period_cycle" : period_cycle};
-  //var syndromes = syndromes;
-  var syndromes = {"user_no" : user_no, "items" : [{"syndrome_name" : "우울", "syndrome_before" : 1, "syndrome_after" : 0},
-    {"syndrome_name" : "폭식", "syndrome_before" : 1, "syndrome_after" : 1}, {"syndrome_name" : "분노", "syndrome_before" : 2, "syndrome_after" : 2}]};
+  //syndromes = {"user_no" : user_no, "items" : [{"syndrome_name" : "우울", "syndrome_before" : 1, "syndrome_after" : 0},
+  //  {"syndrome_name" : "폭식", "syndrome_before" : 1, "syndrome_after" : 1}, {"syndrome_name" : "분노", "syndrome_before" : 2, "syndrome_after" : 2}]};
   var pills = {"user_no" : user_no, "user_pills" : user_pills, "pills_date" : pills_date, "pills_time" : pills_time};
 
   db_user.woman(pills, period, syndromes, function (err, result) {
@@ -186,10 +191,12 @@ router.post('/woman', function (req, res, next) {
 
 //로그인
 router.post('/login', function (req, res, next) {
-  var user_id = req.body.user_id;
-  var user_pw = req.body.user_pw;
-  var user_phone = req.body.user_phone;
-  var user_regid = req.body.user_regid;
+  var bodydata = req.body;
+
+  var user_id = bodydata.user_id;
+  var user_pw = bodydata.user_pw;
+  var user_phone = bodydata.user_phone;
+  var user_regid = bodydata.user_regid;
   var data = {"user_id" : user_id, "user_pw" : user_pw, "user_phone" : user_phone, "user_regid" : user_regid};
 
   db_user.login(data, function (err, result) {
@@ -269,13 +276,13 @@ router.post('/logout', function (req, res, next) {
     }
   });
 
-  //db_user.logout(data, function (success) {
-  //  if (success) {
-  //    //success_json(res, "로그아웃");
-  //  } else {
-  //    //fail_json(res, "로그아웃");
-  //  }
-  //});
+  db_user.logout(data, function (success) {
+    if (success) {
+      //success_json(res, "로그아웃");
+    } else {
+      //fail_json(res, "로그아웃");
+    }
+  });
 });
 
 //회원탈퇴
@@ -302,29 +309,3 @@ router.post('/withdraw', function (req, res, next) {
 
 
 module.exports = router;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
