@@ -70,7 +70,7 @@ exports.mycondition = function (data, callback) {
   callback(success);
 };
 
-//상대방격려하기
+//상대방격려하기(날라온 행동을 push)
 exports.yourcondition = function (data, callback) {
   var success = 1;
   callback(success);
