@@ -19,26 +19,79 @@ exports.autologin = function (data, callback) {
  * data = {user_id, user_pw, user_phone, user_regid}
  */
 exports.join = function (data, callback) {
-  async.waterfall([
-      function (done) {
-        dao.checkUserId(data, done);
-      },
-      function (arg1, done) {
-        dao.insertUser(data, arg1, done);
-      },
-      function(arg2, done){
-        dao.insertReward(arg2, done);
-      }
-    ],
-    function (err, result) {
-      if (err) {
-        console.log('err', err);
-        callback(err, null);
-      } else {
-        console.log('result', result);
-        callback(null, result);
-      }
-    });
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      callback(err);
+    } else {
+      //트랜잭션시작
+      conn.beginTransaction(function(err) {
+        if(err) {
+          console.log('err', err);
+          conn.rollback(function () {
+            callback(err);
+          });
+        } else {
+          //회원가입절차
+          async.waterfall([
+              function (done) {
+                dao.checkUserId(conn, data, done);
+              },
+              function (arg1, done) {
+                dao.insertUser(conn, data, arg1, done);
+              },
+              function (arg2, done) {
+                dao.insertReward(conn, arg2, done);
+              }
+            ],
+            function (err, result) {
+            if (err) {
+              console.log('err', err);
+              conn.rollback(function () {
+                callback(err);
+              });
+            } else {
+              conn.commit(function(err) {
+                if (err) {
+                  conn.rollback(function () {
+                    callback(err);
+                  });
+                }
+                //커밋성공
+                else {
+                  console.log('result', result);
+                  callback(null, result);
+                }
+              });
+            }
+          }); //async
+        }
+        conn.release();
+      });  //begin transaction
+    }
+  });
+
+  //console.log('autoresult', result);
+  //async.waterfall([
+  //    function (done) {
+  //      dao.checkUserId(data, done);
+  //    },
+  //    function (arg1, done) {
+  //      dao.insertUser(data, arg1, done);
+  //    },
+  //    function (arg2, done) {
+  //      dao.insertReward(arg2, done);
+  //    }
+  //  ],
+  //  function (err, result) {
+  //    if (err) {
+  //      console.log('err', err);
+  //      callback(err, null);
+  //    } else {
+  //      console.log('result', result);
+  //      callback(null, result);
+  //    }
+  //  });
+
 };
 
 /*
@@ -64,7 +117,7 @@ exports.join_info = function (data, callback) {
   async.waterfall([
     function (done) {
       //couple_no가 있으면 couple_is 확인
-      if(data.couple_no){
+      if (data.couple_no) {
         result.couple_no = data.couple_no;
         result.isAlreadyCouple = 1; //falg
         //todo check couple_is
@@ -76,28 +129,28 @@ exports.join_info = function (data, callback) {
       }
     },
     function (result2, done) {
-      if(result2.isAlreadyCouple == 1) {
-        if(result2.join_code) {  //join_code = 3
+      if (result2.isAlreadyCouple == 1) {
+        if (result2.join_code) {  //join_code = 3
           done(null, result2);
         } else {
           //couple_withdraw와 user_addition 조회
           dao.checkCoupleWithdrawandUserAddition(result2, done);
         }
       }
-      else if(result2.isAlreadyCouple == 0) {
-        if(result2.join_code) {  //join_code = 1
+      else if (result2.isAlreadyCouple == 0) {
+        if (result2.join_code) {  //join_code = 1
           done(null, result2);
         } else {
           //auth_phone 결과얻었으므로 couple_no로 상대방 전화번호 찾아야함
           dao.getPartnerPhone(result2, done);
         }
       }
-      else{
+      else {
         done('가입정보조회 실패', null);
       }
     },
     function (result3, done) {
-      if(result3.join_code) {
+      if (result3.join_code) {
         //join_code = 0 | 1 | 2 | 3 | 5
         done(null, result3);
       } else {
@@ -111,10 +164,10 @@ exports.join_info = function (data, callback) {
     if (err) {
       console.log('err', err);
       callback(err, null);
+      //dao.setRollback();
     } else {
       if (result.join_code) {
         console.log('join info result : ', result);
-        callback(null, result);
       }
     }
   });
@@ -159,7 +212,7 @@ exports.common = function (data, callback) {
  */
 exports.woman = function (pills, period, syndromes, callback) {
   console.log('pills', pills);
-  console.log('period',period );
+  console.log('period', period);
   console.log('syndromes', syndromes);
   async.parallel([
     function (done) {
@@ -203,9 +256,9 @@ exports.login = function (data, callback) {
       function (arg, done) {
         dao.updateUserInfo(data, arg, done);
       },
-      function(arg2, done){
+      function (arg2, done) {
         dao.updateUserIsLogin(arg2, 1, done);
-    }],
+      }],
     function (err, result) {
       if (err) {
         console.log('err', err);

@@ -11,45 +11,43 @@ var pool = mysql.createPool(db_config);
 
 //해당 사용자의 리워드 행 추가
 //arg2.insertId = user_no
-function insertReward(arg2, done) {
-  pool.getConnection(function(err, conn) {
-    if(err) {
+function insertReward(conn, arg2, done) {
+  if (!conn) {
+    done('연결 에러');
+    return;
+  }
+  var params = [arg2.insertId];
+  conn.query(sql.insertReward, params, function (err, row) {
+    if (err) {
       done(err, null);
     } else {
-      var params = [arg2.insertId];
-      conn.query(sql.insertReward, params, function(err, row) {
-        if(err) {
-          done(err, null);
-        } else {
-          if(row.affectedRows == 1) {
-            row.user_no = arg2.insertId; //waterfall에서 넘겨받은 user_no
-            console.log('insert reward row : ', row);
-            done(null, row);
-          } else {
-            done('사용자의 리워드정보 추가 실패', null);
-          }
-        }
-        conn.release();
-      });
+      if (row.affectedRows == 1) {
+        row.user_no = arg2.insertId; //waterfall에서 넘겨받은 user_no
+        console.log('insert reward row : ', row);
+        done(null, row);
+      } else {
+        done('사용자의 리워드정보 추가 실패', null);
+      }
     }
   });
+
 }
 
 //자동로그인
 function isAutoLogin(data, done) {
-  pool.getConnection(function(err, conn) {
-    if(err) {
+  pool.getConnection(function (err, conn) {
+    if (err) {
       done(err, null);
     } else {
       var params = [data.user_no, data.user_phone];
       console.log('params', params);
-      conn.query(sql.selectAutologin, params, function(err, row) {
-        if(err){
+      conn.query(sql.selectAutologin, params, function (err, row) {
+        if (err) {
           done(err, null);
         } else {
-          if(!row[0] || row[0].cnt ==0) {
+          if (!row[0] || row[0].cnt == 0) {
             done('로그인 정보가 변경되었습니다.', null);
-          }else{
+          } else {
             done(null, row[0]);
           }
         }
@@ -60,32 +58,27 @@ function isAutoLogin(data, done) {
 };
 
 //입력받은 user_id가 중복된 값인지 아닌지 확인
-function checkUserId(data, done) {
-  pool.getConnection(function (err, conn) {
+function checkUserId(conn, data, done) {
+  if (!conn) {
+    done('연결 에러');
+    return;
+  }
+  conn.query(sql.selectUserId, [data.user_id], function (err, row) {
     if (err) {
-      console.log('connection error : ', err);
+      console.log('err', err);
       done(err, null);
-    }
-    else {
-      conn.query(sql.selectUserId, [data.user_id], function (err, row) {
-        if (err) {
-          console.log('err', err);
-          done(err, null);
-          conn.release();
-          return;
-        } else {
-          console.log('check id : ', row[0]);
-          if (row[0].cnt == 1) {
-            done("이미 존재하는 아이디입니다", null);
-            conn.release();
-          } else {
-            done(null, row[0]);
-            conn.release();
-          }
-        }
-      });
+      return;
+    } else {
+      console.log('check id : ', row[0]);
+      if (row[0].cnt == 1) {
+        done("이미 존재하는 아이디입니다", null);
+      } else {
+        done(null, row[0]);
+      }
+
     }
   });
+
 }
 
 //check auth_phone
@@ -100,11 +93,11 @@ function checkAuthPhone(result, done) {
           console.log('err', err);
           done(err, null);
         } else {
-          if(row[0].cnt == 1) {
+          if (row[0].cnt == 1) {
             //row.couple_no를 가지고 상대방 전화번호를 찾아야함! (join_code == 2)
             result.row = row[0];
             done(null, result);
-          } else if(row[0].cnt == 0){
+          } else if (row[0].cnt == 0) {
             // couple도 아니고 auth_phone에도 없음
             // 커플요청페이지 보여줘야함
             result.join_code = "1";
@@ -118,14 +111,14 @@ function checkAuthPhone(result, done) {
 }
 
 //join_code 조회를 위한 couple_withdraw와 user_addition조회
-function checkCoupleWithdrawandUserAddition(result2, done){
-  pool.getConnection(function(err, conn) {
+function checkCoupleWithdrawandUserAddition(result2, done) {
+  pool.getConnection(function (err, conn) {
     var params = [result2.couple_no];
-    conn.query(sql.selectCoupleWithdraw, params, function(err, row) {
-      if(err) {
+    conn.query(sql.selectCoupleWithdraw, params, function (err, row) {
+      if (err) {
         done(err, null);
       } else {
-        if(row[0].couple_withdraw == 1) {
+        if (row[0].couple_withdraw == 1) {
           //상대방이 탈퇴, 알림다이얼로그로 이동
           result2.join_code = "5";
           done(null, result2);
@@ -145,26 +138,26 @@ function checkCoupleWithdrawandUserAddition(result2, done){
 
 //user_addition을 조회(join_code를 알아내기위함-가입정보조회)
 function checkUserAddition(result2, done) {
-  pool.getConnection(function(err, conn) {
-    if(err) {
+  pool.getConnection(function (err, conn) {
+    if (err) {
       done(err, null);
     } else {
       var params = [result2.user_no];
-      conn.query(sql.selectUserAddition, params, function(err, row) {
-        if(err){
+      conn.query(sql.selectUserAddition, params, function (err, row) {
+        if (err) {
           done(err, null);
-        } else{
+        } else {
           console.log('check user addition row[0] : ', row[0]);
-          if(row[0].user_addition == 0) {
+          if (row[0].user_addition == 0) {
             //couple_withdraw == 0 && user_addition == 0 이므로
             //user_gender와 user_req 추가 필요
             result2.row = row[0];
             done(null, result2);
-          }else if(row[0].user_addition == 1) {
+          } else if (row[0].user_addition == 1) {
             //couple_withdraw == 0 && user_addition == 1 이므로 메인으로 이동
             result2.join_code = "0";
             done(null, result2);
-          }else {
+          } else {
             done('사용자의 추가정보입력여부 값 이상', null);
           }
         }
@@ -175,26 +168,25 @@ function checkUserAddition(result2, done) {
 }
 
 
-
 //추가정보 입력안했기 때문에 유저의 user_req, user_gender 조회
 function getRespondentInfo(result3, done) {
   pool.getConnection(function (err, conn) {
-    if(err) {
+    if (err) {
       done(err, null);
     } else {
       var params = [result3.user_no];
-      conn.query(sql.selectUserReqandUserGender, params, function(err, row) {
-        if(err) {
+      conn.query(sql.selectUserReqandUserGender, params, function (err, row) {
+        if (err) {
           done(err, null);
         } else {
-          if(row[0]) {
+          if (row[0]) {
             //console.log('result3', row[0]);
             result3.user_req = row[0].user_req.toString();
             result3.gender = row[0].user_gender;
             result3.join_code = "4";
             done(null, result3);
           } else {
-            done('사용자 커플요청정보, 성별 조회 실패',null);
+            done('사용자 커플요청정보, 성별 조회 실패', null);
           }
         }
         conn.release();
@@ -205,16 +197,16 @@ function getRespondentInfo(result3, done) {
 
 //커플 승인자 이므로 화면에 보여줄 상대방 전화번호 얻기
 function getPartnerPhone(result2, done) {
-  pool.getConnection(function(err, conn) {
-    if(err) {
+  pool.getConnection(function (err, conn) {
+    if (err) {
       done(err, null);
     } else {
       var params = [result2.row.couple_no, result2.user_no];
-      conn.query(sql.selectPartnerPhone, params, function(err, row) {
-        if(err) {
+      conn.query(sql.selectPartnerPhone, params, function (err, row) {
+        if (err) {
           done(err, null);
         } else {
-          if(row[0].user_phone) {
+          if (row[0].user_phone) {
             result2.phone = row[0].user_phone;
             result2.join_code = "2";
             done(null, result2);
@@ -229,26 +221,25 @@ function getPartnerPhone(result2, done) {
 }
 
 //insert user
-function insertUser(data, arg1, done) {
+function insertUser(conn, data, arg1, done) {
   console.log('arg1', arg1);
+  if (!conn) {
+    done('연결 에러');
+    return;
+  }
   if (arg1.cnt == 0) {
-    pool.getConnection(function (err, conn) {
+    var params = [data.user_id, data.user_pw, data.user_phone, data.user_regid];
+    conn.query(sql.insertUser, params, function (err, row) {
       if (err) {
-        console.log('connection err : ', err);
         done(err, null);
-      }
-      var params = [data.user_id, data.user_pw, data.user_phone, data.user_regid];
-      conn.query(sql.insertUser, params, function (err, row) {
-        if (err) {
-          done(err, null);
-        } else {
+      } else {
+        if (row) {
           done(null, row);
+        } else {
+          done('이미 존재하는 아이디입니다.');
         }
-        conn.release();
-      });
+      }
     });
-  } else {
-    done("이미 존재하는 아이디입니다", null);
   }
 }
 
@@ -261,12 +252,12 @@ function getCoupleIs(result, done) {
         if (err) done(err, null);
         else {
           console.log('get couple_is row : ', row);
-          if(row[0].couple_is == 0) {
+          if (row[0].couple_is == 0) {
             // 커플요청은 했으나 상대방이 승인아직 안함,
             // 버튼이 비활성화된 커플 요청페이지로 이동
             result.join_code = "3";
             done(null, result);
-          } else if(row[0].couple_is == 1) {
+          } else if (row[0].couple_is == 1) {
             //user_addition, couple_withdraw 조회해야함
             done(null, result);
           } else done('커플승인여부 조회 실패', null);
@@ -287,8 +278,8 @@ function selectUserReq(data, done) {
           done(err, null);
         }
         else {
-          if(row) {
-            if(!row[0].user_req) {
+          if (row) {
+            if (!row[0].user_req) {
               done('커플요청여부 조회 실패', null);
             } else {
               console.log('select user_req : ', row[0]);
@@ -314,7 +305,7 @@ function updateCoupleandUserBirth(data, arg, done) {
       //user_req = 1 이면 커플요청자이므로 사귄날 update
       //그 후에 user_birth update
       if (arg.user_req = 1) {
-        if(!data.couple_birth) {
+        if (!data.couple_birth) {
           done('커플의 사귄날 입력정보 없음', null);
         }
         var params = [data.couple_birth, data.user_no];
@@ -441,7 +432,7 @@ function updateUserPhone(data, arg, done) {
           done(err, null);
         }
         else {
-          if(row.affectedRows == 1) {
+          if (row.affectedRows == 1) {
             console.log('update user_phone : ', row);
             row.user_no = arg.user_no;
             done(null, arg);
@@ -525,7 +516,7 @@ function insertPeriods(period, callback) {
   var nextDangerDate = new Date(nextStartDate);
   nextEndDate.setDate(nextEndDate.getDate() + 5);  //디폴트 생리기간 : 5일
   nextDangerDate.setDate(nextStartDate.getDate() - 14);  //다음달의 예정 배란일
-  var nextCycle = (nextStartDate - startDate)/(24 * 3600 * 1000); //millisecond to day
+  var nextCycle = (nextStartDate - startDate) / (24 * 3600 * 1000); //millisecond to day
   var nextParams = [period.user_no, nextStartDate, nextEndDate, nextDangerDate, nextCycle];
   //console.log('nextParams', nextParams[1].toLocaleDateString());
   //console.log('nextParams', nextParams[2].toLocaleDateString());
@@ -533,14 +524,14 @@ function insertPeriods(period, callback) {
   //console.log('nextParams', nextParams[4]);
 
   async.parallel([
-      function(done){
+      function (done) {
         insertPeri(thisParams, done);
       },
-      function(done) {
+      function (done) {
         insertPeri(nextParams, done);
       }],
-    function(err, result) {
-      if(err) {
+    function (err, result) {
+      if (err) {
         console.log('insert period err : ', err);
         callback(err, null);
       } else {
@@ -561,7 +552,7 @@ function insertPeri(params, done) {
       } else {
         if (row) {
           console.log('insert period row : ', row);
-          if(row.affectedRows == 1) {
+          if (row.affectedRows == 1) {
             done(null, row);
           } else {
             done()
@@ -599,17 +590,17 @@ function insertSyndromes(syndromes, done) {
   console.log('length', length);
 
   //배열길이에 맞게 반복
-  async.each(syndromes, function(syn, done) {
-    params = [user_no, syn.syndrome_name, parseInt(syn.syndrome_before), parseInt(syn.syndrome_after)];
-    insertSyn(params, done);
-  },
-  function(err) {
-    if(err) {
-      done(err, null);
-    } else {
-      done(null, "생리증후군 등록 성공");
-    }
-  });
+  async.each(syndromes, function (syn, done) {
+      params = [user_no, syn.syndrome_name, parseInt(syn.syndrome_before), parseInt(syn.syndrome_after)];
+      insertSyn(params, done);
+    },
+    function (err) {
+      if (err) {
+        done(err, null);
+      } else {
+        done(null, "생리증후군 등록 성공");
+      }
+    });
 }
 
 function insertSyn(params, done) {
@@ -620,11 +611,11 @@ function insertSyn(params, done) {
     else {
       //사용자가 등록한 증후군 갯수만큼 저장
       //console.log('params', params);
-      conn.query(sql.insertSyndrome, params, function(err, row) {
-        if(err) {
+      conn.query(sql.insertSyndrome, params, function (err, row) {
+        if (err) {
           done(err, null);
         } else {
-          if(row.affectedRows == 1) {
+          if (row.affectedRows == 1) {
             console.log('insert syndrome row : ', row);
             done(null, row);
           } else {
@@ -640,16 +631,16 @@ function insertSyn(params, done) {
 //update user_islogin
 //data = user_no, couple_no, user_phone, user_regid
 function updateUserIsLogin(data, islogin, done) {
-  pool.getConnection(function(err, conn) {
-    if(err) {
+  pool.getConnection(function (err, conn) {
+    if (err) {
       done(err, null);
     } else {
       var params = [islogin, data.user_no];
-      conn.query(sql.updateUserIsLogin, params, function(err, row) {
-        if(err) {
+      conn.query(sql.updateUserIsLogin, params, function (err, row) {
+        if (err) {
           done(err, null);
         } else {
-          if(row.affectedRows == 1){
+          if (row.affectedRows == 1) {
             done(null, data);  //세션 설정을 위해 이전의 user_no, couple_no 조회한 결과를 보냄
           } else {
             done('user_islogin 변경 실패', null);
@@ -660,7 +651,6 @@ function updateUserIsLogin(data, islogin, done) {
     }
   });
 }
-
 
 //자동로그인 (/autologin)
 exports.isAutoLogin = isAutoLogin;
