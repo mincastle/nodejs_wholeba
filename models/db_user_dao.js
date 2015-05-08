@@ -1,7 +1,6 @@
 /**
  * Created by 장 한솔 on 2015-05-07.
  */
-var sql = require('./db_sql');
 var mysql = require('mysql');
 var db_config = require('./db_config');
 var sql = require('./db_sql');
