@@ -2,40 +2,18 @@ var mysql = require('mysql');
 var db_config = require('./db_config');
 var sql = require('./db_sql');
 var async = require('async');
+var dao = require('./db_user_dao');
 
 var pool = mysql.createPool(db_config);
 
+//자동로그인
 exports.autologin = function (data, callback) {
-  isAutoLogin(data, callback);
-};
-
-
-function isAutoLogin(data, done) {
-  pool.getConnection(function(err, conn) {
-    if(err) {
-      done(err, null);
-    } else {
-      var sql = "select couple_no, count(user_no) cnt from user where user_no=? and user_phone=?";
-      var params = [data.user_no, data.user_phone];
-      console.log('params', params);
-      conn.query(sql, params, function(err, row) {
-        if(err){
-          done(err, null);
-        } else {
-          if(!row[0] || row[0].cnt ==0) {
-            done('로그인 정보가 변경되었습니다.', null);
-          }else{
-            done(null, row[0]);
-          }
-        }
-        conn.release();
-      });
-    }
-  });
+  dao.isAutoLogin(data, callback);
 };
 
 /*
  * 회원가입
+ * todo 트랜잭션 처리 추가해야함
  * 0. 아이디 중복 검사
  * 1. insert into user
  * data = {user_id, user_pw, user_phone, user_regid}
@@ -43,11 +21,15 @@ function isAutoLogin(data, done) {
 exports.join = function (data, callback) {
   async.waterfall([
       function (done) {
-        checkUserId(data, done);
+        dao.checkUserId(data, done);
       },
       function (arg1, done) {
-        insertUser(data, arg1, done);
-      }],
+        dao.insertUser(data, arg1, done);
+      },
+      function(arg2, done){
+        dao.insertReward(arg2, done);
+      }
+    ],
     function (err, result) {
       if (err) {
         console.log('err', err);
@@ -86,11 +68,11 @@ exports.join_info = function (data, callback) {
         result.couple_no = data.couple_no;
         result.isAlreadyCouple = 1; //falg
         //todo check couple_is
-        getCoupleIs(result, done);
+        dao.getCoupleIs(result, done);
       } else {
         result.isAlreadyCouple = 0; //flag
         //todo check auth_phone
-        checkAuthPhone(result, done);
+        dao.checkAuthPhone(result, done);
       }
     },
     function (result2, done) {
@@ -99,7 +81,7 @@ exports.join_info = function (data, callback) {
           done(null, result2);
         } else {
           //couple_withdraw와 user_addition 조회
-          checkCoupleWithdrawandUserAddition(result2, done);
+          dao.checkCoupleWithdrawandUserAddition(result2, done);
         }
       }
       else if(result2.isAlreadyCouple == 0) {
@@ -107,7 +89,7 @@ exports.join_info = function (data, callback) {
           done(null, result2);
         } else {
           //auth_phone 결과얻었으므로 couple_no로 상대방 전화번호 찾아야함
-          getPartnerPhone(result2, done);
+          dao.getPartnerPhone(result2, done);
         }
       }
       else{
@@ -122,7 +104,7 @@ exports.join_info = function (data, callback) {
         //couple_is = 1 && couple_withdraw = 0 && user_addition = 0일때
         //커플은 승인되었지만 추가정보를 입력하지 않았으므로 user_req와 user_gender 조회하여
         //사용자에 맞는 추가정보입력 페이지로 이동
-        getRespondentInfo(result3, done);
+        dao.getRespondentInfo(result3, done);
       }
     }
   ], function (err, result) {
@@ -147,10 +129,10 @@ exports.join_info = function (data, callback) {
 exports.common = function (data, callback) {
   async.waterfall([
       function (done) {
-        selectUserReq(data, done);
+        dao.selectUserReq(data, done);
       },
       function (arg1, done) {
-        updateCoupleandUserBirth(data, arg1, done);
+        dao.updateCoupleandUserBirth(data, arg1, done);
       }],
     function (err, result) {
       if (err) {
@@ -166,6 +148,7 @@ exports.common = function (data, callback) {
 /*
  * 여성정보등록
  * 단순히 여러가지의 정보를 등록하는 기능이므로 병렬로 처리
+ * todo 트랜잭션 처리 : 3개 모두 성공했을 때만 commit
  * 1. pills 배열이 비었는지 안비었는지 확인
  * 2. 데이터가 있을 경우 user_pills = 1, pills테이블에 insert
  * 3. period insert
@@ -181,16 +164,18 @@ exports.woman = function (pills, period, syndromes, callback) {
   async.parallel([
     function (done) {
       if (pills.user_pills == 1) {
-        insertPills(pills, done);
+        dao.insertPills(pills, done);
       }
       //약복용안할경우 user_pills만 0으로 갱신
-      else updateUserPills(pills, done);
+      else {
+        dao.updateUserPills(pills, done);
+      }
     },
     function (done) {
-      insertPeriod(period, done);
+      dao.insertPeriods(period, done);
     },
     function (done) {
-      insertSyndromes(syndromes, done)
+      dao.insertSyndromes(syndromes, done)
     }
   ], function (err, result) {
     if (err) {
@@ -213,11 +198,22 @@ exports.woman = function (pills, period, syndromes, callback) {
 exports.login = function (data, callback) {
   async.waterfall([
       function (done) {
+<<<<<<< HEAD
         doLogin(data, done);
       //},
       //function (arg, done) {
       //  updateUserInfo(data, arg, done);
       }],
+=======
+        dao.doLogin(data, done);
+      },
+      function (arg, done) {
+        dao.updateUserInfo(data, arg, done);
+      },
+      function(arg2, done){
+        dao.updateUserIsLogin(arg2, 1, done);
+    }],
+>>>>>>> d4c89f58f881f085668579982c35dc2b264b0b34
     function (err, result) {
       if (err) {
         console.log('err', err);
@@ -251,9 +247,10 @@ exports.userinfo = function (data, callback) {
 };
 
 //로그아웃
+//user_islogin = 0으로 갱신한다
 exports.logout = function (data, callback) {
-  var success = 1;
-  callback(success);
+  //islogin 을 0으로 갱신
+  dao.updateUserIsLogin(data, 0, callback);
 };
 
 //회원탈퇴
@@ -262,6 +259,7 @@ exports.withdraw = function (data, callback) {
   callback(success);
 };
 
+<<<<<<< HEAD
 
 //입력받은 user_id가 중복된 값인지 아닌지 확인
 function checkUserId(data, done) {
@@ -865,3 +863,5 @@ function insertSyndromes(syndromes, done) {
 //    conn.release();
 //  });
 //}
+=======
+>>>>>>> d4c89f58f881f085668579982c35dc2b264b0b34
