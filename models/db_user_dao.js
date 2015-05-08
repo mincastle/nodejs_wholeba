@@ -533,6 +533,7 @@ function updateUserPills(pills, done) {
           console.log('update user_pills row : ', row);
           done(null);
         } else {
+          console.log('row', row);
           done('사용자 피임약복용여부 등록 실패', null);
         }
       }
@@ -629,67 +630,22 @@ function insertPeri(params, done) {
 function insertSyndromes(syndromes, done) {
   var user_no = syndromes.user_no;
   var syndromes = syndromes.items;
-  var length = syn.length;
+  var length = syndromes.length;
   var params = [];
   console.log('length', length);
 
+  //배열길이에 맞게 반복
   async.each(syndromes, function(syn, done) {
     params = [user_no, syn.syndrome_name, parseInt(syn.syndrome_before), parseInt(syn.syndrome_after)];
     insertSyn(params, done);
   },
-  function(err, result) {
+  function(err) {
     if(err) {
       done(err, null);
     } else {
-      if(result) {
-        console.log('syndromes result : ', result);
-      }
+      done(null, "생리증후군 등록 성공");
     }
   });
-
-  //async.parallel([
-  //    function(done) {
-  //      if (0 < length) {
-  //        params = [user_no, syn[0].syndrome_name,
-  //          parseInt(syn[0].syndrome_before), parseInt(syn[0].syndrome_after)];
-  //        console.log(params);
-  //        insertSyn(params, done);
-  //      } else {
-  //        done('증후군 입력값 이상', null);
-  //      }
-  //    },
-  //    function(done){
-  //      if(1 < length) {
-  //        params = [user_no, syn[1].syndrome_name,
-  //          parseInt(syn[1].syndrome_before), parseInt(syn[1].syndrome_after)];
-  //        insertSyn(params, done);
-  //      } else {
-  //        done(null, 'syndrome num : ' + length);
-  //      }
-  //    },
-  //    function(done){
-  //      if(2 < length) {
-  //        params = [user_no, syn[2].syndrome_name,
-  //          parseInt(syn[2].syndrome_before), parseInt(syn[2].syndrome_after)];
-  //        insertSyn(params, done);
-  //      } else {
-  //        done(null, 'syndrome num : ' + length);
-  //      }
-  //    }
-  //  ]
-  //  , function(err, result) {
-  //    if(err) {
-  //      console.log('err', err);
-  //      done(err, null);
-  //    } else {
-  //      if(result) {
-  //        //console.log('woman info result', result);
-  //        done(null, result);
-  //      } else {
-  //        done('증후군 등록 실패', null);
-  //      }
-  //    }
-  //  });
 }
 
 function insertSyn(params, done) {

@@ -158,9 +158,9 @@ exports.common = function (data, callback) {
  * syndromes = [{syndrome_name, syndrome_before, syndrome_after}]
  */
 exports.woman = function (pills, period, syndromes, callback) {
-  //console.log('pills', pills);
-  //console.log('period',period );
-  //console.log('syndromes', syndromes);
+  console.log('pills', pills);
+  console.log('period',period );
+  console.log('syndromes', syndromes);
   async.parallel([
     function (done) {
       if (pills.user_pills == 1) {

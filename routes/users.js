@@ -172,8 +172,8 @@ router.post('/woman', function (req, res, next) {
   var pills_date = bodydata.pills_date;
   var pills_time = bodydata.pills_time;
   var period = {"user_no" : user_no, "period_start" : period_start, "period_end" : period_end, "period_cycle" : period_cycle};
-  //syndromes = {"user_no" : user_no, "items" : [{"syndrome_name" : "우울", "syndrome_before" : 1, "syndrome_after" : 0},
-  //  {"syndrome_name" : "폭식", "syndrome_before" : 1, "syndrome_after" : 1}, {"syndrome_name" : "분노", "syndrome_before" : 2, "syndrome_after" : 2}]};
+  syndromes = {"user_no" : user_no, "items" : [{"syndrome_name" : "우울", "syndrome_before" : 1, "syndrome_after" : 0},
+    {"syndrome_name" : "폭식", "syndrome_before" : 1, "syndrome_after" : 1}, {"syndrome_name" : "분노", "syndrome_before" : 2, "syndrome_after" : 2}]};
   var pills = {"user_no" : user_no, "user_pills" : user_pills, "pills_date" : pills_date, "pills_time" : pills_time};
 
   db_user.woman(pills, period, syndromes, function (err, result) {
