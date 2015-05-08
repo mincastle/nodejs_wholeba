@@ -46,8 +46,8 @@ router.post('/autologin', function (req, res, next) {
       res.json(success_json);
     }
   })
-
 });
+
 
 //회원가입
 router.post('/join', function (req, res, next) {

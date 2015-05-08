@@ -214,9 +214,9 @@ exports.login = function (data, callback) {
   async.waterfall([
       function (done) {
         doLogin(data, done);
-      },
-      function (arg, done) {
-        updateUserInfo(data, arg, done);
+      //},
+      //function (arg, done) {
+      //  updateUserInfo(data, arg, done);
       }],
     function (err, result) {
       if (err) {
@@ -635,17 +635,15 @@ function updateUserBirth(data, done) {
 //user_no, couple_no, user_phone, user_regid 를 row로 반환
 function doLogin(data, done) {
   pool.getConnection(function (err, conn) {
-    if (err) done(err, null);
-    else {
+    if (err) {
+      done(err, null)
+    } else {
       var params = [data.user_id, data.user_pw];
       console.log('do login params', params);
       conn.query(sql.selectLogin, params, function (err, row) {
         if (err) {
           done(err, null);
-          conn.release();
-          return;
-        }
-        else {
+        } else {
           console.log('do login : ', row[0]);
           if (row) {
             if (row[0].cnt == 1) {
@@ -654,7 +652,6 @@ function doLogin(data, done) {
               done('존재하지 않는 아이디이거나 비밀번호가 틀렸습니다', null);
             }
           } else done('login error', null);
-          5
         }
         conn.release();
       });
