@@ -211,6 +211,7 @@ router.post('/login', function (req, res, next) {
         req.session.user_no = result.user_no;
         //null이 아니면 세션에 저장
         req.session.couple_no = result.couple_no;
+        console.log('sesseion : ', req.session);
         success_json.result.message = "로그인 성공";
         res.json(success_json);
       } else {

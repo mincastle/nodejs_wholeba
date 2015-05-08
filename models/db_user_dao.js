@@ -5,6 +5,7 @@ var sql = require('./db_sql');
 var mysql = require('mysql');
 var db_config = require('./db_config');
 var sql = require('./db_sql');
+var async = require('async');
 var pool = mysql.createPool(db_config);
 
 
@@ -410,7 +411,7 @@ function updateUserInfo(data, arg, done) {
                 done(null, arg);
               } else {
                 console.log('update user_regid row', row);
-                row.user_no = arg.user_no; //islogin 바꾸기 위해 보냄
+                //row.user_no = arg.user_no; //islogin 바꾸기 위해 보냄
                 updateUserPhone(data, arg, done);
               }
             } //row
@@ -571,58 +572,88 @@ function insertPeri(params, done) {
   });
 }
 
+// 1st para in async.each() is the array of items
+//async.each(items,
+//  // 2nd param is the function that each item is passed to
+//  function(item, callback){
+//    // Call an asynchronous function, often a save() to DB
+//    item.someAsyncCall(function (){
+//      // Async call is done, alert via callback
+//      callback();
+//    });
+//  },
+//  // 3rd param is the function to call when everything's done
+//  function(err){
+//    // All tasks are done now
+//    doSomethingOnceAllAreDone();
+//  }
+//);
+
 //insert 생리증후군
 function insertSyndromes(syndromes, done) {
   var user_no = syndromes.user_no;
-  var syn = syndromes.items;
-  //var arrayQuery = [];
+  var syndromes = syndromes.items;
   var length = syn.length;
   var params = [];
   console.log('length', length);
 
-  async.parallel([
-      function(done) {
-        if (0 < length) {
-          params = [user_no, syn[0].syndrome_name,
-            parseInt(syn[0].syndrome_before), parseInt(syn[0].syndrome_after)];
-          console.log(params);
-          insertSyn(params, done);
-        } else {
-          done('증후군 입력값 이상', null);
-        }
-      },
-      function(done){
-        if(1 < length) {
-          params = [user_no, syn[1].syndrome_name,
-            parseInt(syn[1].syndrome_before), parseInt(syn[1].syndrome_after)];
-          insertSyn(params, done);
-        } else {
-          done(null, 'syndrome num : ' + length);
-        }
-      },
-      function(done){
-        if(2 < length) {
-          params = [user_no, syn[2].syndrome_name,
-            parseInt(syn[2].syndrome_before), parseInt(syn[2].syndrome_after)];
-          insertSyn(params, done);
-        } else {
-          done(null, 'syndrome num : ' + length);
-        }
+  async.each(syndromes, function(syn, done) {
+    params = [user_no, syn.syndrome_name, parseInt(syn.syndrome_before), parseInt(syn.syndrome_after)];
+    insertSyn(params, done);
+  },
+  function(err, result) {
+    if(err) {
+      done(err, null);
+    } else {
+      if(result) {
+        console.log('syndromes result : ', result);
       }
-    ]
-    , function(err, result) {
-      if(err) {
-        console.log('err', err);
-        done(err, null);
-      } else {
-        if(result) {
-          //console.log('woman info result', result);
-          done(null, result);
-        } else {
-          done('증후군 등록 실패', null);
-        }
-      }
-    });
+    }
+  });
+
+  //async.parallel([
+  //    function(done) {
+  //      if (0 < length) {
+  //        params = [user_no, syn[0].syndrome_name,
+  //          parseInt(syn[0].syndrome_before), parseInt(syn[0].syndrome_after)];
+  //        console.log(params);
+  //        insertSyn(params, done);
+  //      } else {
+  //        done('증후군 입력값 이상', null);
+  //      }
+  //    },
+  //    function(done){
+  //      if(1 < length) {
+  //        params = [user_no, syn[1].syndrome_name,
+  //          parseInt(syn[1].syndrome_before), parseInt(syn[1].syndrome_after)];
+  //        insertSyn(params, done);
+  //      } else {
+  //        done(null, 'syndrome num : ' + length);
+  //      }
+  //    },
+  //    function(done){
+  //      if(2 < length) {
+  //        params = [user_no, syn[2].syndrome_name,
+  //          parseInt(syn[2].syndrome_before), parseInt(syn[2].syndrome_after)];
+  //        insertSyn(params, done);
+  //      } else {
+  //        done(null, 'syndrome num : ' + length);
+  //      }
+  //    }
+  //  ]
+  //  , function(err, result) {
+  //    if(err) {
+  //      console.log('err', err);
+  //      done(err, null);
+  //    } else {
+  //      if(result) {
+  //        //console.log('woman info result', result);
+  //        done(null, result);
+  //      } else {
+  //        done('증후군 등록 실패', null);
+  //      }
+  //    }
+  //  });
 }
 
 function insertSyn(params, done) {
@@ -651,6 +682,7 @@ function insertSyn(params, done) {
 }
 
 //update user_islogin
+//data = user_no, couple_no, user_phone, user_regid
 function updateUserIsLogin(data, islogin, done) {
   pool.getConnection(function(err, conn) {
     if(err) {
@@ -662,7 +694,7 @@ function updateUserIsLogin(data, islogin, done) {
           done(err, null);
         } else {
           if(row.affectedRows == 1){
-            done(null, row);
+            done(null, data);  //세션 설정을 위해 이전의 user_no, couple_no 조회한 결과를 보냄
           } else {
             done('user_islogin 변경 실패', null);
           }
