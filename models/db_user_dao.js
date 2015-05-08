@@ -269,83 +269,75 @@ function getCoupleIs(result, done) {
 }
 
 //selectUserReq
-function selectUserReq(data, done) {
-  pool.getConnection(function (err, conn) {
-    if (err) done(err, null);
+function selectUserReq(conn, data, done) {
+  if (!conn) {
+    done('연결 에러');
+    return;
+  }
+  conn.query(sql.selectUserReq, [data.user_no], function (err, row) {
+    if (err) {
+      done(err, null);
+    }
     else {
-      conn.query(sql.selectUserReq, [data.user_no], function (err, row) {
-        if (err) {
-          done(err, null);
+      if (row) {
+        if (!row[0].user_req) {
+          done('커플요청여부 조회 실패', null);
+        } else {
+          console.log('select user_req : ', row[0]);
+          done(null, row[0]);
         }
-        else {
-          if (row) {
-            if (!row[0].user_req) {
-              done('커플요청여부 조회 실패', null);
-            } else {
-              console.log('select user_req : ', row[0]);
-              done(null, row[0]);
-            }
-          } else {
-            done('커플요청여부 조회 실패', null);
-          }
-        }
-        conn.release();
-      });
+      } else {
+        done('커플요청여부 조회 실패', null);
+      }
     }
   });
 }
 
 //update couple_birth, user_birth
-function updateCoupleandUserBirth(data, arg, done) {
-  pool.getConnection(function (err, conn) {
-    if (err) {
-      done(err, null);
+function updateCoupleandUserBirth(conn, data, arg, done) {
+  if (!conn) {
+    done('연결 에러');
+    return;
+  }
+  //user_req = 1 이면 커플요청자이므로 사귄날 update
+  //그 후에 user_birth update
+  if (arg.user_req = 1) {
+    if (!data.couple_birth) {
+      done('커플의 사귄날 입력정보 없음', null);
     }
-    else {
-      //user_req = 1 이면 커플요청자이므로 사귄날 update
-      //그 후에 user_birth update
-      if (arg.user_req = 1) {
-        if (!data.couple_birth) {
-          done('커플의 사귄날 입력정보 없음', null);
-        }
-        var params = [data.couple_birth, data.user_no];
-        conn.query(sql.updateCoupleBirth, params, function (err, row) {
-          if (err) {
-            done(err, null);
-          }
-          else {
-            updateUserBirth(data, done);
-          }
-          conn.release();
-        });
+    var params = [data.couple_birth, data.user_no];
+    conn.query(sql.updateCoupleBirth, params, function (err, row) {
+      if (err) {
+        done(err, null);
       }
-      //user_req = 0이면 커플요청받은사람 이므로 생일만 update
-      else if (arg.user_req == 0) {
-        updateUserBirth(data, done);
-      } else {
-        done('사용자의 커플요청여부 에러', null);
+      else {
+        updateUserBirth(conn, data, done);
       }
-    }
-  });
+    });
+  }
+  //user_req = 0이면 커플요청받은사람 이므로 생일만 update
+  else if (arg.user_req == 0) {
+    updateUserBirth(conn, data, done);
+  } else {
+    done('사용자의 커플요청여부 에러', null);
+  }
 }
 
 
 //update user_birth
-function updateUserBirth(data, done) {
-  pool.getConnection(function (err, conn) {
-    if (err) done(err, null);
+function updateUserBirth(conn, data, done) {
+  if (!conn) {
+    done('연결 에러');
+    return;
+  }
+  var params = [data.user_birth, data.user_no];
+  conn.query(sql.updateUserBirth, params, function (err, row) {
+    if (err) {
+      done(err, null);
+    }
     else {
-      var params = [data.user_birth, data.user_no];
-      conn.query(sql.updateUserBirth, params, function (err, row) {
-        if (err) {
-          done(err, null);
-        }
-        else {
-          //console.log('update user birth : ', row);
-          done(null, row);
-        }
-        conn.release();
-      });
+      //console.log('update user birth : ', row);
+      done(null, row);
     }
   });
 }
@@ -487,54 +479,51 @@ function updateUserPhone(data, arg, done) {
  1. pills 테이블에 insert
  2. user_pills=1로 갱신
  */
-function insertPills(pills, done) {
+function insertPills(conn, pills, done) {
+  if (!conn) {
+    done('연결 에러');
+    return;
+  }
   var pillsDate = new Date(pills.pills_date);
-
-  pool.getConnection(function (err, conn) {
-    if (err) done(err);
-    else {
-      var params = [pills.user_no, pillsDate, pills.pills_time];
-      conn.query(sql.insertPills, params, function (err, row) {
-        if (err) {
-          done(err);
-        } else {
-          if (row) {
-            console.log('insert pills row : ', row);
-            if (row.affectedRows == 1) {
-              updateUserPills(pills, done);
-            } else done('피임약 정보 등록 실패');
-          }
-        }
-        conn.release();
-      });
+  var params = [pills.user_no, pillsDate, pills.pills_time];
+  conn.query(sql.insertPills, params, function (err, row) {
+    if (err) {
+      done(err);
+    } else {
+      if (row) {
+        console.log('insert pills row : ', row);
+        if (row.affectedRows == 1) {
+          updateUserPills(conn, pills, done);
+        } else done('피임약 정보 등록 실패');
+      }
     }
   });
 }
 
 //set user_pills
-function updateUserPills(pills, done) {
-  //update user_pills
-  pool.getConnection(function (err, conn) {
-    var params = [pills.user_pills, pills.user_no];
-    conn.query(sql.updateUserPills, params, function (err, row) {
-      if (err) {
-        done(err);
-      } else {
-        if (row.affectedRows == 1) {
-          console.log('update user_pills row : ', row);
-          done(null);
-        } else {
-          console.log('row', row);
-          done('사용자 피임약복용여부 등록 실패', null);
-        }
-      }
-      conn.release();
-    });
+function updateUserPills(conn, pills, done) {
+  if (!conn) {
+    done('연결에러');
+    return;
+  }
+  var params = [pills.user_pills, pills.user_no];
+  conn.query(sql.updateUserPills, params, function (err, row) {
+    if (row.affectedRows == 1) {
+      console.log('update user_pills row : ', row);
+      done(null);
+    } else {
+      console.log('row', row);
+      done('사용자 피임약복용여부 등록 실패', null);
+    }
   });
 }
 
 //insert period
-function insertPeriods(period, callback) {
+function insertPeriods(conn, period, callback) {
+  if (!conn) {
+    callback('연결에러');
+    return;
+  }
   //string to date
   var startDate = new Date(period.period_start);
   var endDate = new Date(period.period_end);
@@ -561,10 +550,10 @@ function insertPeriods(period, callback) {
 
   async.parallel([
       function (done) {
-        insertPeri(thisParams, done);
+        insertPeri(conn, thisParams, done);
       },
       function (done) {
-        insertPeri(nextParams, done);
+        insertPeri(conn, nextParams, done);
       }],
     function (err, result) {
       if (err) {
@@ -577,26 +566,20 @@ function insertPeriods(period, callback) {
     });
 }
 
-function insertPeri(params, done) {
-  pool.getConnection(function (err, conn) {
+function insertPeri(conn, params, done) {
+  conn.query(sql.insertPeriod, params, function (err, row) {
     if (err) {
       done(err, null);
+    } else {
+      if (row) {
+        console.log('insert period row : ', row);
+        if (row.affectedRows == 1) {
+          done(null, row);
+        } else {
+          done()
+        }
+      } else done('생리주기 정보 등록 실패', null);
     }
-    conn.query(sql.insertPeriod, params, function (err, row) {
-      if (err) {
-        done(err, null);
-      } else {
-        if (row) {
-          console.log('insert period row : ', row);
-          if (row.affectedRows == 1) {
-            done(null, row);
-          } else {
-            done()
-          }
-        } else done('생리주기 정보 등록 실패', null);
-      }
-      conn.release();
-    });
   });
 }
 
@@ -618,7 +601,7 @@ function insertPeri(params, done) {
 //);
 
 //insert 생리증후군
-function insertSyndromes(syndromes, done) {
+function insertSyndromes(conn, syndromes, done) {
   var user_no = syndromes.user_no;
   var syndromes = syndromes.items;
   var length = syndromes.length;
@@ -628,7 +611,7 @@ function insertSyndromes(syndromes, done) {
   //배열길이에 맞게 반복
   async.each(syndromes, function (syn, done) {
       params = [user_no, syn.syndrome_name, parseInt(syn.syndrome_before), parseInt(syn.syndrome_after)];
-      insertSyn(params, done);
+      insertSyn(conn, params, done);
     },
     function (err) {
       if (err) {
@@ -639,27 +622,22 @@ function insertSyndromes(syndromes, done) {
     });
 }
 
-function insertSyn(params, done) {
-  pool.getConnection(function (err, conn) {
+function insertSyn(conn, params, done) {
+  if(!conn) {
+    done('연결 에러');
+    return;
+  }
+  //사용자가 등록한 증후군 갯수만큼 저장
+  conn.query(sql.insertSyndrome, params, function (err, row) {
     if (err) {
       done(err, null);
-    }
-    else {
-      //사용자가 등록한 증후군 갯수만큼 저장
-      //console.log('params', params);
-      conn.query(sql.insertSyndrome, params, function (err, row) {
-        if (err) {
-          done(err, null);
-        } else {
-          if (row.affectedRows == 1) {
-            console.log('insert syndrome row : ', row);
-            done(null, row);
-          } else {
-            done('생리증후군 등록 실패', null);
-          }
-        }
-        conn.release();
-      });
+    } else {
+      if (row.affectedRows == 1) {
+        console.log('insert syndrome row : ', row);
+        done(null, row);
+      } else {
+        done('생리증후군 등록 실패', null);
+      }
     }
   });
 }
