@@ -164,10 +164,10 @@ exports.join_info = function (data, callback) {
     if (err) {
       console.log('err', err);
       callback(err, null);
-      //dao.setRollback();
     } else {
       if (result.join_code) {
         console.log('join info result : ', result);
+        callback(null, result);
       }
     }
   });
@@ -258,35 +258,113 @@ exports.woman = function (pills, period, syndromes, callback) {
  * data = {user_id, user_pw, user_phone, user_regid}
  */
 exports.login = function (data, callback) {
-  async.waterfall([
-      function (done) {
-        dao.doLogin(data, done);
-      },
-      function (arg, done) {
-        dao.updateUserInfo(data, arg, done);
-      //},
-      //function(arg2, done){
-      //  dao.updateUserIsLogin(arg2, 1, done);
-    }],
-    function (err, result) {
-      if (err) {
-        if (err == 'userphone changed') {
-          console.log('userphone changed');
-          callback('userphone changed');
-        }else{
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      done(err, null);
+    } else {
+      conn.beginTransaction(function(err) {
+        if(err) {
           console.log('err', err);
-          callback(err);
+          conn.rollback(function () {
+            callback(err);
+          });
+        } else {
+          async.waterfall([
+            function (done) {
+              dao.doLogin(conn, data, done);
+            }, function (arg, done) {
+              dao.updateUserRegIdandUserPhone(conn, data, arg, done);
+            }, function (arg2, done) {
+              dao.updateUserIsLogin(conn, arg2, 1, done);
+            }],
+            function (err, result) {
+              if (err) {
+                if (err == 'userphone changed') {
+                  conn.rollback(function () {
+                    callback('userphone changed', result);
+                  });
+                }else{
+                  conn.rollback(function () {
+                    callback(err);
+                  });
+                }
+              } else {
+                conn.commit(function(err) {
+                  if (err) {
+                    conn.rollback(function () {
+                      callback(err);
+                    });
+                  }
+                  //커밋성공
+                  else {
+                    console.log('result', result);
+                    callback(null, result);
+                  }
+                });
+              }
+          });
         }
-      } else {
-        console.log('login_result', result);
-        callback(null, result);
-      }
-    });
+        conn.release();
+      });  //begin transaction
+    }
+  });
 };
 
-
+/* 로그인 여부 확인 후 로그인 하겠다는 요청
+  1. 기존에 로그인 되어있던 user_no의 user_regid, user_phone을 가져온다.
+  2.
+ */
 exports.acceptlogin = function (data, callback) {
-
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      done(err, null);
+    } else {
+      conn.beginTransaction(function(err) {
+        if(err) {
+          console.log('err', err);
+          conn.rollback(function () {
+            callback(err);
+          });
+        } else {
+          async.waterfall([
+              function (done) {
+                dao.doLogin(conn, data, done);
+              }, function (arg, done) {
+                dao.updateUserRegIdandUserPhone(conn, data, arg, done);
+              }, function (arg2, done) {
+                dao.updateUserIsLogin(conn, arg2, 1, done);
+              }],
+            function (err, result) {
+              if (err) {
+                if (err == 'userphone changed') {
+                  conn.rollback(function () {
+                    callback('userphone changed');
+                  });
+                }else{
+                  conn.rollback(function () {
+                    callback(err);
+                  });
+                }
+              } else {
+                conn.commit(function(err) {
+                  if (err) {
+                    conn.rollback(function () {
+                      callback(err);
+                    });
+                  }
+                  //커밋성공
+                  else {
+                    console.log('result', result);
+                    callback(null, result);
+                  }
+                });
+              }
+            });
+        }
+        conn.release();
+      });  //begin transaction
+    }
+  });
 };
 
 /*

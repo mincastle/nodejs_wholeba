@@ -201,22 +201,26 @@ router.post('/login', function (req, res, next) {
   console.log('login data', data);
   db_user.login(data, function (err, result) {
     if (err) {
+      var accept_json = {};
       if(err == 'userphone changed') {
-        fail_json.success = 2;
+        accept_json.success = 2;
+        accept_json.result = {};
+        accept_json.result.items = result;
       }
-      fail_json.result.message = err;
-      res.json(fail_json);
+      accept_json.result.message = err;
+      res.json(accept_json);
     } else {
       if (result) {
         console.log('login result', result);
         //TODO session setting
         //user_phone과 user_regid가 넘어오긴하지만 최신정보가 아니므로 사용하면 안됨!
         req.session.user_no = result.user_no;
-        //null이 아니면 세션에 저장
         req.session.couple_no = result.couple_no;
-        console.log('sesseion : ', req.session);
-        success_json.result.message = "로그인 성공"
-        success_json.result.result = result;
+
+        success_json.result = {};
+        success_json.result.message = "로그인 성공";
+        success_json.result.items = result;
+
         res.json(success_json);
       } else {
         fail_json.result.message = "로그인 실패";
