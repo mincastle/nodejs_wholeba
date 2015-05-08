@@ -14,15 +14,17 @@
 
 | Feature |	Method	| Request URL | Todo Status | Date  |
 | :---------- |	:-------:	| :-----------------| :--------: | :--------: |
+| 자동로그인 |	POST	| /users/autologin | complete |   |
 | 회원가입 |	POST	| /users/join | complete |   |
 | 가입정보 조회 |	GET	| /users/join | complete |   | 
 | 공통정보 등록 |	POST	| /users/common | complete |   |
-| 여성정보 등록 |	POST	| /users/woman | Incomplete |   |
+| 여성정보 등록 |	POST	| /users/woman | complete |   |
 | 기본값조회 |	GET	| /users/userinfo | complete |   |
 | 로그아웃 |	POST	| /users/logout | complete |   |
-| 로그인 |	POST	| /users/login | complete |   |
+| 로그인 |	POST	| /users/login | Incomplete |   |
+| 로그인승낙 |	POST	| /users/acceptlogin | Incomplete |   |
 | 회원 탈퇴 |	POST	| /users/withdraw | complete |   |
-| 커플정보 조회 |	GET	| /couple | Incomplete |   |
+| 커플정보 조회 |	GET	| /couple | complete |   |
 | 커플 요청 |	POST	| /couple/ask | complete |   |
 | 커플 승인 |	POST	| /couple/answer | complete |   |
 | 내기분 설정 |	POST	| /couple/mycondition | Incomplete |   |

@@ -351,29 +351,41 @@ function updateUserBirth(data, done) {
 }
 
 //login
-//user_no, couple_no, user_phone, user_regid 를 row로 반환
 function doLogin(data, done) {
   pool.getConnection(function (err, conn) {
-    if (err) done(err, null);
-    else {
+    if (err) {
+      done(err, null);
+    } else {
       var params = [data.user_id, data.user_pw];
-      console.log('do login params', params);
+      console.log('data.user_phone', data.user_phone);
       conn.query(sql.selectLogin, params, function (err, row) {
         if (err) {
           done(err, null);
           conn.release();
-          return;
-        }
-        else {
+        } else {
           console.log('do login : ', row[0]);
           if (row) {
             if (row[0].cnt == 1) {
-              done(null, row[0]);
+              switch (row[0].user_islogin) {
+                case 0 : // 로그아웃 처리 되어있는 경우
+                  done(null, row[0]);
+                  break;
+                case 1:  // 기기에 로그인 되어있거나 강제종료 되어있는 경우
+                  if (data.user_phone != row[0].user_phone) {
+                    console.log('userphone changed');
+                    done('userphone changed');
+                  } else {
+                    console.log('userphone  not changed');
+                    done(null, row[0]);
+                  }
+                  break;
+              }
             } else {
-              done('존재하지 않는 아이디이거나 비밀번호가 틀렸습니다', null);
+              done('존재하지 않는 아이디이거나 비밀번호가 틀렸습니다');
             }
-          } else done('login error', null);
-          5
+          } else {
+            done('로그인에 실패했습니다.');
+          }
         }
         conn.release();
       });
@@ -385,40 +397,64 @@ function doLogin(data, done) {
 //사용자의 전화번호와 gcm id가 변경되면 갱신
 //arg는 조회된 값, data는 입력받은 값
 function updateUserInfo(data, arg, done) {
-  //결과값이 하나인지 체크
-  //gcm id가 다를경우
-  if (data.user_regid != arg.user_regid && data.user_regid != "") {
-    pool.getConnection(function (err, conn) {
-      if (err) done(err, null);
-      else {
-        var params = [data.user_regid, arg.user_no];
-        conn.query(sql.updateUserRegId, params, function (err, row) {
-          if (err) done(err, null);
-          else {
-            if (row) {
-              //전화번호도 다를경우
-              if (data.user_phone == arg.user_phone && arg.user_phone != "") {
-                //기존것과 같으면 바꿀필요 없이 break;
-                done(null, arg);
-              } else {
-                console.log('update user_regid row', row);
-                //row.user_no = arg.user_no; //islogin 바꾸기 위해 보냄
-                updateUserPhone(data, arg, done);
-              }
-            } //row
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      done(err);
+    } else {
+      var params = [data.user_regid, data.user_phone, arg.user_no];
+      conn.query(sql.updateUserRegIdandUserPhone, params, function (err, row) {
+        if (err) {
+          done(err);
+        } else {
+          if (row) {
+            done(null, arg);
+          } else {
+            done('err');
           }
-          conn.release();
-        });
-      }
-    });
-  } else if (data.user_phone != arg.user_phone && data.user_phone != "") {
-    //전화번호만 다를경우
-    updateUserPhone(data, arg, done);
-  } else {
-    //다같을경우
-    done(null, arg);
-  }
+        }
+        conn.release();
+      });
+    }
+  });
 }
+
+////사용자의 전화번호와 gcm id가 변경되면 갱신
+////arg는 조회된 값, data는 입력받은 값
+//function updateUserInfo(data, arg, done) {
+//  //결과값이 하나인지 체크
+//  //gcm id가 다를경우
+//  if (data.user_regid != arg.user_regid && data.user_regid != "") {
+//    pool.getConnection(function (err, conn) {
+//      if (err) done(err, null);
+//      else {
+//        var params = [data.user_regid, arg.user_no];
+//        conn.query(sql.updateUserRegId, params, function (err, row) {
+//          if (err) done(err, null);
+//          else {
+//            if (row) {
+//              //전화번호도 다를경우
+//              if (data.user_phone == arg.user_phone && arg.user_phone != "") {
+//                //기존것과 같으면 바꿀필요 없이 break;
+//                done(null, arg);
+//              } else {
+//                console.log('update user_regid row', row);
+//                //row.user_no = arg.user_no; //islogin 바꾸기 위해 보냄
+//                updateUserPhone(data, arg, done);
+//              }
+//            } //row
+//          }
+//          conn.release();
+//        });
+//      }
+//    });
+//  } else if (data.user_phone != arg.user_phone && data.user_phone != "") {
+//    //전화번호만 다를경우
+//    updateUserPhone(data, arg, done);
+//  } else {
+//    //다같을경우
+//    done(null, arg);
+//  }
+//}
 
 //user_phone이 달라졌을 경우 갱신
 //data : 입력값, arg : 기존값

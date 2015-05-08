@@ -242,7 +242,16 @@ exports.woman = function (pills, period, syndromes, callback) {
 };
 
 /*
- * 로그인
+  로그인
+    1. user_islogin = 0 (로그아웃 처리 되어있는 경우)
+     1.1 user_phone, user_regid, user_islogin=1 업데이트 (end)
+    2. user_islogin = 1 (기기에 로그인이 되어있거나 강제종료되어 있는 경우)
+     2.1 user_phone 변경 (다른기기에서 로그인)
+      2.1.1 user_phone 변경 메시지 전송
+     2.2 user_phone 미변경 (같은기기에서 로그인)
+      2.2.1 user_phone, user_regid, user_islogin=1 업데이트 (end)
+
+ * user_phone 비교
  * user_id와 user_pw 비교하여 로그인
  * + user_phone과 user_regid가 달라졌을경우 update
  * users.js에서 세션 저장
@@ -255,19 +264,29 @@ exports.login = function (data, callback) {
       },
       function (arg, done) {
         dao.updateUserInfo(data, arg, done);
-      },
-      function (arg2, done) {
-        dao.updateUserIsLogin(arg2, 1, done);
-      }],
+      //},
+      //function(arg2, done){
+      //  dao.updateUserIsLogin(arg2, 1, done);
+    }],
     function (err, result) {
       if (err) {
-        console.log('err', err);
-        callback(err, null);
+        if (err == 'userphone changed') {
+          console.log('userphone changed');
+          callback('userphone changed');
+        }else{
+          console.log('err', err);
+          callback(err);
+        }
       } else {
-        console.log('result', result);
+        console.log('login_result', result);
         callback(null, result);
       }
     });
+};
+
+
+exports.acceptlogin = function (data, callback) {
+
 };
 
 /*
