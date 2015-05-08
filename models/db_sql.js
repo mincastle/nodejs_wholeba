@@ -17,10 +17,12 @@ exports.insertReward = 'insert into reward(user_no) values(?);';
 exports.selectAutologin =  "select couple_no, count(user_no) cnt from user where user_no=? and user_phone=?";
 
 //로그인시, 입력 아이디와 패스워드와 같은 행이 있는지 조회
-exports.selectLogin = 'select user_no, couple_no, user_phone, user_regid, count(*) as cnt from user where user_id=? and user_pw=?';
+//exports.selectLogin = 'select user_no, couple_no, user_phone, user_regid, count(*) as cnt from user where user_id=? and user_pw=?';
+exports.selectLogin = 'select user_no, couple_no, user_phone, user_regid, user_islogin, count(*) as cnt from user where user_id=? and user_pw=?';
 
-//로그인시, 사용자의 gcmid 갱신
-exports.updateUserRegId = 'update user set user_regid=? where user_no=?;';
+//로그인시, 사용자의 gcmid, user_phone 갱신
+//exports.updateUserRegId = 'update user set user_regid=? where user_no=?;';
+exports.updateUserRegIdandUserPhone = 'update user set user_regid=?, user_phone=? where user_no=?';
 
 //로그인시, 사용자의 전화번호 갱신
 exports.updateUserPhone = 'update user set user_phone=? where user_no=?';

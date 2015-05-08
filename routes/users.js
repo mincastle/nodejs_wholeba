@@ -198,9 +198,12 @@ router.post('/login', function (req, res, next) {
   var user_phone = bodydata.user_phone;
   var user_regid = bodydata.user_regid;
   var data = {"user_id" : user_id, "user_pw" : user_pw, "user_phone" : user_phone, "user_regid" : user_regid};
-
+  console.log('login data', data);
   db_user.login(data, function (err, result) {
     if (err) {
+      if(err == 'userphone changed') {
+        fail_json.success = 2;
+      }
       fail_json.result.message = err;
       res.json(fail_json);
     } else {
@@ -212,8 +215,33 @@ router.post('/login', function (req, res, next) {
         //null이 아니면 세션에 저장
         req.session.couple_no = result.couple_no;
         console.log('sesseion : ', req.session);
-        success_json.result.message = "로그인 성공";
+        success_json.result.message = "로그인 성공"
+        success_json.result.result = result;
         res.json(success_json);
+      } else {
+        fail_json.result.message = "로그인 실패";
+        res.json(fail_json);
+      }
+    }
+  });
+});
+
+router.post('/acceptlogin', function (req, res, next) {
+  var bodydata = req.body;
+
+  var user_id = bodydata.user_id;
+  var user_pw = bodydata.user_pw;
+  var user_phone = bodydata.user_phone;
+  var user_regid = bodydata.user_regid;
+  var data = {"user_id" : user_id, "user_pw" : user_pw, "user_phone" : user_phone, "user_regid" : user_regid};
+
+  db_user.acceptlogin(data, function (err, result) {
+    if (err) {
+      fail_json.result.message = err;
+      res.json(fail_json);
+    } else {
+      if (result) {
+
       } else {
         fail_json.result.message = "로그인 실패";
         res.json(fail_json);
