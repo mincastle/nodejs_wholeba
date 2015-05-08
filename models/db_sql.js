@@ -62,7 +62,7 @@ exports.updateUserBirth = 'update user set user_birth=? where user_no=?';
 exports.insertPills = 'insert into pills(user_no, pills_date, pills_time) values(?, ?, ?);';
 
 //여성정보등록시, user 테이블에 피임약복용여부 갱신
-exports.updateUserPills = 'update user set user_pills=? where user_no=? and user_gender="f";';
+exports.updateUserPills = 'update user set user_pills=? where user_no=? and user_gender="F";';
 
 //여성정보등록시, period 테이블에 행 추가
 exports.insertPeriod = 'insert into period(user_no, period_start, period_end, period_danger, period_cycle) values(?, ?, ?, ?, ?);';
