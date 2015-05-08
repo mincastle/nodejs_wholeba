@@ -13,7 +13,6 @@ exports.autologin = function (data, callback) {
 
 /*
  * 회원가입
- * todo 트랜잭션 처리 추가해야함
  * 0. 아이디 중복 검사
  * 1. insert into user
  * data = {user_id, user_pw, user_phone, user_regid}
@@ -68,48 +67,25 @@ exports.join = function (data, callback) {
         conn.release();
       });  //begin transaction
     }
-  });
-
-  //console.log('autoresult', result);
-  //async.waterfall([
-  //    function (done) {
-  //      dao.checkUserId(data, done);
-  //    },
-  //    function (arg1, done) {
-  //      dao.insertUser(data, arg1, done);
-  //    },
-  //    function (arg2, done) {
-  //      dao.insertReward(arg2, done);
-  //    }
-  //  ],
-  //  function (err, result) {
-  //    if (err) {
-  //      console.log('err', err);
-  //      callback(err, null);
-  //    } else {
-  //      console.log('result', result);
-  //      callback(null, result);
-  //    }
-  //  });
-
+  });  //getconnection
 };
 
 /*
- * 가입정보조회
- * 1. couple_no null체크
- *   1-1. couple_no 가 있으면 couple_is 체크
- *     1-1-1. couple_is = 1 이면, user_addition, couple_withdraw 체크
- *       1-1-1-1. user_addition = 0 && couple_withdraw = 0
- *                이면 user_req 와 user_gender 조회 (join_code = 4)
- *       1-1-1-2. user_addition = 1 && couple_withdraw = 0
- *               이면 메인으로 이동(join_code = 0)
- *      1-1-1-3. couple_withdraw = 1 일땐 무조건 (join_code = 5)
- *     1-1-2. couple_is = 0 이면, 커플승인 기다리는중 (join_doe = 3)
- *   1-2. couple_no가 없으면 auth_phone 체크
- *     1-2-1. auth_phone에 있으면 상대방 전화번호 select (join_code = 2)
- *     1-2-2. auth_phone에 없으면 요청페이지 띄워줘야함 (join_code = 1)
- * data = {"user_no","couple_no"};
- */
+ 가입정보조회
+ 1. couple_no null체크
+   1-1. couple_no 가 있으면 couple_is 체크
+     1-1-1. couple_is = 1 이면, user_addition, couple_withdraw 체크
+       1-1-1-1. user_addition = 0 && couple_withdraw = 0
+                이면 user_req 와 user_gender 조회 (join_code = 4)
+       1-1-1-2. user_addition = 1 && couple_withdraw = 0
+               이면 메인으로 이동(join_code = 0)
+      1-1-1-3. couple_withdraw = 1 일땐 무조건 (join_code = 5)
+    1-1-2. couple_is = 0 이면, 커플승인 기다리는중 (join_doe = 3)
+   1-2. couple_no가 없으면 auth_phone 체크
+     1-2-1. auth_phone에 있으면 상대방 전화번호 select (join_code = 2)
+     1-2-2. auth_phone에 없으면 요청페이지 띄워줘야함 (join_code = 1)
+ data = {"user_no","couple_no"};
+*/
 
 exports.join_info = function (data, callback) {
   var result = {};
@@ -120,11 +96,11 @@ exports.join_info = function (data, callback) {
       if (data.couple_no) {
         result.couple_no = data.couple_no;
         result.isAlreadyCouple = 1; //falg
-        //todo check couple_is
+        //check couple_is
         dao.getCoupleIs(result, done);
       } else {
         result.isAlreadyCouple = 0; //flag
-        //todo check auth_phone
+        //check auth_phone
         dao.checkAuthPhone(result, done);
       }
     },
@@ -180,22 +156,50 @@ exports.join_info = function (data, callback) {
  * data = {user_no, couple_birth, user_birth}
  */
 exports.common = function (data, callback) {
-  async.waterfall([
-      function (done) {
-        dao.selectUserReq(data, done);
-      },
-      function (arg1, done) {
-        dao.updateCoupleandUserBirth(data, arg1, done);
-      }],
-    function (err, result) {
-      if (err) {
-        console.log('err', err);
-        callback(err, null);
-      } else {
-        console.log('result', result);
-        callback(null, result);
-      }
-    });
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      callback(err);
+    } else {
+      conn.beginTransaction(function(err) {
+        if(err) {
+          console.log('err', err);
+          conn.rollback(function() {
+            callback(err);
+          });
+        } else {
+          async.waterfall(
+            [
+              function (done) {
+                dao.selectUserReq(conn, data, done);
+              },
+              function (arg1, done) {
+                dao.updateCoupleandUserBirth(conn, data, arg1, done);
+              }
+            ],
+            function (err, result) {
+              if (err) {
+                console.log('err', err);
+                conn.rollback(function() {
+                  callback(err);
+                });
+              } else {
+                console.log('result', result);
+                conn.commit(function(err) {
+                  if(err) {
+                    conn.rollback(function() {
+                      callback(err);
+                    });
+                  } else {
+                    callback(null, result);
+                  }
+                }); //commit
+              }
+          }); //async
+        }
+        conn.release();
+      });  //transaction
+    }
+  });  //getConnection
 };
 
 /*
@@ -214,31 +218,58 @@ exports.woman = function (pills, period, syndromes, callback) {
   console.log('pills', pills);
   console.log('period', period);
   console.log('syndromes', syndromes);
-  async.parallel([
-    function (done) {
-      if (pills.user_pills == 1) {
-        dao.insertPills(pills, done);
-      }
-      //약복용안할경우 user_pills만 0으로 갱신
-      else {
-        dao.updateUserPills(pills, done);
-      }
-    },
-    function (done) {
-      dao.insertPeriods(period, done);
-    },
-    function (done) {
-      dao.insertSyndromes(syndromes, done)
-    }
-  ], function (err, result) {
-    if (err) {
-      console.log('err', err);
-      callback(err, null);
+
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      callback(err);
     } else {
-      console.log('result', result);
-      callback(null, result);
+      conn.beginTransaction(function(err) {
+        if(err) {
+          console.log('err', err);
+          conn.rollback(function() {
+            callback(err);
+          });
+        } else {
+          async.parallel([
+            function (done) {
+              if (pills.user_pills == 1) {
+                dao.insertPills(conn, pills, done);
+              }
+              //약복용안할경우 user_pills만 0으로 갱신
+              else {
+                dao.updateUserPills(conn, pills, done);
+              }
+            },
+            function (done) {
+              dao.insertPeriods(conn, period, done);
+            },
+            function (done) {
+              dao.insertSyndromes(conn, syndromes, done)
+            }
+          ], function (err, result) {
+            if (err) {
+              console.log('err', err);
+              conn.rollback(function() {
+                callback(err);
+              });
+            } else {
+              console.log('result', result);
+              conn.commit(function(err) {
+                if(err) {
+                  conn.rollback(function() {
+                    callback(err);
+                  });
+                }else {
+                  callback(null, result);
+                }
+              }); //commit
+            }
+          }); //async
+        }
+        conn.release();
+      }); //transaction
     }
-  });
+  }); //getconnection
 };
 
 /*
