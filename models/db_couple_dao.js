@@ -8,51 +8,33 @@ var pool = mysql.createPool(db_config);
 
 
 //커플 요청 시, couple 테이블에서 couple 생성
-function insertMakeCouple (data, done) {
-  pool.getConnection(function (err, conn) {
+function insertMakeCouple (conn, data, done) {
+  var datas = [data.auth_phone];
+  conn.query(sql.insertMakeCouple, datas, function (err, row) {
+    //console.log('updateCoupleIs_row', row);
     if (err) {
-      console.log('connection err', err);
       done(err);
-      return;
+    } else if (row.affectedRows == 0) {
+      done('정상적으로 생성되지 않았습니다.');
+    } else {
+      done(null, row.insertId);
     }
-    var datas = [data.auth_phone];
-    conn.query(sql.insertMakeCouple, datas, function (err, row) {
-      //console.log('updateCoupleIs_row', row);
-      if (err) {
-        conn.release();
-        done(err);
-      } else if (row.affectedRows == 0) {
-        done('정상적으로 생성되지 않았습니다.');
-      } else {
-        done(null, row.insertId);
-      }
-      conn.release();
-    });
   });
 }
 
 //커플 요청 시, 요청 user의 user_gender, couple_no 업데이트
-function updateUserGenderandCoupleNoandUserReq (data, insertId, done) {
-  pool.getConnection(function (err, conn) {
+function updateUserGenderandCoupleNoandUserReq (conn, data, insertId, done) {
+  console.log('insertId', insertId);
+  var datas = [data.user_gender, insertId, data.user_no];
+  conn.query(sql.updateUserGenderandCoupleNoandUserReq, datas, function (err, row) {
+    //console.log('updateUserGender_row', row);
     if (err) {
-      console.log('connection err', err);
       done(err);
-      return;
+    } else if (row.affectedRows == 0) {
+      done('정상적으로 업데이트 되지 않았습니다.');
+    } else {
+      done(null, insertId);
     }
-    var datas = [data.user_gender, insertId, data.user_no];
-    conn.query(sql.updateUserGenderandCoupleNoandUserReq, datas, function (err, row) {
-      //console.log('updateUserGender_row', row);
-      if (err) {
-        done(err);
-        conn.release();
-        return;
-      } else if (row.affectedRows == 0) {
-        done('정상적으로 업데이트 되지 않았습니다.');
-      } else {
-        done(null, insertId);
-      }
-      conn.release();
-    });
   });
 };
 

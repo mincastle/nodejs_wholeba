@@ -348,7 +348,7 @@ exports.login = function (data, callback) {
 exports.acceptlogin = function (data, callback) {
   pool.getConnection(function (err, conn) {
     if (err) {
-      done(err, null);
+      callback(err, null);
     } else {
       conn.beginTransaction(function(err) {
         if(err) {

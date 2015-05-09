@@ -1,11 +1,19 @@
-conn.beginTransaction(function(err) {
-  if(err) {
-    console.log('err', err);
-    conn.rollback(function () {
-      callback(err);
-    });
+pool.getConnection(function (err, conn) {
+  if (err) {
+    callback(err, null);
   } else {
+    conn.beginTransaction(function(err) {
+      if(err) {
+        console.log('err', err);
+        conn.rollback(function () {
+          callback(err);
+        });
+      } else {
 
+      }
+      conn.release();
+    });  //begin transaction
   }
-  conn.release();
-});  //begin transaction
+});
+
+commit 처리 항상 할것!

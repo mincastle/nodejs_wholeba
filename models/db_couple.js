@@ -1,9 +1,9 @@
-//var mysql = require('mysql');
-//var db_config = require('./db_config');
+var mysql = require('mysql');
+var db_config = require('./db_config');
 var async = require('async');
 var dao = require('./db_couple_dao');
 
-//var pool = mysql.createPool(db_config);
+var pool = mysql.createPool(db_config);
 
 /*
  커플요청 Parameter { user_no, auth_phone, user_gender }
@@ -12,19 +12,46 @@ var dao = require('./db_couple_dao');
  */
 
 exports.ask = function (data, callback) {
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      callback(err, null);
+    } else {
+      conn.beginTransaction(function(err) {
+        if(err) {
+          console.log('err', err);
+          conn.rollback(function () {
+            callback(err);
+          });
+        } else {
+          async.waterfall([function (done) {
+              dao.insertMakeCouple(conn, data, done);
+            }, function (arg1, done) {
+              dao.updateUserGenderandCoupleNoandUserReq(conn, data, arg1, done);
+            }],
+            function (err, insertId) {
+              if (err) {
+                conn.rollback(function () {
+                  callback(err);
+                });
+              } else {
+                conn.commit(function(err) {
+                  if (err) {
+                    conn.rollback(function () {
+                      callback(err);
+                    });
+                  } else {
+                    callback(null, insertId);
+                  }
+                });
+              }
+          });
+        }
+        conn.release();
+      });  //begin transaction
+    }
+  });
 
-  async.waterfall([function (done) {
-      dao.insertMakeCouple(data, done);
-    }, function (arg1, done) {
-      dao.updateUserGenderandCoupleNoandUserReq(data, arg1, done);
-    }],
-    function (err, insertId) {
-      if (err) {
-        callback(err);
-      } else {
-        callback(null, insertId);
-      }
-    });
+
 };
 
 /*
