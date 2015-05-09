@@ -39,106 +39,66 @@ function updateUserGenderandCoupleNoandUserReq (conn, data, insertId, done) {
 };
 
 
-function selectCheckAnswerCouple (data, done){
-  pool.getConnection(function (err, conn) {
+function selectCheckAnswerCouple (conn, data, done){
+  var datas = [data.user_no];
+  conn.query(sql.selectCheckAnswerCouple, datas, function (err, row) {
     if (err) {
-      console.log('connection err', err);
       done(err);
-      return;
-    }
-    var datas = [data.user_no];
-    conn.query(sql.selectCheckAnswerCouple, datas, function (err, row) {
-      //console.log('updateCoupleIs_row', row);
-      if (err) {
-        conn.release();
-        done(err);
-      } else {
-        console.log('answer row', row);
-        if (!row[0]) {
-          done("당신은 승인자가 아닙니다..");
-        }else{
-          done(null, row[0].couple_no);
-        }
+    } else {
+      console.log('answer row', row);
+      if (!row[0]) {
+        done("당신은 승인자가 아닙니다..");
+      }else{
+        done(null, row[0].couple_no);
       }
-      conn.release();
-    });
+    }
   });
 }
 
-function updateCoupleIs(couple_no, done) {
+function updateCoupleIs(conn, couple_no, done) {
   // couple_no에 couple_is 1로 변경
-  pool.getConnection(function (err, conn) {
+  var datas = [couple_no];
+  conn.query(sql.updateCoupleIs, datas, function (err, row) {
     if (err) {
-      console.log('connection err', err);
       done(err);
-      return;
+    } else if (row.affectedRows == 0) {
+      done('정상적으로 업데이트 되지 않았습니다.');
+    } else {
+      done(null, couple_no);
     }
-    var datas = [couple_no];
-    conn.query(sql.updateCoupleIs, datas, function (err, row) {
-      //console.log('updateUserGender_row', row);
-      if (err) {
-        done(err);
-        conn.release();
-        return;
-      } else if (row.affectedRows == 0) {
-        done('정상적으로 업데이트 되지 않았습니다.');
-      } else {
-        done(null, couple_no);
-      }
-      conn.release();
-    });
   });
 }
 
-function updateUserCoupleNoandGenderandUserReq(couple_no, other_gender, data, done) {
+function updateUserCoupleNoandGenderandUserReq(conn, couple_no, other_gender, data, done) {
   // user_no에 couple_no를 변경
-  pool.getConnection(function (err, conn) {
+  var datas = [couple_no, other_gender, data.user_no];
+  conn.query(sql.updateUserCoupleNoandGenderandUserReq, datas, function (err, row) {
+    //console.log('updateUserGender_row', row);
     if (err) {
-      console.log('connection err', err);
       done(err);
-      return;
+    } else if (row.affectedRows == 0) {
+      done('정상적으로 업데이트 되지 않았습니다.');
+    } else {
+      var result = {couple_no : couple_no, other_gender:other_gender, user_req :0};
+      done(null, result);
     }
-    var datas = [couple_no, other_gender, data.user_no];
-    conn.query(sql.updateUserCoupleNoandGenderandUserReq, datas, function (err, row) {
-      //console.log('updateUserGender_row', row);
-      if (err) {
-        done(err);
-        conn.release();
-        return;
-      } else if (row.affectedRows == 0) {
-        done('정상적으로 업데이트 되지 않았습니다.');
-      } else {
-        var result = {couple_no : couple_no, other_gender:other_gender, user_req :0};
-        done(null, result);
-      }
-      conn.release();
-    });
   });
 }
 
-function selectOtherGender(couple_no, data, done) {
-  pool.getConnection(function (err, conn) {
+function selectOtherGender(conn, couple_no, data, done) {
+  var datas = [couple_no, data.user_no];
+  conn.query(sql.selectOtherGender, datas, function (err, row) {
+    //console.log('updateCoupleIs_row', row);
     if (err) {
-      console.log('connection err', err);
       done(err);
-      return;
-    }
-    var datas = [couple_no, data.user_no];
-    conn.query(sql.selectOtherGender, datas, function (err, row) {
-      //console.log('updateCoupleIs_row', row);
-      if (err) {
-        conn.release();
-        done(err);
-      } else {
-        console.log('other gender', row);
-        if (!row[0]) {
-          done("성별 조회 실패");
-        }else{
-          done(null, couple_no, row[0].other_gender);
-        }
+    } else {
+      console.log('other gender', row);
+      if (!row[0]) {
+        done("성별 조회 실패");
+      }else{
+        done(null, couple_no, row[0].other_gender);
       }
-      conn.release();
-    });
+    }
   });
 }
 

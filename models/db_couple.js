@@ -63,24 +63,44 @@ exports.ask = function (data, callback) {
   4. //TODO : 승인된 커플들의 reward를 생성한다.???
  */
 exports.answer = function (data, callback) {
-
-  async.waterfall([function (done) {
-      dao.selectCheckAnswerCouple(data, done);
-    },function (couple_no, done) {
-      dao.updateCoupleIs(couple_no, done);
-    }, function (couple_no, done) {
-      dao.selectOtherGender(couple_no, data, done);
-    }, function (couple_no, other_gender, done) {
-      dao.updateUserCoupleNoandGenderandUserReq(couple_no, other_gender, data, done);
-    }],
-    function (err, result) {
-      console.log('result', result);
-      if (err) {
-        callback(err);
-      } else {
-        callback(null, result);
-      }
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      callback(err, null);
+    } else {
+      conn.beginTransaction(function(err) {
+        if(err) {
+          console.log('err', err);
+          conn.rollback(function () {
+            callback(err);
+          });
+        } else {
+          async.waterfall([function (done) {
+              dao.selectCheckAnswerCouple(conn, data, done);
+            },function (couple_no, done) {
+              dao.updateCoupleIs(conn, couple_no, done);
+            }, function (couple_no, done) {
+              dao.selectOtherGender(conn, couple_no, data, done);
+            }, function (couple_no, other_gender, done) {
+              dao.updateUserCoupleNoandGenderandUserReq(conn, couple_no, other_gender, data, done);
+            }],
+            function (err, result) {
+              conn.commit(function(err) {
+                if (err) {
+                  conn.rollback(function () {
+                    callback(err);
+                  });
+                } else {
+                  callback(null, result);
+                }
+              });
+            });
+        }
+        conn.release();
+      });  //begin transaction
+    }
   });
+
+
 };
 
 //커플정보조회

@@ -21,8 +21,8 @@
 | 여성정보 등록 |	POST	| /users/woman | complete |   |
 | 기본값조회 |	GET	| /users/userinfo | complete |   |
 | 로그아웃 |	POST	| /users/logout | complete |   |
-| 로그인 |	POST	| /users/login | Incomplete |   |
-| 로그인승낙 |	POST	| /users/acceptlogin | Incomplete |   |
+| 로그인 |	POST	| /users/login | complete |   |
+| 로그인승낙 |	POST	| /users/acceptlogin | complete |   |
 | 회원 탈퇴 |	POST	| /users/withdraw | complete |   |
 | 커플정보 조회 |	GET	| /couple | complete |   |
 | 커플 요청 |	POST	| /couple/ask | complete |   |
