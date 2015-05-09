@@ -361,8 +361,8 @@ function doLogin(conn, data, done) {
                 console.log('userphone changed');
                 var items = {
                   "user_no" : row[0].user_no,
-                  "user_regid_new" : data.user_regid,
-                  "user_phone_new" : data.user_phone,
+                  "user_regid" : data.user_regid,
+                  "user_phone" : data.user_phone,
                   "user_regid_old" : row[0].user_regid,
                   "user_phone_old" : row[0].user_phone
                 };
@@ -387,13 +387,20 @@ function doLogin(conn, data, done) {
 //사용자의 전화번호와 gcm id가 변경되면 갱신
 //arg는 조회된 값, data는 입력받은 값
 function updateUserRegIdandUserPhone(conn, data, arg, done) {
-  var params = [data.user_regid, data.user_phone, arg.user_no];
+  var user_no = data.user_no || arg.user_no;
+  var params = [data.user_regid, data.user_phone, user_no];
+  console.log('data', data);
+  console.log('params', params);
   conn.query(sql.updateUserRegIdandUserPhone, params, function (err, row) {
     if (err) {
       done(err);
     } else {
       if (row) {
-        done(null, arg);
+        if(arg){
+          done(null, arg);
+        }else{
+          done(null, data);
+        }
       } else {
         done('err');
       }

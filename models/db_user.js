@@ -358,39 +358,31 @@ exports.acceptlogin = function (data, callback) {
           });
         } else {
           async.waterfall([
-              function (done) {
-                dao.doLogin(conn, data, done);
-              }, function (arg, done) {
-                dao.updateUserRegIdandUserPhone(conn, data, arg, done);
-              }, function (arg2, done) {
-                dao.updateUserIsLogin(conn, arg2, 1, done);
-              }],
+            function (done) {
+              // user_no에 user_phone, user_regid 업데이트
+              dao.updateUserRegIdandUserPhone(conn, data, null, done);
+            }, function (arg, done) {
+              // user_regid_old에 로그아웃 push 보내기
+              dao.updateUserIsLogin(conn, arg, 1, done);
+            }],
             function (err, result) {
-              if (err) {
-                if (err == 'userphone changed') {
-                  conn.rollback(function () {
-                    callback('userphone changed');
-                  });
-                }else{
+            if (err) {
+              conn.rollback(function () {
+                callback(err);
+              });
+            } else {
+              conn.commit(function(err) {
+                if (err) {
                   conn.rollback(function () {
                     callback(err);
                   });
+                } else {
+                  console.log('result', result);
+                  callback(null, result);
                 }
-              } else {
-                conn.commit(function(err) {
-                  if (err) {
-                    conn.rollback(function () {
-                      callback(err);
-                    });
-                  }
-                  //커밋성공
-                  else {
-                    console.log('result', result);
-                    callback(null, result);
-                  }
-                });
-              }
-            });
+              });
+            }
+          });
         }
         conn.release();
       });  //begin transaction

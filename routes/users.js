@@ -106,7 +106,7 @@ router.get('/join', function (req, res, next) {
         if (!result.user_req) result.user_req = "";
 
         success_json.result.message = "가입정보조회 성공";
-        seccess_json.result.items = {
+        success_json.result.items = {
           "join_code": result.join_code,
           "phone": result.phone,
           "gender": result.gender,
@@ -245,11 +245,19 @@ router.post('/login', function (req, res, next) {
 router.post('/acceptlogin', function (req, res, next) {
   var bodydata = req.body;
 
-  var user_id = bodydata.user_id;
-  var user_pw = bodydata.user_pw;
+  var user_no = bodydata.user_no;
+  var user_phone_old = bodydata.user_phone_old;
+  var user_regid_old = bodydata.user_regid_old;
   var user_phone = bodydata.user_phone;
   var user_regid = bodydata.user_regid;
-  var data = {"user_id": user_id, "user_pw": user_pw, "user_phone": user_phone, "user_regid": user_regid};
+
+  var data = {
+    user_no : user_no,
+    user_phone_old: user_phone_old,
+    user_regid_old: user_regid_old,
+    user_phone: user_phone,
+    user_regid: user_regid
+  };
 
   db_user.acceptlogin(data, function (err, result) {
     if (err) {
@@ -257,9 +265,16 @@ router.post('/acceptlogin', function (req, res, next) {
       res.json(fail_json);
     } else {
       if (result) {
+        // 업데이트도 완료, push 보내기도 완료 되었다면 세션을 생성하고 로그인 처리 완료
+        req.session.user_no = result.user_no;
+        req.session.couple_no = result.couple_no;
+        success_json.result = {};
+        success_json.result.message = '중복 로그인 처리 성공!';
+        success_json.result.items = result;
+        res.json(success_json);
 
       } else {
-        fail_json.result.message = "로그인 실패";
+        fail_json.result.message = "중복 로그인 처리 실패";
         res.json(fail_json);
       }
     }
