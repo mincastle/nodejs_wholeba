@@ -100,7 +100,7 @@ router.get('/', function (req, res, next) {
     res.json(fail_json);
   }
 
-  var couple_no = req.session.couple_no || 9;
+  var couple_no = req.session.couple_no;
   var data = {couple_no : couple_no};
 
   db_couple.getinfo(data, function (err, success) {

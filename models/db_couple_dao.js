@@ -2,10 +2,6 @@
  * Created by ProgrammingPearls on 15. 5. 4..
  */
 var sql = require('./db_sql');
-var mysql = require('mysql');
-var db_config = require('./db_config');
-var pool = mysql.createPool(db_config);
-
 
 //커플 요청 시, couple 테이블에서 couple 생성
 function insertMakeCouple (conn, data, done) {
@@ -102,60 +98,53 @@ function selectOtherGender(conn, couple_no, data, done) {
   });
 }
 
-function selectCoupleInfo(data, done) {
-  pool.getConnection(function (err, conn) {
+function selectCoupleInfo(conn, data, done) {
+  var datas = [data.couple_no];
+  conn.query(sql.selectCoupleInfo, datas, function (err, row) {
+    console.log('selectCoupleInfo_row', row);
     if (err) {
-      console.log('connection err', err);
       done(err);
-      return;
-    }
-    var datas = [data.couple_no];
-    conn.query(sql.selectCoupleInfo, datas, function (err, row) {
-      console.log('selectCoupleInfo_row', row);
-      if (err) {
-        conn.release();
-        done(err);
-      } else {
-        //console.log('selectCoupleInfo row', row);
-        if (!row[0]) {
-          done("couple 정보를 불러오는데에 실패했습니다.");
-        }else{
-          done(null, row[0]);
-        }
+    } else {
+      //console.log('selectCoupleInfo row', row);
+      if (!row[0]) {
+        done("couple 정보를 불러오는데에 실패했습니다.");
+      }else{
+        done(null, row[0]);
       }
-      conn.release();
-    });
+    }
   });
 }
 
-function insertMakeDday(coupleNo, data, done) {
-  // dday 테이블에 dday 추가
-  pool.getConnection(function (err, conn) {
-    if (err) {
-      console.log('connection err', err);
-      done(err);
-      return;
-    }
-    var couple_no = data.couple_no || coupleNo;
-    var dday_name = data.dday_name || '처음 만난 날';
-    var dday_date = data.dday_date || data.couple_birth;
-    var dday_repeat = data.repeat || 0;
 
-    var datas = [couple_no, dday_name, dday_repeat];
-    console.log('datas datas', datas);
-    conn.query(sql.insertMakeDday, datas, function (err, row) {
-      console.log('updateUserGender_row', row);
-      if (err) {
-        done(err);
-      } else if (row.affectedRows == 0) {
-        done('정상적으로 생성되지 않았습니다.');
-      } else {
-        done(null, row.insertId);
-      }
-      conn.release();
-    });
-  });
-}
+//
+//function insertMakeDday(coupleNo, data, done) {
+//  // dday 테이블에 dday 추가
+//  pool.getConnection(function (err, conn) {
+//    if (err) {
+//      console.log('connection err', err);
+//      done(err);
+//      return;
+//    }
+//    var couple_no = data.couple_no || coupleNo;
+//    var dday_name = data.dday_name || '처음 만난 날';
+//    var dday_date = data.dday_date || data.couple_birth;
+//    var dday_repeat = data.repeat || 0;
+//
+//    var datas = [couple_no, dday_name, dday_repeat];
+//    console.log('datas datas', datas);
+//    conn.query(sql.insertMakeDday, datas, function (err, row) {
+//      console.log('updateUserGender_row', row);
+//      if (err) {
+//        done(err);
+//      } else if (row.affectedRows == 0) {
+//        done('정상적으로 생성되지 않았습니다.');
+//      } else {
+//        done(null, row.insertId);
+//      }
+//      conn.release();
+//    });
+//  });
+//}
 
 exports.insertMakeCouple = insertMakeCouple;
 exports.updateUserGenderandCoupleNoandUserReq = updateUserGenderandCoupleNoandUserReq;
@@ -173,6 +162,6 @@ exports.selectCoupleInfo = selectCoupleInfo;
 
 
 // 나중에 dday때 사용
-exports.insertMakeDday = insertMakeDday;
+//exports.insertMakeDday = insertMakeDday;
 
 

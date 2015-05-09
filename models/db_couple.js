@@ -105,10 +105,14 @@ exports.answer = function (data, callback) {
 
 //커플정보조회
 exports.getinfo = function (data, callback) {
-  //var success = 1;
-  //callback(success);
-  dao.selectCoupleInfo(data, callback);
-
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      callback(err, null);
+    } else {
+      dao.selectCoupleInfo(conn, data, callback);
+      conn.release();
+    }
+  });
 };
 
 //내기분변경
