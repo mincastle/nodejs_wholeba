@@ -106,6 +106,8 @@ exports.selectCoupleInfo =
   'where u.couple_no=? ' +
   'and u.user_gender="M"';
 
+exports.updateMyCondition = 'update user set feel_no = ? where user_no = ?';
+
 // dday 추가하는 sql
 exports.insertMakeDday = 'insert into dday(couple_no, dday_name, dday_date, dday_repeat) ' +
                          'values (?, ?, ?, ?)';
