@@ -9,6 +9,12 @@ create table couple(
 	primary key(couple_no)
 );
 
+create table feel(
+	feel_no int not null auto_increment comment'기분번호',
+	feel_name varchar(20) not null comment'기분명',
+	primary key(feel_no)
+);
+
 create table user(
 	user_no int not null auto_increment comment'사용자번호',
 	couple_no int comment'커플번호',
@@ -20,13 +26,14 @@ create table user(
 	user_birth date comment'생일',
 	user_req int comment'커플요청자여부',
 	user_addition int not null default 0 comment'추가정보입력여부',
-	user_condition varchar(10) comment'기분',
+	feel_no int comment'내기분',
 	user_level int not null default 1 comment'레벨',
 	user_public int comment'여성일경우 정보공개여부',
 	user_pills int comment'여성일경우 피임약복용여부',
 	user_islogin int not null default 1 comment '현재 접속여부',
 	primary key(user_no),
-	foreign key(couple_no) references couple(couple_no)
+	foreign key(couple_no) references couple(couple_no),
+	foreign key(feel_no) references feel(feel_no)
 );
 
 create table period(
@@ -51,12 +58,19 @@ create table pills(
 
 create table syndrome(
 	syndrome_no int not null auto_increment comment'증후군번호',
+	syndrome_name varchar(20) comment'증후군명',
+	primary key(syndrome_no)
+);
+
+create table synlist(
+	synlist_no int not null auto_increment comment'유저가 가진 증후군번호',
 	user_no int not null comment'사용자번호',
-	syndrome_name varchar(20) not null comment'증후군이름',
+	syndrome_no int not null comment'증후군번호',
 	syndrome_before int not null comment'증후군시작일',
 	syndrome_after int not null comment'증후군끝난일',
-	primary key(syndrome_no),
-	foreign key(user_no) references user(user_no)
+	primary key(synlist_no),
+	foreign key(user_no) references user(user_no),
+	foreign key(syndrome_no) references syndrome(syndrome_no)
 );
 
 create table reward(
@@ -64,6 +78,42 @@ create table reward(
 	user_no int not null comment'사용자번호',
 	reward_cnt int not null default 0 comment'리워드갯수',
 	primary key(reward_no),
+	foreign key(user_no) references user(user_no)
+);
+
+create table theme(
+	theme_no int not null auto_increment comment'미션테마',
+	theme_name varchar(10) not null comment'테마명',
+	primary key(theme_no)
+);
+
+create table mission(
+	mission_no int not null auto_increment comment'미션번호',
+	mission_season int comment'계절',
+	theme_no int not null comment'미션테마',
+	mission_name varchar(200) not null comment'미션이름',
+	mission_expiration int not null comment'미션수행기간(day)',
+	mission_hint varchar(50) not null comment'미션힌트',
+	mission_level int not null comment'미션난이도',
+	mission_reward int not null comment'성공시보상',
+	primary key(mission_no),
+	foreign key(theme_no) references theme(theme_no)
+);
+
+create table missionlist(
+	mlist_no int not null auto_increment comment'미션리스트번호',
+	mission_no int not null comment'미션번호',
+	user_no int not null comment'사용자번호',
+	mlist_name varchar(200) not null comment'미션이름,아이템사용시 변경가능',
+	mlist_expiredate datetime comment'미션만기날짜,아이템사용시 연장가능',
+	mlist_regdate datetime not null comment'미션생성날짜',
+	mlist_successdate datetime comment'미션성공시간',
+	mlist_reward int not null comment'미션성공시받는 리워드 갯수',
+	mlist_state int not null comment'미션상태',
+	mlist_confirm int not null default 0 comment'미션확인여부',
+	mlist_delete int not null default 0 comment'미션삭제여부',
+	primary key(mlist_no),
+	foreign key(mission_no) references mission(mission_no),
 	foreign key(user_no) references user(user_no)
 );
 
@@ -78,34 +128,11 @@ create table itemlist(
 	itemlist_no int not null auto_increment comment'아이템리스트번호',
 	item_no int not null comment'아이템번호',
 	user_no int not null comment'사용자번호',
-	item_apply int not null default 0 comment'아이템사용여부',
+	item_usemission int comment'사용한 미션번호',
 	primary key(itemlist_no),
 	foreign key(item_no) references item(item_no),
-	foreign key(user_no) references user(user_no)
-);
-
-create table mission(
-	mission_no int not null auto_increment comment'미션번호',
-	mission_season int not null comment'계절',
-	mission_theme varchar(10) not null comment'미션테마',
-	mission_name varchar(200) not null comment'미션이름',
-	mission_hint varchar(50) not null comment'미션힌트',
-	mission_level int not null comment'미션난이도',
-	mission_reward int not null comment'성공시보상',
-	primary key(mission_no)
-);
-
-create table missionlist(
-	mlist_no int not null auto_increment comment'미션리스트번호',
-	mission_no int not null comment'미션번호',
-	user_no int not null comment'사용자번호',
-	mission_date datetime not null comment'미션생성일',
-	mission_state int not null comment'미션상태',
-	mission_confirm int not null default 0 comment'미션확인여부',
-	mission_delete int not null default 0 comment'미션삭제여부',
-	primary key(mlist_no),
-	foreign key(mission_no) references mission(mission_no),
-	foreign key(user_no) references user(user_no)
+	foreign key(user_no) references user(user_no),
+	foreign key(item_usemission) references missionlist(mlist_no)
 );
 
 create table relation(
