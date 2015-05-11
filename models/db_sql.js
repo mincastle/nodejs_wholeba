@@ -111,3 +111,28 @@ exports.updateMyCondition = 'update user set feel_no = ? where user_no = ?';
 // dday 추가하는 sql
 exports.insertMakeDday = 'insert into dday(couple_no, dday_name, dday_date, dday_repeat) ' +
                          'values (?, ?, ?, ?)';
+
+
+//****************************** MISSION ************************************//
+
+//미션 하나 조회
+//exports.selectOneMission =
+//  'select (select user_gender from user u where m.user_no = u.user_no) as gender,' +
+//  '       (select mission_theme from mission a where a.mission_no=m.mission_no) as theme, ' +
+//  '       (select mission_name from mission a where a.mission_no=m.mission_no) as content,' +
+//  '       (select mission_hint from mission a where a.mission_no=m.mission_no) as hint,' +
+//  '       mission_date as date, ' +
+//  '       mission_state as state' +
+//  'from missionlist m' +
+//  'where m.user_no=?' +
+//  'and m.mlist_no=?' +
+//  'and m.mission_no=(select mission_no from missionlist where mlist_no=m.mlist_no)';
+
+//미션 생성시, 테마에 따라 랜덤으로 1개 미션 조회
+exports.selectMissionTheme = 'select mission_no, mission_name, mission_reward, mission_level from mission where mission_theme=? order by rand() limit 1';
+
+//미션 생성시, 미션 수행할 유저 조회, 커플의 파트너 조회
+exports.selectPartner = 'select user_no, user_regid from user where couple_no=? and not(user_no=?)';
+
+//미션 생성
+exports.insertMissionlist = 'insert into missionlist(user_no, mission_no, mlist_name, mlist_reward, mlist_regdate)  values(?, ?, ?, ?, now())';
