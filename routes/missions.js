@@ -22,11 +22,11 @@ function success_json(res, str) {
 
 //미션리스트조회
 router.get('/:year/:month/:orderby', function (req, res, next) {
-  var couple_no = req.session.couple_no | -1;
+  var couple_no = req.session.couple_no;
   var orderby = parseInt(req.params.orderby);
   var year = parseInt(req.params.year);
   var month = parseInt(req.params.month);
-  var data = [couple_no, year, month, orderby];
+  var data = {"couple_no" : couple_no, "year" : year, "month" : month, "orderby" : orderby};
 
   db_missions.getlist(data, function (datas) {
     if (!datas) {
@@ -77,9 +77,9 @@ router.get('/:year/:month/:orderby', function (req, res, next) {
 
 //미션하나조회
 router.get('/:mlist_no', function (req, res, next) {
-  var user_no = req.session.user_no | -1;
+  var user_no = req.session.user_no;
   var mlist_no = req.params.mlist_no;
-  var data = [user_no, mlist_no];
+  var data = {"user_no" : user_no, "mlist_no" : mlist_no};
 
   db_missions.get(data, function (data) {
     if (!data) {
@@ -106,16 +106,17 @@ router.get('/:mlist_no', function (req, res, next) {
 
 //미션생성
 router.post('/add', function (req, res, next) {
+  var bodydata = req.body;
   var user_no = req.session.user_no | -1;
   var couple_no = req.session.couple_no | -1;
-  var mission_theme = req.body.mission_theme;
-  var data = [user_no, couple_no, mission_theme];
+  var mission_theme = bodydata.theme;
+  var data = {"user_no" : user_no, "couple_no" : couple_no, "mission_theme" : mission_theme};
 
-  db_missions.add(data, function (success) {
-    if (success) {
-      success_json(res, "미션생성");
-    } else {
+  db_missions.add(data, function(err) {
+    if (err) {
       fail_json(res, "미션생성");
+    } else {
+      success_json(res, "미션생성");
     }
   });
 });
