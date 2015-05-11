@@ -7,8 +7,9 @@ var pool = mysql.createPool(db_config);
 
 /*
  커플요청 Parameter { user_no, auth_phone, user_gender }
-  1. 커플 요청을 하면 couple을 생성(couple_birth, auth_phone) 한다.
-  2. 요청한 user_no의 couple_no와 gender, user_req를 업데이트해준다. (요청 했음을 기억하기 위해서)
+  1. 커플 요청하는 시점에 auth_phone 가입자가 유저에 등록되어있고 로그인 되어있다면 화면 이동 push 전송한다.
+  2. 커플 요청을 하면 couple을 생성(couple_birth, auth_phone) 한다.
+  3. 요청한 user_no의 couple_no와 gender, user_req를 업데이트해준다. (요청 했음을 기억하기 위해서)
  */
 
 exports.ask = function (data, callback) {
@@ -115,14 +116,17 @@ exports.getinfo = function (data, callback) {
   });
 };
 
-//내기분변경
+/* 내기분 변경
+  1. user테이블의 feel_no를 변경한다.
+  2. 상대 커플의 regid로 상태 변경 push를 전송한다.(추후 개발??)
+ */
 exports.mycondition = function (data, callback) {
-  var success = 1;
-  callback(success);
-};
-
-//상대방격려하기(날라온 행동을 push)
-exports.yourcondition = function (data, callback) {
-  var success = 1;
-  callback(success);
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      callback(err, null);
+    } else {
+      dao.selectCoupleInfo(conn, data, callback);
+      conn.release();
+    }
+  });
 };
