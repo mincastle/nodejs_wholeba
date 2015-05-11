@@ -109,7 +109,7 @@ create table missionlist(
 	mlist_regdate datetime not null comment'미션생성날짜',
 	mlist_successdate datetime comment'미션성공시간',
 	mlist_reward int not null comment'미션성공시받는 리워드 갯수',
-	mlist_state int not null comment'미션상태',
+	mlist_state int comment'미션상태',
 	mlist_confirm int not null default 0 comment'미션확인여부',
 	mlist_delete int not null default 0 comment'미션삭제여부',
 	primary key(mlist_no),
