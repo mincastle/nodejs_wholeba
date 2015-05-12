@@ -29,6 +29,22 @@ function insertDday (conn, data, done) {
   });
 }
 
+function updateDday (conn, data, done) {
+  var datas = [data.dday_name, data.dday_date, data.couple_no, data.dday_no];
+  console.log('datas', datas);
+  conn.query(sql.updateDday, datas, function (err, row) {
+    if(err) {
+      done(err);
+    } else {
+      if(row.affectedRows == 1) {
+        done(null);
+      } else {
+        done('정상적으로 수정되지 않았습니다.');
+      }
+    }
+  });
+}
+
 function deleteDday (conn, data, done) {
   var datas = [data.couple_no, data.dday_no];
   conn.query(sql.deleteDday, datas, function (err, row) {
@@ -46,5 +62,5 @@ function deleteDday (conn, data, done) {
 
 exports.selectDdayList = selectDdayList;
 exports.insertDday = insertDday;
-
+exports.updateDday = updateDday;
 exports.deleteDday = deleteDday;

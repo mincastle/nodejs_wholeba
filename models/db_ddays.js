@@ -29,8 +29,14 @@ exports.add = function (data, callback) {
 
 //디데이수정
 exports.modify = function (data, callback) {
-  var success = 1;
-  callback(success);
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      callback(err);
+    } else {
+      dao.updateDday(conn, data, callback);
+      conn.release();
+    }
+  });
 };
 
 //디데이삭제
