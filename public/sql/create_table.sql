@@ -94,8 +94,8 @@ create table mission(
 	mission_name varchar(200) not null comment'미션이름',
 	mission_expiration int not null comment'미션수행기간(day)',
 	mission_hint varchar(50) not null comment'미션힌트',
-	mission_level int not null comment'미션난이도',
-	mission_reward int not null comment'성공시보상',
+	mission_level int comment'미션난이도',
+	mission_reward int not null default 1 comment'성공시보상',
 	primary key(mission_no),
 	foreign key(theme_no) references theme(theme_no)
 );
