@@ -137,6 +137,7 @@ router.post('/common', function (req, res, next) {
   var user_birth = bodydata.user_birth;
   var data = {"user_no": user_no, "couple_birth": couple_birth, "user_birth": user_birth};
 
+  console.log('data', data);
   db_user.common(data, function (err, result) {
     //console.log('result', result);
     if (err) {
@@ -271,6 +272,7 @@ router.post('/acceptlogin', function (req, res, next) {
         success_json.result = {};
         success_json.result.message = '중복 로그인 처리 성공!';
         success_json.result.items = result;
+        // TODO : 상대 regid에 push를 보내 로그아웃 시킨다.
         res.json(success_json);
 
       } else {
@@ -305,8 +307,8 @@ router.get('/userinfo', function (req, res, next) {
             "items": {
               "user_no": result.user_no,
               "couple_no": result.couple_no,
-              "condom": result.condom,
-              "gender": result.user_gender
+              "couple_condom": result.condom,
+              "user_gender": result.user_gender
             }
           }
         });

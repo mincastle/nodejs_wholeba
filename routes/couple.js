@@ -113,14 +113,8 @@ router.get('/', function (req, res, next) {
       success_json.result.items = {
         "m_reward": success.m_reward,
         "m_condition": success.m_condition,
-        "m_level": success.m_level,
-        //"m_mission_stage": 1,
         "f_reward": success.f_reward,
         "f_condition": success.f_condition,
-        "f_level": success.f_level,
-        //"f_mission_stage": 1,
-        //"f_period": 2,
-        //"f_pregnancy": 30,
         "couple_birth": moment(success.couple_birth).format('YYYY-MM-DD')
       };
       res.json(success_json);

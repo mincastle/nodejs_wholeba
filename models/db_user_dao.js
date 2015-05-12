@@ -279,7 +279,8 @@ function selectUserReq(conn, data, done) {
     }
     else {
       if (row) {
-        if (!row[0].user_req) {
+        console.log('row[0]', row[0]);
+        if (!row[0].user_req.toString()) {
           done('커플요청여부 조회 실패', null);
         } else {
           console.log('select user_req : ', row[0]);
@@ -300,9 +301,10 @@ function updateCoupleandUserBirth(conn, data, arg, done) {
   }
   //user_req = 1 이면 커플요청자이므로 사귄날 update
   //그 후에 user_birth update
-  if (arg.user_req = 1) {
+  if (arg.user_req == 1) {
     if (!data.couple_birth) {
       done('커플의 사귄날 입력정보 없음', null);
+      return;
     }
     var params = [data.couple_birth, data.user_no];
     conn.query(sql.updateCoupleBirth, params, function (err, row) {
