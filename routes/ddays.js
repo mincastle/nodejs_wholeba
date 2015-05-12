@@ -90,29 +90,24 @@ router.post('/:dday_no/modify', function (req, res, next) {
     res.json(fail_json);
   }
 
-  //db_ddays.add(data, function (err, result) {
-  //  if(err) {
-  //    fail_json.result.message = err;
-  //    res.json(fail_json);
-  //  } else {
-  //    success_json.result.message = 'D-day 조회성공';
-  //    rse.json(success_json);
-  //  }
-  //});
+  var couple_no = req.session.couple_no;
 
-  //var dday_no = req.params.dday_no;
-  //var dday_name = req.body.dday_name;
-  //var dday_date = req.body.dday_date;
-  //var dday_repeat = parseInt(req.body.dday_repeat);
-  //var data = [dday_no, dday_name, dday_date, dday_repeat];
-  //
-  //db_ddays.modify(data, function (success) {
-  //  if (success) {
-  //    success_json(res, "디데이수정");
-  //  } else {
-  //    fail_json(res, "디데이수정");
-  //  }
-  //});
+  var data = {
+    "couple_no" : couple_no,
+    "dday_no" : req.params.dday_no,
+    "dday_name" : bodydata.dday_name,
+    "dday_date" : bodydata.dday_date
+  };
+  db_ddays.modify(data, function (err) {
+    if(err) {
+      fail_json.result.message = err;
+      res.json(fail_json);
+    } else {
+      success_json.result.message = 'D-day 수정 성공';
+      res.json(success_json);
+    }
+  });
+
 });
 
 

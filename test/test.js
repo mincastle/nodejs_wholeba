@@ -85,8 +85,30 @@ describe('dday insert', function () {
         throw err;
       } else {
         console.log('result', result);
-        insertId = result.insertId;
-        expect(result[0].dday_no).to.be(result.insertId);
+        done();
+      }
+    })
+  });
+});
+
+describe('dday update', function () {
+  it('dday update test', function (done) {
+    var dday_no = 2;
+    var couple_no = 1;
+    var dday_name = 'qweq';
+    var dday_date = '2022-03-01';
+    var data = {
+      "couple_no" : couple_no,
+      "dday_no" : dday_no,
+      "dday_name" : dday_name,
+      "dday_date" : dday_date
+    };
+
+    dday.modify(data, function (err, result) {
+      if (err) {
+        throw err;
+      } else {
+        console.log('update result', result);
         done();
       }
     })
@@ -95,7 +117,7 @@ describe('dday insert', function () {
 
 describe('dday delete', function () {
   it('dday delete test', function (done) {
-    var dday_no = 10;
+    var dday_no = 14;
     var couple_no = 1;
     var data = {
       "couple_no" : couple_no,
@@ -114,6 +136,7 @@ describe('dday delete', function () {
     })
   });
 });
+
 describe('dday list', function () {
   it('dday list test', function (done) {
     var couple_no = 1;

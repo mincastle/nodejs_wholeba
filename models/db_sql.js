@@ -135,6 +135,8 @@ exports.selectDdayList = 'select dday_no, dday_name, dday_date from dday where c
 
 exports.insertDday = 'insert into dday(couple_no, dday_name, dday_date) values(?, ?, ?)';
 
+exports.updateDday = 'update dday set dday_name=?, dday_date=? where couple_no=? and dday_no=?';
+
 exports.deleteDday = 'delete from dday where couple_no = ? and dday_no = ?';
 
 
