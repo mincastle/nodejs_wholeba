@@ -125,10 +125,6 @@ exports.selectCoupleInfo =
 
 exports.updateMyCondition = 'update user set feel_no = ? where user_no = ?';
 
-// dday 추가하는 sql
-exports.insertMakeDday = 'insert into dday(couple_no, dday_name, dday_date, dday_repeat) ' +
-                         'values (?, ?, ?, ?)';
-
 //****************************** D-DAY ************************************//
 
 exports.selectDdayList = 'select dday_no, dday_name, dday_date from dday where couple_no=? and dday_delete=0';

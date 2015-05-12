@@ -84,3 +84,13 @@ insert into item(item_name, item_exchange) values('애교미션으로 다시 뽑
 insert into item(item_name, item_exchange) values('처음미션으로 다시 뽑기',2);
 insert into item(item_name, item_exchange) values('미션패스',3);
 insert into item(item_name, item_exchange) values('미션 내마음대로 쓰기',5);
+
+
+//파일 load data
+LOAD DATA LOCAL INFILE '/Users/ProgrammingPearls/Desktop/mission-devil.csv'
+INTO TABLE mission
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+(theme_no, mission_name, mission_hint, mission_expiration);
+
