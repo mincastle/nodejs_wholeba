@@ -75,7 +75,7 @@ function updateUserCoupleNoandGenderandUserReq(conn, couple_no, other_gender, da
     } else if (row.affectedRows == 0) {
       done('정상적으로 업데이트 되지 않았습니다.');
     } else {
-      var result = {couple_no : couple_no, other_gender:other_gender, user_req :0};
+      var result = {couple_no : couple_no, other_gender : other_gender, user_req :0};
       done(null, result);
     }
   });
@@ -115,6 +115,22 @@ function selectCoupleInfo(conn, data, done) {
   });
 }
 
+function mycondition(conn, data, done) {
+  var datas = [data.condition_no,data.user_no];
+
+  conn.query(sql.updateMyCondition, datas, function (err, row) {
+    if (err) {
+      done(err);
+    } else {
+      console.log('row', row);
+      if(!row.affectedRows==1){
+        done('내 기분 업데이트를 실패했습니다.');
+      } else {
+        done(null, row.changedRows);
+      }
+    }
+  });
+}
 
 //
 //function insertMakeDday(coupleNo, data, done) {
@@ -155,6 +171,7 @@ exports.updateUserCoupleNoandGenderandUserReq = updateUserCoupleNoandGenderandUs
 exports.selectOtherGender = selectOtherGender;
 
 exports.selectCoupleInfo = selectCoupleInfo;
+exports.mycondition = mycondition;
 
 
 

@@ -1,14 +1,23 @@
 /**
  * Created by ProgrammingPearls on 15. 5. 6..
  */
-var moment = require('moment');
-var expect = require('expect.js');
+var request = require('supertest');
+var app = require('../app');
 
-// mocha test
-describe('mement test', function () {
-  it('YYYY-MM-DD format', function (done) {
-    expect(moment('Sun Mar 01 2015 00:00:00 GMT+0000 (UTC)').format('YYYY-MM-DD')).to.be('2015-03-01');
-    done();
+describe('login', function () {
+  it('login test', function (done) {
+    request(app)
+      .post('/users/login')
+      .set('Accept', 'application/json')
+      .send({
+        user_id : 'aaaa',
+        user_pw: 'aaaa',
+        user_phone: '010-1111-1111',
+        user_regid: 'zxczxq222'
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done);
   });
 });
+
 

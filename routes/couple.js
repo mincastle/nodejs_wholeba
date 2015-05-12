@@ -23,6 +23,7 @@ var success_json = {
 
 
 router.post('/ask', function (req, res, next) {
+  var bodydata = req.body;
   var user_no = req.session.user_no;
 
   // Session 검사
@@ -31,8 +32,8 @@ router.post('/ask', function (req, res, next) {
     res.json(fail_json);
   }
 
-  var auth_phone = req.body.auth_phone;
-  var user_gender = req.body.user_gender;
+  var auth_phone = bodydata.auth_phone;
+  var user_gender = bodydata.user_gender;
 
   var data = {
     user_no : user_no,
@@ -130,33 +131,28 @@ router.get('/', function (req, res, next) {
 
 //내기분설정
 router.post('/mycondition', function (req, res, next) {
+  var bodydata = req.body;
+  var user_no = req.session.user_no;
+
+  // Session 검사
+  if (!user_no) {
+    fail_json.result.message = '세션정보 없음';
+    res.json(fail_json);
+  }
+
   //var user_no = req.session.user_no;
-  var user_no = req.session.user_no | -1;
-  var user_condition = req.body.user_condition;
-  var data = [user_no, user_condition];
+  var user_no = req.session.user_no;
+  var condition_no = bodydata.condition_no;
+  var data = {user_no: user_no, condition_no: condition_no};
 
-  db_couple.mycondition(data, function (success) {
-    if (success) {
-      //success_json(res, "내기분설정");
+  db_couple.mycondition(data, function (err, success) {
+    if(err){
+      fail_json.result.message = err;
+      res.json(fail_json);
     } else {
-      //fail_json(res, "내기분설정");
-    }
-  });
-});
-
-//상대방격려하기
-router.post('/yourcondition', function (req, res, next) {
-  //var user_no = req.session.user_no;
-  var user_no = req.session.user_no | -1;
-  var couple_no = req.session.couple_no | -1;
-  var your_condition = req.body.your_condition;
-  var data = [user_no, couple_no, your_condition];
-
-  db_couple.yourcondition(data, function (success) {
-    if (success) {
-      //success_json(res, "상대방격려하기");
-    } else {
-      //fail_json(res, "상대방격려하기");
+      success_json.result.message = '내 기분 업데이트 성공';
+      success_json.result.changedRows = success;
+      res.json(success_json);
     }
   });
 });
