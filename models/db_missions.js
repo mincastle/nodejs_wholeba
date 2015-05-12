@@ -44,10 +44,12 @@ exports.get = function (data, callback) {
 
 /*
   missions생성
+  0. 확인안했거나 진행중인 미션이 3개미만인지 확인
   1-1. theme으로 랜덤 select
   1-2. couple_no는 같고 user_no가 다른 유저(user_no, user_regid) select
   2. missionlist insert
   3. 2의 유저에게 push(mlist_no, mlist_name, mlist_regdate)
+  4. 보낸사람의 reward 차감
  data = {user_no, couple_no, mission_theme}
  */
 exports.add = function (data, callback) {
@@ -66,28 +68,25 @@ exports.add = function (data, callback) {
             [
               function(done) {
                 //theme으로 mission select
-                //user select
+                //user select (진행중인 미션이 3개이상이면 err)
+                //arg1 {user_no, couple_no, partner_no, partner_regid,mission{...}}
                 dao.selectMissionandUser(conn, data, done);
               },
               function(arg1, done) {
                 //insert missionlist
+                //arg2 = arg1 + mlist_no
                 dao.insertMissionlist(conn, arg1, done);
               },
               function(arg2, done) {
-                //보내줄 내용 조회
-                //console.log('arg2', arg2);
-                dao.selectOneMission(conn, arg2, done);
+                //reward 차감
+                dao.updateUserReward(conn, arg2, -1, done);
               },
               function(arg3, done) {
                 //push
-                dao.sendCreateMissionPush(arg3, done);
-              },
-              function(arg4, done) {
-                //reward 차감
-                dao.updateUserReward(conn, data, -1, done);
+                dao.sendCreateMissionPush(conn, arg3, done);
               }
             ],
-            function(err, result) {
+            function(err) {
               if(err) {
                 conn.rollback(function() {
                   callback(err);
@@ -119,6 +118,7 @@ exports.add = function (data, callback) {
   missions확인
   1. 해당 mlist_no의 mission_confirm = 1로 갱신 mission_state = 3(진행중)으로 갱신
   2. 상대방에게 확인했다는 푸시 (mlist_no, hint 전송)
+  data = {user_no, mlist_no}
  */
 exports.confirm = function (data, callback) {
   pool.getConnection(function(err, conn) {
