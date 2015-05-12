@@ -115,6 +115,7 @@ router.get('/', function (req, res, next) {
         "m_condition": success.m_condition,
         "f_reward": success.f_reward,
         "f_condition": success.f_condition,
+        "couple_condom" : success.couple_condom,
         "couple_birth": moment(success.couple_birth).format('YYYY-MM-DD')
       };
       res.json(success_json);
