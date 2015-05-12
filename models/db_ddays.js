@@ -13,15 +13,18 @@ exports.getlist = function (data, callback) {
       conn.release();
     }
   });
-
-
-
 };
 
 //디데이생성
 exports.add = function (data, callback) {
-  var success = 1;
-  callback(success);
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      callback(err);
+    } else {
+      dao.insertDday(conn, data, callback);
+      conn.release();
+    }
+  });
 };
 
 //디데이수정

@@ -6,6 +6,7 @@ var request = require('supertest');
 var expect = require('expect.js');
 var dday = require('../models/db_ddays');
 var moment = require('moment');
+var util = require('../util/dday_util');
 //var expect = require('chai').expect;
 //
 //describe('login', function () {
@@ -66,6 +67,29 @@ var moment = require('moment');
 //  }
 //});
 
+describe('dday insert', function () {
+  it('dday insert test', function (done) {
+    var couple_no = 1;
+    var dday_name = '2년';
+    var dday_date = '2017-03-01';
+    var data = {
+      "couple_no" : couple_no,
+      "dday_name" : dday_name,
+      "dday_date" : dday_date
+    };
+
+    dday.add(data, function (err, result) {
+      if (err) {
+        throw err;
+      } else {
+        console.log('result', result);
+        expect(result[0].dday_no).to.be(1);
+        done();
+      }
+    })
+  });
+});
+
 describe('dday list', function () {
   it('dday list test', function (done) {
     var couple_no = 1;
@@ -74,14 +98,20 @@ describe('dday list', function () {
       if (err) {
         throw err;
       } else {
-        console.log('result', result);
-        result.forEach(function (result, index, r) {
-          console.log('index', index);
-          r[index].dday_date = moment(r[index].dday_date).format('YYYY-MM-DD');
-          console.log('r[' + index + ']', r[index]);
+        //console.log('result', result);
+        util.each(result, util.dateFormat, function () {
+          console.log('result', result);
+          expect(result[0].dday_no).to.be(1);
+
+          done();
         });
-        expect(result[0].dday_no).to.be(1);
-        done();
+
+        //result.forEach(function (element, index, r) {
+        //  console.log('index', index);
+        //  r[index].dday_date = moment(r[index].dday_date).format('YYYY-MM-DD');
+        //  console.log('r[' + index + ']', r[index]);
+        //});
+
       }
     })
   });

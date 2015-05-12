@@ -133,7 +133,9 @@ exports.insertMakeDday = 'insert into dday(couple_no, dday_name, dday_date, dday
 
 exports.selectDdayList = 'select dday_no, dday_name, dday_date from dday where couple_no=? and dday_delete=0';
 
+exports.insertDday = 'insert into dday(couple_no, dday_name, dday_date) values(?, ?, ?)';
 
+exports.removeDday = 'delete from dday where dday_no = ?';
 
 
 //****************************** MISSION ************************************//
