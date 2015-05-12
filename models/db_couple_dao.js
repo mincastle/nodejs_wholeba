@@ -116,16 +116,17 @@ function selectCoupleInfo(conn, data, done) {
 }
 
 function mycondition(conn, data, done) {
-  var datas = [data.user_no, data.condition_no];
+  var datas = [data.condition_no,data.user_no];
 
   conn.query(sql.updateMyCondition, datas, function (err, row) {
     if (err) {
       done(err);
     } else {
+      console.log('row', row);
       if(!row.affectedRows==1){
         done('내 기분 업데이트를 실패했습니다.');
       } else {
-        done(null, row.insertId);
+        done(null, row.changedRows);
       }
     }
   });

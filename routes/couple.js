@@ -132,6 +132,13 @@ router.get('/', function (req, res, next) {
 //내기분설정
 router.post('/mycondition', function (req, res, next) {
   var bodydata = req.body;
+  var user_no = req.session.user_no;
+
+  // Session 검사
+  if (!user_no) {
+    fail_json.result.message = '세션정보 없음';
+    res.json(fail_json);
+  }
 
   //var user_no = req.session.user_no;
   var user_no = req.session.user_no;
@@ -139,14 +146,16 @@ router.post('/mycondition', function (req, res, next) {
   var data = {user_no: user_no, condition_no: condition_no};
 
   db_couple.mycondition(data, function (err, success) {
-    if (success) {
-      //success_json(res, "내기분설정");
+    if(err){
+      fail_json.result.message = err;
+      res.json(fail_json);
     } else {
-      //fail_json(res, "내기분설정");
+      success_json.result.message = '내 기분 업데이트 성공';
+      success_json.result.changedRows = success;
+      res.json(success_json);
     }
   });
 });
-
 
 
 module.exports = router;
