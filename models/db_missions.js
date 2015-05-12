@@ -51,29 +51,36 @@ exports.get = function (data, callback) {
  data = {user_no, couple_no, mission_theme}
  */
 exports.add = function (data, callback) {
-  async.waterfall(
-    [
-      function(done) {
-        //theme으로 mission select
-        //user select
-        dao.selectMissionandUser(data, done);
-      },
-      function(arg1, done) {
-        //insert missionlist
-        dao.insertMissionlist(arg1, done);
-      },
-      function(arg2, done) {
-        //push
-        dao.sendCreateMissionPush(arg2, done);
-      }
-    ],
-    function(err) {
+  pool.getConnection(function(err, conn) {
     if(err) {
       callback(err);
     } else {
-      callback(null);
+      async.waterfall(
+        [
+          function(done) {
+            //theme으로 mission select
+            //user select
+            dao.selectMissionandUser(conn, data, done);
+          },
+          function(arg1, done) {
+            //insert missionlist
+            dao.insertMissionlist(conn, arg1, done);
+          },
+          function(arg2, done) {
+            //push
+            dao.sendCreateMissionPush(arg2, done);
+          }
+        ],
+        function(err) {
+          if(err) {
+            callback(err);
+          } else {
+            callback(null);
+          }
+        });  //async
     }
-  });
+    conn.release();
+  });  //getConnection
 };
 
 //missions확인
