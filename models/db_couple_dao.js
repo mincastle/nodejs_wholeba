@@ -32,7 +32,7 @@ function updateUserGenderandCoupleNoandUserReq (conn, data, insertId, done) {
       done(null, insertId);
     }
   });
-};
+}
 
 
 function selectCheckAnswerCouple (conn, data, done){

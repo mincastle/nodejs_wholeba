@@ -67,6 +67,8 @@ var util = require('../util/dday_util');
 //  }
 //});
 
+var insertId;
+
 describe('dday insert', function () {
   it('dday insert test', function (done) {
     var couple_no = 1;
@@ -83,13 +85,35 @@ describe('dday insert', function () {
         throw err;
       } else {
         console.log('result', result);
-        expect(result[0].dday_no).to.be(1);
+        insertId = result.insertId;
+        expect(result[0].dday_no).to.be(result.insertId);
         done();
       }
     })
   });
 });
 
+describe('dday delete', function () {
+  it('dday delete test', function (done) {
+    var dday_no = 10;
+    var couple_no = 1;
+    var data = {
+      "couple_no" : couple_no,
+      "dday_no" : dday_no
+    };
+
+    dday.delete(data, function (err, result) {
+      if (err) {
+        throw err;
+      } else {
+
+        console.log('result', result);
+        //expect(result[0].dday_no).to.be(1);
+        done();
+      }
+    })
+  });
+});
 describe('dday list', function () {
   it('dday list test', function (done) {
     var couple_no = 1;

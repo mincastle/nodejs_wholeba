@@ -29,5 +29,22 @@ function insertDday (conn, data, done) {
   });
 }
 
+function deleteDday (conn, data, done) {
+  var datas = [data.couple_no, data.dday_no];
+  conn.query(sql.deleteDday, datas, function (err, row) {
+    if(err) {
+      done(err);
+    } else {
+      if(row.affectedRows == 1) {
+        done(null);
+      } else {
+        done('정상적으로 삭제되지 않았습니다.');
+      }
+    }
+  });
+}
+
 exports.selectDdayList = selectDdayList;
 exports.insertDday = insertDday;
+
+exports.deleteDday = deleteDday;

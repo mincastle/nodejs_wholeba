@@ -70,12 +70,10 @@ router.post('/add', function (req, res, next) {
       res.json(fail_json);
     } else {
       success_json.result.message = 'D-day 생성 성공';
-      rse.json(success_json);
+      success_json.result.insertId = result;
+      res.json(success_json);
     }
   });
-
-  var couple_no = req.session.couple_no;
-
 
   //var data = [dday_name, dday_date, dday_repeat];
 });
@@ -120,7 +118,6 @@ router.post('/:dday_no/modify', function (req, res, next) {
 
 //디데이삭제
 router.post('/:dday_no/delete', function (req, res, next) {
-  var bodydata = req.body;
   var user_no = req.session.user_no;
 
   // Session 검사
@@ -128,31 +125,22 @@ router.post('/:dday_no/delete', function (req, res, next) {
     fail_json.result.message = '세션정보 없음';
     res.json(fail_json);
   }
-
   var couple_no = req.session.couple_no;
 
-  //db_ddays.add(data, function (err, result) {
-  //  if(err) {
-  //    fail_json.result.message = err;
-  //    res.json(fail_json);
-  //  } else {
-  //    success_json.result.message = 'D-day 조회성공';
-  //    rse.json(success_json);
-  //  }
-  //});
+  var data = {
+    "couple_no" : couple_no,
+    "dday_no" : req.params.dday_no
+  };
 
-  //var dday_no = req.params.dday_no;
-  //var couple_no = req.session.couple_no | -1;
-  ////var couple_no = 1;
-  //var data = [couple_no, dday_no];
-  //
-  //db_ddays.delete(data, function (success) {
-  //  if (success) {
-  //    success_json(res, "디데이삭제");
-  //  } else {
-  //    fail_json(res, "디데이삭제");
-  //  }
-  //});
+  db_ddays.delete(data, function (err) {
+    if(err) {
+      fail_json.result.message = err;
+      res.json(fail_json);
+    } else {
+      success_json.result.message = 'D-day 삭제 성공';
+      res.json(success_json);
+    }
+  });
 });
 
 module.exports = router;

@@ -35,6 +35,12 @@ exports.modify = function (data, callback) {
 
 //디데이삭제
 exports.delete = function (data, callback) {
-  var success = 1;
-  callback(success);
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      callback(err);
+    } else {
+      dao.deleteDday(conn, data, callback);
+      conn.release();
+    }
+  });
 };
