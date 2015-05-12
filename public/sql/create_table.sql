@@ -135,14 +135,14 @@ create table itemlist(
 	foreign key(item_usemission) references missionlist(mlist_no)
 );
 
-create table relation(
-	relation_no int not null auto_increment comment'성관계번호',
+create table loves(
+	loves_no int not null auto_increment comment'성관계번호',
 	couple_no int not null comment'커플번호',
-	relation_condom int not null comment'피임여부',
-	relation_pregnancy float not null comment'가임률',
-	relation_date datetime not null comment'성관계일',
-	relation_delete int not null default 0 comment'삭제여부',
-	primary key(relation_no),
+	loves_condom int not null comment'피임여부',
+	loves_pregnancy float not null comment'가임률',
+	loves_date datetime not null comment'성관계일',
+	loves_delete int not null default 0 comment'삭제여부',
+	primary key(loves_no),
 	foreign key(couple_no) references couple(couple_no)
 );
 
