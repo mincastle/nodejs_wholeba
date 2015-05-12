@@ -4,7 +4,6 @@ insert into theme(theme_name) values('처음');
 insert into theme(theme_name) values('섹시');
 insert into theme(theme_name) values('애교');
 insert into theme(theme_name) values('천사');
-insert into theme(theme_name) values('데이트');
 
 //섹시
 insert into mission(mission_name, mission_expiration, mission_hint, theme_no) values ('5분동안 꽉 안고있기', 10, '포옹',(select theme_no from theme where theme_name='섹시'));

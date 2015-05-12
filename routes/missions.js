@@ -69,44 +69,13 @@ router.get('/:year/:month/:orderby', function (req, res, next) {
   });
 });
 
-//미션하나조회
-router.get('/:mlist_no', function (req, res, next) {
-  var user_no = req.session.user_no;
-  var mlist_no = req.params.mlist_no;
-  var data = {"user_no" : user_no, "mlist_no" : mlist_no};
-
-  db_missions.get(data, function (data) {
-    if (!data) {
-      fail_json.result = {};
-      fail_json.result.message = '미션조회 실패';
-      res.json(fail_json);
-    } else {
-      res.json({
-        "success": 1,
-        "result": {
-          "message": "미션조회 성공",
-          "item": {
-            "mlist_no": 0,
-            "gender": "m",
-            "theme": "첫만남",
-            "content": "하루종일 손잡고 다니기",
-            "hint": "#설렘 #첫만남",
-            "date": "2015-4-10",
-            "state": 0
-          }
-        }
-      });
-    }
-  });
-});
-
 //미션생성
 router.post('/add', function (req, res, next) {
   var bodydata = req.body;
   var user_no = req.session.user_no;
   var couple_no = req.session.couple_no;
-  var mission_theme = bodydata.theme;
-  var data = {"user_no" : user_no, "couple_no" : couple_no, "mission_theme" : mission_theme};
+  var theme_no = bodydata.theme_no;
+  var data = {"user_no" : user_no, "couple_no" : couple_no, "theme_no" : theme_no};
 
   db_missions.add(data, function(err) {
     if (err) {

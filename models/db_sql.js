@@ -138,20 +138,20 @@ exports.deleteDday = 'delete from dday where couple_no = ? and dday_no = ?';
 
 //****************************** MISSION ************************************//
 
-//미션 하나 조회
-exports.selectOneMission = 'select mlist_name, mlist_regdate, (select mission_hint from mission where mission_no=?) as hint from missionlist where mlist_no=? and user_no=?';
-
 //미션 생성시, 테마에 따라 랜덤으로 1개 미션 조회
-exports.selectMissionTheme = 'select mission_no, mission_name, mission_reward, mission_expiration from mission where theme_no=(select theme_no from theme where theme_name=?) order by rand() limit 1';
+exports.selectMissionTheme = 'select mission_no, mission_name, mission_reward, mission_expiration from mission where theme_no=? order by rand() limit 1';
 
-//미션 생성시, 미션 수행할 유저 조회, 커플의 파트너 조회
-exports.selectPartner = 'select user_no, user_regid from user where couple_no=? and not(user_no=?)';
+//미션 생성시, 미션 수행할 유저와 그 유저가 가진 진행중인 미션갯수
+exports.selectMissionPartner = 'select user_no as partner_no, user_regid as partner_regid, (select count(mlist_no) from missionlist where user_no=partner_no and ((mlist_state=2) or (mlist_state=3))) as mlist_cnt from user where couple_no=? and not(user_no=?)';
 
 //미션 생성
-exports.insertMissionlist = 'insert into missionlist(user_no, mission_no, mlist_name, mlist_reward, mlist_regdate)  values(?, ?, ?, ?, now())';
+exports.insertMissionlist = 'insert into missionlist(user_no, mission_no, mlist_name, mlist_reward, mlist_state, mlist_regdate)  values(?, ?, ?, ?, 2, now())';
+
+//미션 생성시, 만들어진 미션 조회(푸시로 보낼 힌트 얻기 위함)
+exports.selectOneMission = 'select mlist_name, mlist_regdate from missionlist where mlist_no=? and user_no=?';
 
 //미션 생성시, 리워드 차감
-exports.updateUserReward = 'update reward set reward_cnt=reward_cnt + ? where user_no=?'
+exports.updateUserReward = 'update reward set reward_cnt=reward_cnt + ? where user_no=?';
 
 //미션 확인
 exports.updateMissionConfirm = 'update missionlist set mlist_confirm=1, mlist_state=3 where mlist_no=?';
