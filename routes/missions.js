@@ -2,23 +2,15 @@ var express = require('express');
 var router = express.Router();
 var db_missions = require('../models/db_missions');
 
-function fail_json(res, str) {
-  res.json({
-    "success": 0,
-    "result": {
-      "message": str + " 실패"
-    }
-  });
+var fail_json = {
+  "success": 0,
+  "result": {}
 }
 
-function success_json(res, str) {
-  res.json({
-    "success": 1,
-    "result": {
-      "message": str + " 성공"
-    }
-  });
-}
+var success_json = {
+  "success": 1,
+  "result": {}
+};
 
 //미션리스트조회
 router.get('/:year/:month/:orderby', function (req, res, next) {
@@ -30,7 +22,9 @@ router.get('/:year/:month/:orderby', function (req, res, next) {
 
   db_missions.getlist(data, function (datas) {
     if (!datas) {
-      fail_json(res, "미션목록조회");
+      fail_json.result = {};
+      fail_json.result.message = '미션리스트조회 실패';
+      res.json(fail_json);
     } else {
       res.json({
         "success": 1,
@@ -83,7 +77,9 @@ router.get('/:mlist_no', function (req, res, next) {
 
   db_missions.get(data, function (data) {
     if (!data) {
-      fail_json(res, "미션조회");
+      fail_json.result = {};
+      fail_json.result.message = '미션조회 실패';
+      res.json(fail_json);
     } else {
       res.json({
         "success": 1,
@@ -107,31 +103,39 @@ router.get('/:mlist_no', function (req, res, next) {
 //미션생성
 router.post('/add', function (req, res, next) {
   var bodydata = req.body;
-  var user_no = req.session.user_no | -1;
-  var couple_no = req.session.couple_no | -1;
+  var user_no = req.session.user_no;
+  var couple_no = req.session.couple_no;
   var mission_theme = bodydata.theme;
   var data = {"user_no" : user_no, "couple_no" : couple_no, "mission_theme" : mission_theme};
 
   db_missions.add(data, function(err) {
     if (err) {
-      fail_json(res, "미션생성");
+      fail_json.result = {};
+      fail_json.result.message = err;
+      res.json(fail_json);
     } else {
-      success_json(res, "미션생성");
+      success_json.result = {};
+      success_json.result.message = '미션생성 성공';
+      res.json(success_json);
     }
   });
 });
 
 //미션확인
 router.post('/:mlist_no/confirm', function (req, res, next) {
-  var user_no = req.session.user_no | -1;
+  var user_no = req.session.user_no;
   var mlist_no = req.params.mlist_no;
-  var data = [user_no, mlist_no];
+  var data = {"user_no" : user_no, "mlist_no" : mlist_no};
 
-  db_missions.confirm(data, function (success) {
-    if (success) {
-      success_json(res, "미션확인");
+  db_missions.confirm(data, function (err) {
+    if (err) {
+      fail_json.result = {};
+      fail_json.result.message = err;
+      res.json(fail_json);
     } else {
-      fail_json(res, "미션확인");
+      success_json.result = {};
+      success_json.result.message = '미션생성 성공';
+      res.json(success_json);
     }
   });
 });
@@ -142,26 +146,35 @@ router.post('/:mlist_no/success', function (success) {
   var mlist_no = req.params.mlist_no;
   var data = [user_no, mlist_no];
 
-  db_missions.success(data, function (success) {
-    if (success) {
-      success_json(res, "미션성공등록");
+  db_missions.success(data, function (err) {
+    if (err) {
+      fail_json.result = {};
+      fail_json.result.message = err;
+      res.json(fail_json);
     } else {
-      fail_json(res, "미션성공등록");
+      success_json.result = {};
+      success_json.result.message = '미션생성 성공';
+      res.json(success_json);
     }
   });
 });
 
 //미션삭제
+//추후 구현 예정
 router.post('/:mlsit_no/delete', function (req, res, next) {
   var user_no = req.session.user_no | -1;
   var mlist_no = req.params.mlist_no;
   var data = [user_no, mlist_no];
 
-  db_missions.delete(data, function (success) {
-    if (success) {
-      success_json(res, "미션삭제");
+  db_missions.delete(data, function (err) {
+    if (err) {
+      fail_json.result = {};
+      fail_json.result.message = err;
+      res.json(fail_json);
     } else {
-      fail_json(res, "미션삭제");
+      success_json.result = {};
+      success_json.result.message = '미션생성 성공';
+      res.json(success_json);
     }
   });
 });
