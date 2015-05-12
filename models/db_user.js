@@ -391,8 +391,14 @@ exports.acceptlogin = function (data, callback) {
 //로그아웃
 //user_islogin = 0으로 갱신한다
 exports.logout = function (data, callback) {
-  //islogin 을 0으로 갱신
-  dao.updateUserIsLogin(data, 0, callback);
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      callback(err, null);
+    } else {
+      //islogin 을 0으로 갱신
+      dao.updateUserIsLogin(conn, data, 0, callback);
+    }
+  });
 };
 
 //회원탈퇴
