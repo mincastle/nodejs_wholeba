@@ -1,13 +1,13 @@
 var mysql = require('mysql');
 var db_config = require('./db_config');
-var gcm = require('node-gcm');
 var dao = require('./db_missions_dao');
+var async = require('async');
 
 var pool = mysql.createPool(db_config);
 
 //missions목록조회
 //oderby 0(최신순), 1(난이도순), 2(남자순), 3(여자순)
-//state 0(실패) 1(성공) 2(패스)
+//state 0(실패) 1(성공) 2(확인안함) 3(진행중) 4(패스)
 exports.getlist = function (data, callback) {
   var success = 1;
   callback(success);
@@ -47,7 +47,7 @@ exports.get = function (data, callback) {
   1-1. theme으로 랜덤 select
   1-2. couple_no는 같고 user_no가 다른 유저(user_no, user_regid) select
   2. missionlist insert
-  3. 2의 유저에게 push
+  3. 2의 유저에게 push(mlist_no, mlist_name, mlist_regdate)
  data = {user_no, couple_no, mission_theme}
  */
 exports.add = function (data, callback) {
@@ -55,38 +55,96 @@ exports.add = function (data, callback) {
     if(err) {
       callback(err);
     } else {
-      async.waterfall(
-        [
-          function(done) {
-            //theme으로 mission select
-            //user select
-            dao.selectMissionandUser(conn, data, done);
-          },
-          function(arg1, done) {
-            //insert missionlist
-            dao.insertMissionlist(conn, arg1, done);
-          },
-          function(arg2, done) {
-            //push
-            dao.sendCreateMissionPush(arg2, done);
-          }
-        ],
-        function(err) {
-          if(err) {
+      conn.beginTransaction(function(err) {
+        if(err) {
+          console.log('err', err);
+          conn.rollback(function() {
             callback(err);
-          } else {
-            callback(null);
-          }
-        });  //async
+          });
+        } else {
+          async.waterfall(
+            [
+              function(done) {
+                //theme으로 mission select
+                //user select
+                dao.selectMissionandUser(conn, data, done);
+              },
+              function(arg1, done) {
+                //insert missionlist
+                dao.insertMissionlist(conn, arg1, done);
+              },
+              function(arg2, done) {
+                //보내줄 내용 조회
+                //console.log('arg2', arg2);
+                dao.selectOneMission(conn, arg2, done);
+              },
+              function(arg3, done) {
+                //push
+                dao.sendCreateMissionPush(arg3, done);
+              },
+              function(arg4, done) {
+                //reward 차감
+                dao.updateUserReward(conn, data, -1, done);
+              }
+            ],
+            function(err, result) {
+              if(err) {
+                conn.rollback(function() {
+                  callback(err);
+                });
+              } else {
+                //리워드 추가갯수
+                //todo push 해야함 reward update
+                if(result) {
+                  conn.commit(function(err) {
+                    if(err) {
+                      conn.rollback(function() {
+                        callback(err);
+                      });
+                    } else {
+                      callback(null, result);
+                    }
+                  });  //commit
+                }
+              }
+            }); //async
+        }
+        conn.release();
+      });  //transaction
     }
-    conn.release();
   });  //getConnection
 };
 
-//missions확인
+/*
+  missions확인
+  1. 해당 mlist_no의 mission_confirm = 1로 갱신 mission_state = 3(진행중)으로 갱신
+  2. 상대방에게 확인했다는 푸시 (mlist_no, hint 전송)
+ */
 exports.confirm = function (data, callback) {
-  var success = 1;
-  callback(success);
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      callback(err);
+    } else {
+      async.series(
+        [
+          function(done){
+            dao.updateMissionConfirm(conn, data, done);
+          },
+          function(done) {
+
+          }
+        ],
+        function(err, result) {
+        if(err) {
+          callback(err);
+        } else {
+          if(result) {
+            callback(null, result);
+          }
+        }
+      });
+    }
+  });
 };
 
 //missions삭제
