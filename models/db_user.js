@@ -343,7 +343,6 @@ exports.login = function (data, callback) {
 
 /* 로그인 여부 확인 후 로그인 하겠다는 요청
   1. 기존에 로그인 되어있던 user_no의 user_regid, user_phone을 가져온다.
-  2.
  */
 exports.acceptlogin = function (data, callback) {
   pool.getConnection(function (err, conn) {
@@ -357,8 +356,7 @@ exports.acceptlogin = function (data, callback) {
             callback(err);
           });
         } else {
-          async.waterfall([
-            function (done) {
+          async.waterfall([function (done) {
               // user_no에 user_phone, user_regid 업데이트
               dao.updateUserRegIdandUserPhone(conn, data, null, done);
             }, function (arg, done) {
@@ -386,27 +384,6 @@ exports.acceptlogin = function (data, callback) {
         }
         conn.release();
       });  //begin transaction
-    }
-  });
-};
-
-/*
- * 사용자기본값조회
- * user_no, couple_no, gender, condom(피임여부) 를 리턴
- * 남자 사용자의 경우 커플 상대(여자)의 기본 피임여부값을 리턴
- */
-exports.userinfo = function (data, callback) {
-  pool.getConnection(function (err, conn) {
-    if (err) callback(err, null);
-    else {
-      conn.query(sql.selectUserInfo, data, function (err, row) {
-        if (err) callback(err, null);
-        else {
-          console.log('userinfo : ', row);
-          callback(null, row[0]);
-          conn.release();
-        }
-      });
     }
   });
 };

@@ -94,13 +94,14 @@ exports.updateUserCoupleNoandGenderandUserReq = 'update user set couple_no=?, us
 
 exports.selectCoupleInfo =
   'select (select user_no from user a where a.user_gender=u.user_gender and a.couple_no=u.couple_no) m_userno, ' +
-  '       (select user_level from user a where a.user_gender=u.user_gender and a.couple_no=u.couple_no) m_level, ' +
+  //'       (select user_level from user a where a.user_gender=u.user_gender and a.couple_no=u.couple_no) m_level, ' +
   '       (select (select feel_name from feel f where f.feel_no=a.feel_no) from user a where a.user_gender=u.user_gender and a.couple_no=u.couple_no) m_condition, ' +
   '	      (select reward_cnt from reward r where user_no=(select user_no from user a where a.user_gender=u.user_gender and a.couple_no=u.couple_no and a.user_no=r.user_no)) m_reward, ' +
   '       (select user_no from user a where user_gender="F" and a.couple_no=u.couple_no) f_userno, ' +
-  '       (select user_level from user a where user_gender="F" and a.couple_no=u.couple_no) f_level, ' +
+  //'       (select user_level from user a where user_gender="F" and a.couple_no=u.couple_no) f_level, ' +
   '       (select (select feel_name from feel f where f.feel_no=a.feel_no) from user a where user_gender="F" and a.couple_no=u.couple_no) f_condition, ' +
   '	      (select reward_cnt from reward r where user_no=(select user_no from user a where a.user_gender="F" and a.couple_no=u.couple_no and a.user_no=r.user_no)) f_reward, ' +
+  '       (select couple_condom from couple c where c.couple_no=u.couple_no) couple_condom, ' +
   '       (select couple_birth from couple c where c.couple_no=u.couple_no) couple_birth ' +
   'from user u ' +
   'where u.couple_no=? ' +
@@ -115,6 +116,7 @@ exports.selectCoupleInfo =
  (select user_level from user a where user_gender="F" and a.couple_no=u.couple_no) f_level,
  (select (select feel_name from feel f where f.feel_no=a.feel_no) from user a where user_gender="F" and a.couple_no=u.couple_no) f_condition,
  (select reward_cnt from reward r where user_no=(select user_no from user a where a.user_gender="F" and a.couple_no=u.couple_no and a.user_no=r.user_no)) f_reward,
+ (select couple_condom from couple c where c.couple_no=u.couple_no) couple_condom,
  (select couple_birth from couple c where c.couple_no=u.couple_no) couple_birth
  from user u
  where u.couple_no=1
@@ -126,6 +128,12 @@ exports.updateMyCondition = 'update user set feel_no = ? where user_no = ?';
 // dday 추가하는 sql
 exports.insertMakeDday = 'insert into dday(couple_no, dday_name, dday_date, dday_repeat) ' +
                          'values (?, ?, ?, ?)';
+
+//****************************** D-DAY ************************************//
+
+exports.selectDdayList = 'select dday_no, dday_name, dday_date from dday where couple_no=? and dday_delete=0';
+
+
 
 
 //****************************** MISSION ************************************//
