@@ -158,7 +158,6 @@ describe('dday list', function () {
         //  r[index].dday_date = moment(r[index].dday_date).format('YYYY-MM-DD');
         //  console.log('r[' + index + ']', r[index]);
         //});
-
       }
     })
   });

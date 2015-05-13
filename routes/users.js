@@ -283,40 +283,6 @@ router.post('/acceptlogin', function (req, res, next) {
   });
 });
 
-//기본값 조회
-router.get('/userinfo', function (req, res, next) {
-  var user_no = req.session.user_no;
-  //세션체크
-  if (!user_no) {
-    fail_json.result.message = "세션정보 없음";
-    res.json(fail_json);
-    return;
-  }
-  var data = [user_no, user_no];
-
-  db_user.userinfo(data, function (err, result) {
-    if (err) {
-      fail_json.result.message = err;
-      res.json(fail_json);
-    } else {
-      if (result) {
-        res.json({
-          "success": 1,
-          "result": {
-            "message": "기본값조회 성공",
-            "items": {
-              "user_no": result.user_no,
-              "couple_no": result.couple_no,
-              "couple_condom": result.condom,
-              "user_gender": result.user_gender
-            }
-          }
-        });
-      }
-    }
-  });
-});
-
 //로그아웃
 router.post('/logout', function (req, res, next) {
   var user_no = req.session.user_no;

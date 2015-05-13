@@ -110,6 +110,7 @@ exports.getinfo = function (data, callback) {
     if (err) {
       callback(err, null);
     } else {
+
       dao.selectCoupleInfo(conn, data, callback);
       conn.release();
     }

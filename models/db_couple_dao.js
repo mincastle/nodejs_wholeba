@@ -41,7 +41,6 @@ function selectCheckAnswerCouple (conn, data, done){
     if (err) {
       done(err);
     } else {
-      console.log('answer row', row);
       if (!row[0]) {
         done("당신은 승인자가 아닙니다..");
       }else{
@@ -83,6 +82,7 @@ function updateUserCoupleNoandGenderandUserReq(conn, couple_no, other_gender, da
 
 function selectOtherGender(conn, couple_no, data, done) {
   var datas = [couple_no, data.user_no];
+  console.log('datas_water', datas);
   conn.query(sql.selectOtherGender, datas, function (err, row) {
     //console.log('updateCoupleIs_row', row);
     if (err) {
