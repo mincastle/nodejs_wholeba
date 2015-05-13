@@ -84,6 +84,24 @@ insert into item(item_name, item_exchange) values('처음미션으로 다시 뽑
 insert into item(item_name, item_exchange) values('미션패스',3);
 insert into item(item_name, item_exchange) values('미션 내마음대로 쓰기',5);
 
+//생리증후군
+insert into syndrome(syndrome_name) values('식욕');
+insert into syndrome(syndrome_name) values('분노');
+insert into syndrome(syndrome_name) values('예민');
+insert into syndrome(syndrome_name) values('변비');
+insert into syndrome(syndrome_name) values('복통');
+insert into syndrome(syndrome_name) values('우울');
+insert into syndrome(syndrome_name) values('설사');
+insert into syndrome(syndrome_name) values('여드름');
+insert into syndrome(syndrome_name) values('짜증');
+insert into syndrome(syndrome_name) values('유방통증');
+insert into syndrome(syndrome_name) values('빈혈');
+insert into syndrome(syndrome_name) values('무기력');
+insert into syndrome(syndrome_name) values('불면증');
+insert into syndrome(syndrome_name) values('두통');
+insert into syndrome(syndrome_name) values('성욕');
+insert into syndrome(syndrome_name) values('식욕저하');
+insert into syndrome(syndrome_name) values('소화불량');
 
 //파일 load data
 LOAD DATA LOCAL INFILE '/Users/ProgrammingPearls/Desktop/mission-devil.csv'

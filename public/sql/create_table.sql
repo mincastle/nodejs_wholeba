@@ -58,7 +58,7 @@ create table pills(
 
 create table syndrome(
 	syndrome_no int not null auto_increment comment'증후군번호',
-	syndrome_name varchar(20) comment'증후군명',
+	syndrome_name varchar(20) unique comment'증후군명',
 	primary key(syndrome_no)
 );
 
@@ -83,7 +83,7 @@ create table reward(
 
 create table theme(
 	theme_no int not null auto_increment comment'미션테마',
-	theme_name varchar(10) not null comment'테마명',
+	theme_name varchar(10) unique not null comment'테마명',
 	primary key(theme_no)
 );
 
@@ -91,7 +91,7 @@ create table mission(
 	mission_no int not null auto_increment comment'미션번호',
 	mission_season int comment'계절',
 	theme_no int not null comment'미션테마',
-	mission_name varchar(200) not null comment'미션이름',
+	mission_name varchar(200) unique not null comment'미션이름',
 	mission_expiration int not null comment'미션수행기간(day)',
 	mission_hint varchar(50) not null comment'미션힌트',
 	mission_level int comment'미션난이도',
@@ -118,7 +118,7 @@ create table missionlist(
 
 create table item(
 	item_no int not null auto_increment comment'아이템번호',
-	item_name varchar(30) not null comment'아이템이름',
+	item_name varchar(30) unique not null comment'아이템이름',
 	item_exchange int not null comment'필요칩갯수',
 	primary key(item_no)
 );
