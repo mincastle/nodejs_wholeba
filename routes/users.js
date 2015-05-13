@@ -177,12 +177,21 @@ router.post('/woman', function (req, res, next) {
     "period_cycle": period_cycle
   };
   syndromes = {
-    "user_no": user_no, "items": [{"syndrome_name": "우울", "syndrome_before": 1, "syndrome_after": 0},
-      {"syndrome_name": "폭식", "syndrome_before": 1, "syndrome_after": 1}, {
-        "syndrome_name": "분노",
-        "syndrome_before": 2,
-        "syndrome_after": 2
-      }]
+    "user_no": user_no,
+    "items": [{
+                "syndrome_no": 1,
+                "syndrome_before": 1,
+                "syndrome_after": 0},
+              {
+                "syndrome_no": 2,
+                "syndrome_before": 1,
+                "syndrome_after": 1
+              },
+              {
+                "syndrome_no": 3,
+                "syndrome_before": 2,
+                "syndrome_after": 2
+              }]
   };
   var pills = {"user_no": user_no, "user_pills": user_pills, "pills_date": pills_date, "pills_time": pills_time};
 
