@@ -165,6 +165,9 @@ exports.selectOneMission = 'select mlist_name, mlist_regdate from missionlist wh
 //미션 생성시, 리워드 차감
 exports.updateUserReward = 'update reward set reward_cnt=reward_cnt + ? where user_no=?';
 
+//진행중인 미션조회
+exports.selectRunningMission = 'select mlist_no, (select theme_no from mission m where m.mission_no=mlist.mission_no) as theme_no, mlist_name from missionlist mlist where user_no=? and ((mlist_state=2) or (mlist_state=3))';
+
 //미션 확인
 exports.updateMissionConfirm = 'update missionlist set mlist_confirm=1, mlist_state=3 where mlist_no=?';
 
