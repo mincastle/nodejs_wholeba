@@ -83,8 +83,7 @@ exports.add = function (data, callback) {
               },
               function(arg3, done) {
                 //push
-                //todo push 해야함 reward update
-                dao.sendCreateMissionPush(conn, arg3, done);
+                dao.sendCreateMissionandRewardPush(conn, arg3, done);
               }
             ],
             function(err) {
@@ -159,6 +158,7 @@ exports.confirm = function (data, callback) {
         }
       });
     }
+    conn.release();
   });
 };
 
@@ -168,8 +168,52 @@ exports.delete = function (data, callback) {
   callback(success);
 };
 
-//missions성공
+/*
+  missions성공
+  1. mlist_state = 1, mlist_successdate = now()로 갱신
+  2. user에게 reward +1 (리워드푸시)
+ */
 exports.success = function (data, callback) {
-  var success = 1;
-  callback(success);
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      callback(err);
+    } else {
+      conn.beginTransaction(function(err) {
+        if(err) {
+          conn.rollback(function() {
+            callback(err);
+            return;
+          });
+        }
+        async.parallel(
+          [
+            function(done) {
+              //mlist update
+              dao.updateMissionSuccess(conn, data, done);
+            },
+            function(done) {
+              //reward mlist_reward
+              dao.updateMissionSuccessRewardandSendRewardPush(conn, data, done);
+            }
+          ], function(err, result) {
+            if(err) {
+              conn.rollback(function() {
+                callback(err);
+              });
+            } else {
+              conn.commit(function(err){
+                if(err) {
+                  conn.rollback(function() {
+                    callback(err);
+                  });
+                } else {
+                  callback(null, result);
+                }
+              });
+            }
+          }); //async
+        conn.release();
+      });  //transaction
+    }
+  });
 };
