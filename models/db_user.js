@@ -176,6 +176,10 @@ exports.common = function (data, callback) {
                 dao.updateCoupleandUserBirth(conn, data, arg1, done);
               },
               function (done) {
+                if (data.user_gender == 'F') {
+                  done(null);
+                  return;
+                }
                 dao.updateUserAddition(conn, data, done);
               }
             ],
@@ -215,7 +219,7 @@ exports.common = function (data, callback) {
  * 4. syndrome insert
  * pills = {"user_no", "user_pills", "pills_date", "pills_time"}
  * period = {"user_no", "period_start", "period_end", "period_cycle"}
- * syndromes = [{syndrome_name, syndrome_before, syndrome_after}]
+ * syndromes = [{syndrome_no, syndrome_before, syndrome_after}]
  */
 exports.woman = function (pills, period, syndromes, callback) {
   console.log('pills', pills);
@@ -248,6 +252,9 @@ exports.woman = function (pills, period, syndromes, callback) {
             },
             function (done) {
               dao.insertSyndromes(conn, syndromes, done)
+            },
+            function (done) {
+              dao.updateUserAddition(conn, pills, done);
             }
           ], function (err, result) {
             if (err) {

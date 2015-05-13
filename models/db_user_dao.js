@@ -584,7 +584,7 @@ function insertSyndromes(conn, syndromes, done) {
 
   //배열길이에 맞게 반복
   async.each(syndromes, function (syn, done) {
-      params = [user_no, syn.syndrome_name, parseInt(syn.syndrome_before), parseInt(syn.syndrome_after)];
+      params = [user_no, syn.syndrome_no, parseInt(syn.syndrome_before), parseInt(syn.syndrome_after)];
       insertSyn(conn, params, done);
     },
     function (err) {
@@ -617,10 +617,6 @@ function insertSyn(conn, params, done) {
 }
 
 function updateUserAddition(conn, data, done) {
-  if (data.user_gender == 'F') {
-    done(null);
-    return;
-  }
 
   var params = [data.user_no];
   console.log('params_addition', params);

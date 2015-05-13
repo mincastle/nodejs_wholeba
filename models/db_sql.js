@@ -68,7 +68,7 @@ exports.updateUserPills = 'update user set user_pills=? where user_no=? and user
 exports.insertPeriod = 'insert into period(user_no, period_start, period_end, period_danger, period_cycle) values(?, ?, ?, ?, ?);';
 
 //여성정보등록시, syndrome 테이블에 행 추가
-exports.insertSyndrome = 'insert into syndrome(user_no, syndrome_name, syndrome_before, syndrome_after) values(?, ?, ?, ?);';
+exports.insertSyndrome = 'insert into synlist(user_no, syndrome_no, syndrome_before, syndrome_after) values(?, ?, ?, ?);';
 
 //추가정보입력 후, user_addition 업데이트
 exports.updateUserAddition = 'update user set user_addition=1 where user_no=?';
