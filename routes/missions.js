@@ -14,11 +14,19 @@ var success_json = {
 
 //미션리스트조회
 router.get('/:year/:month/:orderby', function (req, res, next) {
+  var user_no = req.session.user_no;
   var couple_no = req.session.couple_no;
   var orderby = parseInt(req.params.orderby);
   var year = parseInt(req.params.year);
   var month = parseInt(req.params.month);
-  var data = {"couple_no" : couple_no, "year" : year, "month" : month, "orderby" : orderby};
+  var data = {"user_no" : user_no, "couple_no" : couple_no, "year" : year, "month" : month, "orderby" : orderby};
+
+  //세션 체크
+  if (!user_no || !couple_no) {
+    fail_json.result.message = "세션정보 없음";
+    res.json(fail_json);
+    return;
+  }
 
   db_missions.getlist(data, function (datas) {
     if (!datas) {
@@ -26,11 +34,13 @@ router.get('/:year/:month/:orderby', function (req, res, next) {
       fail_json.result.message = '미션리스트조회 실패';
       res.json(fail_json);
     } else {
+      success_json.result = {};
+      success_json.result.message = '미션목록조회 성공';
       res.json({
         "success": 1,
         "result": {
           "message": "미션목록조회 성공",
-          "orderby": 1,
+          "orderby": orderby,
           "item_cnt": 3,
           "items": {
             "m_total": 2,
@@ -182,24 +192,24 @@ router.post('/:mlist_no/success', function (req, res, next) {
   });
 });
 
-//미션삭제
+//todo 미션삭제
 //추후 구현 예정
-router.post('/:mlsit_no/delete', function (req, res, next) {
-  var user_no = req.session.user_no | -1;
-  var mlist_no = req.params.mlist_no;
-  var data = [user_no, mlist_no];
-
-  db_missions.delete(data, function (err) {
-    if (err) {
-      fail_json.result = {};
-      fail_json.result.message = err;
-      res.json(fail_json);
-    } else {
-      success_json.result = {};
-      success_json.result.message = '미션생성 성공';
-      res.json(success_json);
-    }
-  });
-});
+//router.post('/:mlsit_no/delete', function (req, res, next) {
+//  var user_no = req.session.user_no | -1;
+//  var mlist_no = req.params.mlist_no;
+//  var data = [user_no, mlist_no];
+//
+//  db_missions.delete(data, function (err) {
+//    if (err) {
+//      fail_json.result = {};
+//      fail_json.result.message = err;
+//      res.json(fail_json);
+//    } else {
+//      success_json.result = {};
+//      success_json.result.message = '미션삭제 성공';
+//      res.json(success_json);
+//    }
+//  });
+//});
 
 module.exports = router;

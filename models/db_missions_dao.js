@@ -274,21 +274,86 @@ function selectRunningMission(conn, data, done) {
 }
 
 
-//미션확인시, 해당 미션의 mission_confirm과 state 갱신
+/*
+  미션확인시, 해당 미션의 mission_state, expiredate 갱신
+  1. mission_no 로 mission_expire(int) 검색 후 now()에 계산
+  2. update
+ */
 //data = {user_no, mlist_no};
 function updateMissionConfirm(conn, data, done) {
   if (!conn) {
     done('연결 에러');
     return;
   }
-  var param = [data.user_no, data.mlist_no];
+  conn.beginTransaction(function(err) {
+    if(err) {
+      conn.rollback(function() {
+        done(err);
+      });
+    } else {
+      async.waterfall(
+        [
+          function(done) {
+            getMissionExpiredate(conn, data, done);
+          },
+          //updateInfo = {user_no, mlist_no, mlist_expiredate}
+          function(updateInfo, done) {
+            updateMissionStateandExpiredate(conn, updateInfo, done);
+          }
+        ],
+        function(err, result) {
+          if(err) {
+            conn.rollback(function() {
+              done(err);
+            });
+          } else if(result) {
+            conn.commit(function(err) {
+              if(err) {
+                conn.rollback(function() {
+                  done(err);
+                });
+              } else {
+                done(null, result);
+              }
+            });
+          }
+      });  //async
+    }
+  });  //transaction
+}
+
+//미션확인시, 유효기간 조회 후 계산
+function getMissionExpiredate(conn, data, done) {
+  //expiration 조회 후 -> 오늘 + expiration
+  var param = [data.mlist_no];
+  conn.query(sql.selectMissionExpiration, param, function(err, row) {
+    if(err) {
+      done(err);
+    } else {
+      if(row[0].mission_expiration) {
+        console.log('mission expiration : ', row[0].mission_expiration);
+        var expiredate = new Date();
+        expiredate.setDate(expiredate.getDate() + row[0].mission_expiration);
+        console.log('expiredate : ', expiredate);
+        data.mlist_expiredate = expiredate;  //data에 추가
+        done(null, data);
+      } else {
+        done('미션 유효기간 조회 실패');
+      }
+    }
+  });
+}
+
+//미션확인시, 계산된 expiredate 로 , state도 같이 갱신
+function updateMissionStateandExpiredate(conn, data, done) {
+  var param = [ data.mlist_expiredate, data.user_no, data.mlist_no];
   conn.query(sql.updateMissionConfirm, param, function (err, row) {
     if (err) {
       done(err);
     } else {
       if (row.affectedRows == 1) {
-        console.log('update mlist_state=3 row : ', row);
-        done(null);
+        console.log('update mlist_state, expiredate row : ', row);
+        done(null, row);
       } else {
         done('미션확인실패');
       }
