@@ -146,7 +146,9 @@ exports.insertLoves = function (date) {
   }
 };
 
+exports.updateLoves = 'update loves set loves_condom=?, loves_date=? where couple_no=? and loves_no=?';
 
+exports.deleteLoves = 'update loves set loves_delete = 1 where couple_no=? and loves_no=?';
 
 //****************************** MISSION ************************************//
 
