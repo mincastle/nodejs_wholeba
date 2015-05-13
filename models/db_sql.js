@@ -40,17 +40,14 @@ exports.selectCoupleWithdraw = 'select couple_withdraw from couple where couple_
 //가입정보조회시, couple_is = 1일때, user_addition 조회
 exports.selectUserAddition = 'select user_addition from user where user_no=?;';
 
-//가입정보조회시, couple_is = 1 && user_addition = 0 일때, user_req, user_gender 조회
-exports.selectUserReqandUserGender = 'select user_req, user_gender from user where user_no=?;';
+//가입정보조회시, couple_is = 1 && user_addition = 0 일때, user_req, user_gender 조회, 공통정보등록시, 사용자의 요청자여부 조회
+exports.selectUserReqandUserGender = 'select user_no, user_req, user_gender from user where user_no=?';
 
 //가입정보조회시, couple_is = 0 && auth_phone.cnt = 1일때, 커플승인자이므로 상대방의 전화번호 조회
 exports.selectPartnerPhone = 'select user_phone from user where couple_no=? and not(user_no=?);';
 
 //사용자 기본값조회(user_no, couple_no, gender, condom(피임여부)
 exports.selectUserInfo = 'select user_no, couple_no, user_gender, (select couple_condom from couple where couple_no in (select couple_no from user where user_no=?)) as condom from user where user_no = ?';
-
-//공통정보등록시, 사용자의 요청자여부 조회
-exports.selectUserReq = 'select user_req from user where user_no=?';
 
 //공통정보등록시, 커플의 사귄날 등록
 exports.updateCoupleBirth = 'update couple set couple_birth=? where couple_no in (select couple_no from user where user_no = ?);';
@@ -70,7 +67,8 @@ exports.insertPeriod = 'insert into period(user_no, period_start, period_end, pe
 //여성정보등록시, syndrome 테이블에 행 추가
 exports.insertSyndrome = 'insert into syndrome(user_no, syndrome_name, syndrome_before, syndrome_after) values(?, ?, ?, ?);';
 
-
+//추가정보입력 후, user_addition 업데이트
+exports.updateUserAddition = 'update user set user_addition=1 where user_no=?';
 
 //****************************** COUPLE ************************************//
 
@@ -138,12 +136,42 @@ exports.deleteDday = 'delete from dday where couple_no = ? and dday_no = ?';
 
 //****************************** LOVE ************************************//
 
-exports.insertLoves = function (date) {
-  if (date){
-    return 'insert into loves(couple_no, loves_condom, loves_date) values (?, ?, ?)';
-  } else {
-    return 'insert into loves(couple_no, loves_condom, loves_date) values (?, ?, now())';
+exports.selectLoves = function (data, callback) {
+
+  // 정렬부분
+  var orderby;
+  switch (data.orderby) {
+    case 0:
+      orderby = 'loves_date';
+      break;
+    case 1:
+      orderby = 'loves_pregnancy';
+      break;
   }
+
+
+  var sql = "select loves_no, loves_condom, loves_pregnancy, loves_date, loves_delete " +
+            "from loves " +
+            "where couple_no=? " +
+            "and loves_date > ? " +
+            "order by " + orderby + ' DESC';
+
+
+  // 동적 sql을 작성한 후 콜백을 통해 값을 넘겨준다.
+  callback(sql);
+};
+
+exports.insertLoves = function (date, callback) {
+  var sql;
+
+  if (date.loves_date){
+    sql =  'insert into loves(couple_no, loves_condom, loves_date) values (?, ?, ?)';
+  } else {
+    sql = 'insert into loves(couple_no, loves_condom, loves_date) values (?, ?, now())';
+  }
+
+  // 동적 sql을 작성한 후 콜백을 통해 sql을 넘겨준다.
+  callback(sql);
 };
 
 exports.updateLoves = 'update loves set loves_condom=?, loves_date=? where couple_no=? and loves_no=?';

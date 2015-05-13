@@ -170,10 +170,13 @@ exports.common = function (data, callback) {
           async.waterfall(
             [
               function (done) {
-                dao.selectUserReq(conn, data, done);
+                dao.selectUserReqandUserGender(conn, data, done);
               },
               function (arg1, done) {
                 dao.updateCoupleandUserBirth(conn, data, arg1, done);
+              },
+              function (done) {
+                dao.updateUserAddition(conn, data, done);
               }
             ],
             function (err, result) {

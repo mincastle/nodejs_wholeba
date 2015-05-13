@@ -267,13 +267,13 @@ function getCoupleIs(result, done) {
   });
 }
 
-//selectUserReq
-function selectUserReq(conn, data, done) {
+//selectUserReqandUserGender
+function selectUserReqandUserGender(conn, data, done) {
   if (!conn) {
     done('연결 에러');
     return;
   }
-  conn.query(sql.selectUserReq, [data.user_no], function (err, row) {
+  conn.query(sql.selectUserReqandUserGender, [data.user_no], function (err, row) {
     if (err) {
       done(err, null);
     }
@@ -299,6 +299,8 @@ function updateCoupleandUserBirth(conn, data, arg, done) {
     done('연결 에러');
     return;
   }
+
+  data.user_gender = arg.user_gender;
   //user_req = 1 이면 커플요청자이므로 사귄날 update
   //그 후에 user_birth update
   if (arg.user_req == 1) {
@@ -337,8 +339,11 @@ function updateUserBirth(conn, data, done) {
       done(err, null);
     }
     else {
-      //console.log('update user birth : ', row);
-      done(null, row);
+      if (row.affectedRows == 1) {
+        done(null);
+      } else {
+        done('user birth 업데이트 중 에러');
+      }
     }
   });
 }
@@ -605,6 +610,27 @@ function insertSyn(conn, params, done) {
   });
 }
 
+function updateUserAddition(conn, data, done) {
+  if (data.user_gender == 'F') {
+    done(null);
+    return;
+  }
+
+  var params = [data.user_no];
+  console.log('params_addition', params);
+  conn.query(sql.updateUserAddition, params, function (err, row) {
+    if (err) {
+      done(err);
+    } else {
+      if (row.affectedRows == 1) {
+        done(null, row);
+      } else {
+        done('addition 변경 실패');
+      }
+    }
+  });
+}
+
 //update user_islogin
 //data = user_no, couple_no, user_phone, user_regid
 function updateUserIsLogin(conn, data, islogin, done) {
@@ -644,7 +670,7 @@ exports.getRespondentInfo = getRespondentInfo;
 exports.getPartnerPhone = getPartnerPhone;
 
 //공통정보등록 (/common)
-exports.selectUserReq = selectUserReq;
+exports.selectUserReqandUserGender = selectUserReqandUserGender;
 exports.updateUserBirth = updateUserBirth; //private
 exports.updateCoupleandUserBirth = updateCoupleandUserBirth;
 
@@ -657,3 +683,4 @@ exports.insertPeri = insertPeri; //private
 exports.insertSyndromes = insertSyndromes;
 exports.insertSyn = insertSyn; //private
 
+exports.updateUserAddition = updateUserAddition;

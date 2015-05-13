@@ -144,11 +144,9 @@ router.post('/common', function (req, res, next) {
       fail_json.result.message = err;
       res.json(fail_json);
     } else {
-      if (result.affectedRows == 1) {
-        success_json.result = {};
-        success_json.result.message = "공통정보등록 성공";
-        res.json(success_json);
-      }
+      success_json.result = {};
+      success_json.result.message = "공통정보등록 성공";
+      res.json(success_json);
     }
   });
 });
