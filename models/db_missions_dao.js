@@ -256,12 +256,13 @@ function updateMissionConfirm(conn, data, done) {
     done('연결 에러');
     return;
   }
-  var param = [data.mlist_no];
+  var param = [data.user_no, data.mlist_no];
   conn.query(sql.updateMissionConfirm, param, function(err, row) {
     if(err) {
       done(err);
     } else {
       if(row.affectedRows == 1) {
+        console.log('update mlist_state=3 row : ', row);
         done(null);
       } else {
         done('미션확인실패');
@@ -271,12 +272,72 @@ function updateMissionConfirm(conn, data, done) {
 }
 
 //미션확인시 hint조회해서 푸시보냄
+//data {user_no, mlist_no}
 function sendMissionConfirmPush (conn, data, done) {
   if(!conn) {
     done('연결 에러');
     return;
   }
+  async.waterfall(
+    [
+      function(done) {
+        selectMissionConfirmPushInfo(conn, data, done);
+      },
+      function(pushinfo, done) {
+        //pushinfo {partner_regid, hint}
+        var message = new gcm.Message;
+        var regid = [pushinfo.partner_regid];
+        //console.log('push data : ', data);
 
+        //todo type 정한 후 바꾸어야함
+        message.addData('type', 3);
+        message.addData('hint', pushinfo.hint);
+        sender.sendNoRetry(message, regid, function (err, result) {
+          if (err) {
+            console.log('err', err);
+            done(err);
+          }
+          else {
+            //todo 안드랑 연결하면 주석풀기!!!!
+            //if (result.success) {
+            if(true) {
+              console.log('push result', result);
+              done(null);
+            } else {
+              done(err);
+            }
+          }
+        });
+      }
+    ],
+    function(err) {
+      if(err) {
+        done(err);
+      } else {
+        done(null);
+      }
+  });
+}
+
+//미션확인시, 푸시에 보낼 힌트와 푸시 보낼 대상의 regid 조회
+function selectMissionConfirmPushInfo(conn, data, done) {
+  if(!conn){
+    done('연결 에러');
+    return;
+  }
+  var params = [data.user_no, data.mlist_no];
+  conn.query(sql.selectMissionConfirmPushInfo, params, function(err, row) {
+    if(err) {
+      done(err);
+    } else {
+      if(row[0]) {
+        console.log('mission confirm info row[0] : ', row[0]);
+        done(null, row[0]);
+      } else {
+        done('미션확인시, 푸시정보 조회 실패');
+      }
+    }
+  });
 }
 
 //미션생성

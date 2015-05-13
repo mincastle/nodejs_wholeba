@@ -169,5 +169,20 @@ exports.updateUserReward = 'update reward set reward_cnt=reward_cnt + ? where us
 exports.selectRunningMission = 'select mlist_no, (select theme_no from mission m where m.mission_no=mlist.mission_no) as theme_no, mlist_name from missionlist mlist where user_no=? and mlist_state=3';
 
 //미션 확인
-exports.updateMissionConfirm = 'update missionlist set mlist_confirm=1, mlist_state=3 where mlist_no=?';
+exports.updateMissionConfirm = 'update missionlist set mlist_state=3 where user_no=? and mlist_no=?';
 
+//미션 확인시 푸시보낼 상대방과 보낼내용인 힌트조회
+exports.selectMissionConfirmPushInfo =
+  'select (select user_regid ' +
+            'from user ' +
+            'where couple_no=(select couple_no ' +
+                              'from user ' +
+                              'where user_no=mlist.user_no) ' +
+                              'and not(user_no=mlist.user_no)) as partner_regid, ' +
+          '(select mission_hint ' +
+          'from mission m ' +
+          'where m.mission_no=mlist.mission_no) as hint ' +
+  'from missionlist mlist ' +
+  'where user_no=? ' +
+  'and mlist_state=3 ' +
+  'and mlist_no=?';

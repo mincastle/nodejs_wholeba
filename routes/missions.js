@@ -136,6 +136,13 @@ router.post('/:mlist_no/confirm', function (req, res, next) {
   var mlist_no = req.params.mlist_no;
   var data = {"user_no" : user_no, "mlist_no" : mlist_no};
 
+  //세션 체크
+  if (!user_no) {
+    fail_json.result.message = "세션정보 없음";
+    res.json(fail_json);
+    return;
+  }
+
   db_missions.confirm(data, function (err) {
     if (err) {
       fail_json.result = {};
@@ -143,7 +150,7 @@ router.post('/:mlist_no/confirm', function (req, res, next) {
       res.json(fail_json);
     } else {
       success_json.result = {};
-      success_json.result.message = '미션생성 성공';
+      success_json.result.message = '미션확인 성공';
       res.json(success_json);
     }
   });
