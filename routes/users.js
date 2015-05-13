@@ -102,14 +102,14 @@ router.get('/join', function (req, res, next) {
         //console.log('join_info result-----' , result);
         //공백일 경우 채워넣기
         if (!result.phone) result.phone = "";
-        if (!result.gender) result.gender = "";
+        if (!result.user_gender) result.user_gender = "";
         if (!result.user_req) result.user_req = "";
 
         success_json.result.message = "가입정보조회 성공";
         success_json.result.items = {
           "join_code": result.join_code,
           "phone": result.phone,
-          "gender": result.gender,
+          "user_gender": result.user_gender,
           "user_req": result.user_req
         };
         res.json(success_json);

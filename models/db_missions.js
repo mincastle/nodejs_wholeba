@@ -131,7 +131,7 @@ exports.runningMission = function(data, done) {
 
 /*
   missions확인
-  1. 해당 mlist_no의 mission_confirm = 1로 갱신 mission_state = 3(진행중)으로 갱신
+  1. 해당 mlist_no의 mission_state = 3(진행중)으로 갱신
   2. 상대방에게 확인했다는 푸시 (mlist_no, hint 전송)
   data = {user_no, mlist_no}
  */
@@ -143,19 +143,19 @@ exports.confirm = function (data, callback) {
       async.series(
         [
           function(done){
+            //mlist_state = 3 으로 갱신
             dao.updateMissionConfirm(conn, data, done);
           },
           function(done) {
-
+            //상대방에게 푸시전송(+힌트)
+            dao.sendMissionConfirmPush(conn, data, done);
           }
         ],
-        function(err, result) {
+        function(err) {
         if(err) {
           callback(err);
         } else {
-          if(result) {
-            callback(null, result);
-          }
+          callback();
         }
       });
     }

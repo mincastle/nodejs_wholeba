@@ -120,7 +120,8 @@ function checkCoupleWithdrawandUserAddition(result2, done) {
         if (row[0].couple_withdraw == 1) {
           //상대방이 탈퇴, 알림다이얼로그로 이동
           result2.join_code = "5";
-          done(null, result2);
+          //done(null, result2);
+          selectUserGender(conn, result2, done);
         } else if (row[0].couple_withdraw == 0) {
           //user_addition 추가로 조회하여 메인으로 이동하거나(join_code = 0),
           //추가정보 입력창으로 이동(join_code = 4)
@@ -155,7 +156,8 @@ function checkUserAddition(result2, done) {
           } else if (row[0].user_addition == 1) {
             //couple_withdraw == 0 && user_addition == 1 이므로 메인으로 이동
             result2.join_code = "0";
-            done(null, result2);
+            //done(null, result2);
+            selectUserGender(conn, result2, done);
           } else {
             done('사용자의 추가정보입력여부 값 이상', null);
           }
@@ -181,9 +183,10 @@ function getRespondentInfo(result3, done) {
           if (row[0]) {
             //console.log('result3', row[0]);
             result3.user_req = row[0].user_req.toString();
-            result3.gender = row[0].user_gender;
+            result3.user_gender = row[0].user_gender;
             result3.join_code = "4";
-            done(null, result3);
+            selectUserGender(conn, result3, done);
+            //done(null, result3);
           } else {
             done('사용자 커플요청정보, 성별 조회 실패', null);
           }
@@ -208,7 +211,8 @@ function getPartnerPhone(result2, done) {
           if (row[0].user_phone) {
             result2.phone = row[0].user_phone;
             result2.join_code = "2";
-            done(null, result2);
+            //done(null, result2);
+            selectUserGender(conn, result2, done);
           } else {
             done('상대방 전화번호 조회 실패', null);
           }
@@ -255,7 +259,9 @@ function getCoupleIs(result, done) {
             // 커플요청은 했으나 상대방이 승인아직 안함,
             // 버튼이 비활성화된 커플 요청페이지로 이동
             result.join_code = "3";
-            done(null, result);
+            //console.log('result : ', result);
+            selectUserGender(conn, result, done);
+            //done(null, result);
           } else if (row[0].couple_is == 1) {
             //user_addition, couple_withdraw 조회해야함
             done(null, result);
@@ -646,6 +652,29 @@ function updateUserIsLogin(conn, data, islogin, done) {
       }
     }
   });
+}
+
+//가입정보조회시, 무조건 성별 조회
+function selectUserGender(conn, result, done) {
+  if(!conn) {
+    done(err);
+    return;
+  }
+  var param = [result.user_no];
+  conn.query(sql.selectUserGender, param, function(err, row) {
+    if(err) {
+      done(err);
+    } else {
+      //console.log('성별 row[0]' , row[0]);
+      if(row[0].user_gender) {
+        result.user_gender = row[0].user_gender;
+        done(null, result);
+      } else {
+        done('사용자 성별 조회 실패');
+      }
+    }
+  });
+
 }
 
 //자동로그인 (/autologin)
