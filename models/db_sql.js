@@ -46,6 +46,9 @@ exports.selectUserReqandUserGender = 'select user_req, user_gender from user whe
 //가입정보조회시, couple_is = 0 && auth_phone.cnt = 1일때, 커플승인자이므로 상대방의 전화번호 조회
 exports.selectPartnerPhone = 'select user_phone from user where couple_no=? and not(user_no=?);';
 
+//가입정보조회시, join_code 세팅 완료후 성별 조회
+exports.selectUserGender = 'select user_gender from user where user_no=?';
+
 //사용자 기본값조회(user_no, couple_no, gender, condom(피임여부)
 exports.selectUserInfo = 'select user_no, couple_no, user_gender, (select couple_condom from couple where couple_no in (select couple_no from user where user_no=?)) as condom from user where user_no = ?';
 
@@ -188,3 +191,25 @@ exports.selectMissionConfirmPushInfo =
   'where user_no=? ' +
   'and mlist_state=3 ' +
   'and mlist_no=?';
+
+//미션 성공시, mlist_state와 mlist_successdate 갱신
+exports.updateMissionSuccess =
+  'update missionlist set mlist_state=1, mlist_successdate=now() '+
+  'where user_no=? '+
+  'and mlist_no=?';
+
+//미션 성공시, 줄 리워드 갯수 조회
+exports.selectMissionReward =
+  'select mlist_reward '+
+  'from missionlist '+
+  'where user_no=? '+
+  'and mlist_no=?';
+
+//리워드 변화시, 리워드와 user_regid 조회
+exports.selectUserReward =
+  'select user_regid, '+
+          '(select reward_cnt '+
+          'from reward '+
+          'where user_no=u.user_no)as reward '+
+  'from user u '+
+  'where user_no=?';
