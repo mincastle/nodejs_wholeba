@@ -64,7 +64,7 @@ function selectMissionPartner(conn, data, done) {
       if (row[0].partner_no) {
         console.log('select mission partner row[0] : ', row[0]);
         //확인안하거나 진행중이 미션이 3개이상인지 조회
-        if(row[0].mlist_cnt > 2) {
+        if (row[0].mlist_cnt > 2) {
           done('상대방의 진행중인 미션: ' + row[0].mlist_cnt + '개 (미션생성실패)');
         } else {
           done(null, row[0]);
@@ -132,17 +132,17 @@ function insertMissionlist(conn, data, callback) {
 //미션 생성시, 미션 보낸 사람의 리워드 -1
 //todo unsigned int 처리
 function updateUserReward(conn, data, rewardnum, done) {
-  if(!conn) {
+  if (!conn) {
     done('연결 에러');
     return;
   }
   var params = [rewardnum, data.user_no];
-  conn.query(sql.updateUserReward, params, function(err, row) {
-    if(err) {
+  conn.query(sql.updateUserReward, params, function (err, row) {
+    if (err) {
       done(err);
     } else {
-      if(row.affectedRows == 1) {
-        console.log('minus reward : ', row);
+      if (row.affectedRows == 1) {
+        console.log('reward change : ', rewardnum);
         console.log('alldata : ', data);
         data.rewardchange = rewardnum;
         done(null, data);  //data 그대로 전달
@@ -153,21 +153,46 @@ function updateUserReward(conn, data, rewardnum, done) {
   });
 }
 
+//미션생성시,
+//미션 생성푸시 + 리워드 갯수 변화 푸시 전송
+function sendCreateMissionandRewardPush(conn, data, done) {
+  if (!conn) {
+    done('연결 에러');
+    return;
+  }
+  async.parallel(
+    [
+      function (done) {
+        sendCreateMissionPush(conn, data, done);
+      },
+      function (done) {
+        sendRewardPush(conn, [data.user_no], done);
+      }
+    ],
+    function (err) {
+      if (err) {
+        done(err);
+      } else {
+        done();
+      }
+    });
+}
+
 //미션 생성시, 미션수행자에게 미션이 생성되었음을 알리는 푸시전송
 //mlist_no, mlist_name, mlist_regdate 보내줘야함
 function sendCreateMissionPush(conn, data, done) {
-  if(!conn) {
+  if (!conn) {
     done('연결 에러');
     return;
   }
   async.waterfall(
     [
-      function(done) {
+      function (done) {
         //직전에 insert 한 mlist아이템 조회
         //푸시에 담아보낼 mission_name, mlist_regdate를 조회
         selectOneMission(conn, data, done);
       },
-      function(allData, done) {
+      function (allData, done) {
         var message = new gcm.Message;
         var regid = [data.partner_regid];
         //console.log('push data : ', data);
@@ -185,7 +210,7 @@ function sendCreateMissionPush(conn, data, done) {
           else {
             //todo 안드랑 연결하면 주석풀기!!!!
             //if (result.success) {
-            if(true) {
+            if (true) {
               console.log('push result', result);
               done(null, allData);
             } else {
@@ -194,33 +219,33 @@ function sendCreateMissionPush(conn, data, done) {
           }
         });
       }
-    ], function(err, result) {
-        if(err) {
-          done(err);
-        } else {
-          if(result) {
-            done(null, result);
-          }
+    ], function (err, result) {
+      if (err) {
+        done(err);
+      } else {
+        if (result) {
+          done(null, result);
         }
-  });
+      }
+    });
 
 }
 
 //미션 생성시, 푸시보낼때 필요한 내용조회
 function selectOneMission(conn, data, done) {
-  if(!conn) {
+  if (!conn) {
     done('연결 에러');
     return;
   }
   var params = [data.mlist_no, data.partner_no];
   console.log('params', params);
-  conn.query(sql.selectOneMission, params, function(err, row){
-    if(err) {
+  conn.query(sql.selectOneMission, params, function (err, row) {
+    if (err) {
       done(err);
     } else {
       console.log('row', row);
       //mlist_name, mlist_regdate 조회
-      if(row[0]) {
+      if (row[0]) {
         console.log('select one mission row[0] : ', row[0]);
         data.mission = row[0];
         done(null, data);
@@ -233,13 +258,13 @@ function selectOneMission(conn, data, done) {
 
 //진행중인 미션조회
 function selectRunningMission(conn, data, done) {
-  if(!conn) {
+  if (!conn) {
     done('연결 에러');
     return;
   }
   var param = [data.user_no];
-  conn.query(sql.selectRunningMission, param, function(err, rows) {
-    if(err) {
+  conn.query(sql.selectRunningMission, param, function (err, rows) {
+    if (err) {
       done(err);
     } else {
       //length = 0일수도있음
@@ -252,16 +277,16 @@ function selectRunningMission(conn, data, done) {
 //미션확인시, 해당 미션의 mission_confirm과 state 갱신
 //data = {user_no, mlist_no};
 function updateMissionConfirm(conn, data, done) {
-  if(!conn) {
+  if (!conn) {
     done('연결 에러');
     return;
   }
   var param = [data.user_no, data.mlist_no];
-  conn.query(sql.updateMissionConfirm, param, function(err, row) {
-    if(err) {
+  conn.query(sql.updateMissionConfirm, param, function (err, row) {
+    if (err) {
       done(err);
     } else {
-      if(row.affectedRows == 1) {
+      if (row.affectedRows == 1) {
         console.log('update mlist_state=3 row : ', row);
         done(null);
       } else {
@@ -273,17 +298,17 @@ function updateMissionConfirm(conn, data, done) {
 
 //미션확인시 hint조회해서 푸시보냄
 //data {user_no, mlist_no}
-function sendMissionConfirmPush (conn, data, done) {
-  if(!conn) {
+function sendMissionConfirmPush(conn, data, done) {
+  if (!conn) {
     done('연결 에러');
     return;
   }
   async.waterfall(
     [
-      function(done) {
+      function (done) {
         selectMissionConfirmPushInfo(conn, data, done);
       },
-      function(pushinfo, done) {
+      function (pushinfo, done) {
         //pushinfo {partner_regid, hint}
         var message = new gcm.Message;
         var regid = [pushinfo.partner_regid];
@@ -300,7 +325,7 @@ function sendMissionConfirmPush (conn, data, done) {
           else {
             //todo 안드랑 연결하면 주석풀기!!!!
             //if (result.success) {
-            if(true) {
+            if (true) {
               console.log('push result', result);
               done(null);
             } else {
@@ -310,27 +335,27 @@ function sendMissionConfirmPush (conn, data, done) {
         });
       }
     ],
-    function(err) {
-      if(err) {
+    function (err) {
+      if (err) {
         done(err);
       } else {
         done(null);
       }
-  });
+    });
 }
 
 //미션확인시, 푸시에 보낼 힌트와 푸시 보낼 대상의 regid 조회
 function selectMissionConfirmPushInfo(conn, data, done) {
-  if(!conn){
+  if (!conn) {
     done('연결 에러');
     return;
   }
   var params = [data.user_no, data.mlist_no];
-  conn.query(sql.selectMissionConfirmPushInfo, params, function(err, row) {
-    if(err) {
+  conn.query(sql.selectMissionConfirmPushInfo, params, function (err, row) {
+    if (err) {
       done(err);
     } else {
-      if(row[0]) {
+      if (row[0]) {
         console.log('mission confirm info row[0] : ', row[0]);
         done(null, row[0]);
       } else {
@@ -340,17 +365,172 @@ function selectMissionConfirmPushInfo(conn, data, done) {
   });
 }
 
+//미션 성공시, mlist_state, mlist_successdate 갱신
+function updateMissionSuccess(conn, data, done) {
+  if (!conn) {
+    done('연결 에러');
+    return;
+  }
+  var params = [data.user_no, data.mlist_no];
+  conn.query(sql.updateMissionSuccess, params, function (err, row) {
+    if (err) {
+      done(err);
+    } else {
+      if (row.affectedRows == 1) {
+        console.log('update mission success row : ', row);
+        done(null);
+      } else {
+        done('미션 성공 업데이트 실패');
+      }
+    }
+  });
+}
+
+/*
+ 미션 성공시, 리워드 갯수가 미션마다 다름
+ waterfall 1. 리워드 줄 갯수 조회 mlist_reward
+ 2. 갯수만큼 업데이트
+ 3. 리워드 최종 갯수 푸시
+ data = {user_no, mlist_no}
+ */
+
+function updateMissionSuccessRewardandSendRewardPush(conn, data, done) {
+  if (!conn) {
+    done('연결 에러');
+    return;
+  }
+  async.waterfall(
+    [
+      function (done) {
+        //리워드줄 갯수 조회
+        selectMissionReward(conn, data, done);
+      },
+      function (rewardInfo, done) {
+        //update reward
+        updateUserReward(conn, data, rewardInfo.mlist_reward, done);
+      },
+      function (arg1, done) {
+        //reward push
+        sendRewardPush(conn, [data.user_no], done);
+      }
+    ], function (err, result) {
+      if (err) {
+        done(err);
+      } else {
+        if (result) {
+          done(null, result);
+        } else {
+          done('리워드 변경 실패');
+        }
+      }
+    });  //async
+}
+
+//미션 성공시, 줄 리워드 갯수 조회
+function selectMissionReward(conn, data, done) {
+  if (!conn) {
+    done('연결 에러');
+    return;
+  }
+  var params = [data.user_no, data.mlist_no];
+  conn.query(sql.selectMissionReward, params, function (err, row) {
+    if (err) {
+      done(err);
+    } else {
+      if (row[0].mlist_reward) {
+        done(null, row[0]);
+      } else {
+        done('미션리워드 조회 실패');
+      }
+    }
+  });
+}
+
+//리워드 변화시 조회해서 푸시
+//todo data = [user_no] 로 넘길것!
+function sendRewardPush(conn, data, done) {
+  if (!conn) {
+    done('연결 에러');
+    return;
+  }
+  async.waterfall(
+    [
+      function (done) {
+        //리워드 조회
+        selectUserReward(conn, data, done);
+      },
+      function (rewardInfo, done) {
+        var message = new gcm.Message;
+        var regid = [rewardInfo.user_regid];
+        //console.log('push data : ', data);
+
+        //todo type 정한 후 바꾸어야함
+        message.addData('type', 3);
+        message.addData('reward', rewardInfo.reward);
+        sender.sendNoRetry(message, regid, function (err, result) {
+          if (err) {
+            console.log('push err', err);
+            done(err);
+          } else {
+            //console.log('push if err else');
+            //todo 안드랑 연결하면 주석풀기!!!!
+            //if (result.success) {
+            if (true) {
+              console.log('push result', result);
+              done(null, result);
+            } else {
+              done(err);
+            }
+          }
+        });
+      }
+    ], function (err, result) {
+      if (err) {
+        console.log("ASDQWEWQE", err);
+        done(err);
+      } else {
+        if (result) {
+          done(null, result);
+        }
+      }
+    });
+}
+
+function selectUserReward(conn, data, done) {
+  if (!conn) {
+    done('연결 에러');
+    return;
+  }
+  conn.query(sql.selectUserReward, data, function (err, row) {
+    if (err) {
+      done(err);
+    } else {
+      if (row[0]) {
+        console.log('select reward push info : ', row[0]);
+        done(null, row[0]);
+      } else {
+        done('리워드 조회 실패');
+      }
+    }
+  });
+}
+
 //미션생성
 exports.selectMissionandUser = selectMissionandUser;
 exports.insertMissionlist = insertMissionlist;
 exports.updateUserReward = updateUserReward;  //미션성공시에도 사용
-exports.sendCreateMissionPush = sendCreateMissionPush;
+exports.sendCreateMissionandRewardPush = sendCreateMissionandRewardPush;
 
 //진행중인 미션조회
 exports.selectRunningMission = selectRunningMission;
-
 
 //미션확인
 exports.updateMissionConfirm = updateMissionConfirm;
 exports.sendMissionConfirmPush = sendMissionConfirmPush;
 
+//미션성공
+exports.updateMissionSuccess = updateMissionSuccess;
+exports.updateMissionSuccessRewardandSendRewardPush = updateMissionSuccessRewardandSendRewardPush;
+
+//리워드변화시에 매번 사용, 리워드조회해서 총갯수 푸시
+exports.sendRewardPush = sendRewardPush;
