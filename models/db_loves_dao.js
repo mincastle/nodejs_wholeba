@@ -3,6 +3,19 @@
  */
 var sql = require('./db_sql');
 
+function selectLoves (conn, data, done) {
+  console.log('data', data);
+  var datas = [];
+
+  sql.selectLoves(data, function (convertsql) {
+    conn.query(convertsql, datas, function (err, rows) {
+      done(null, convertsql);
+    });
+  });
+
+
+}
+
 function insertLoves (conn, data, done) {
   var datas;
   if (data.loves_date) {
@@ -11,17 +24,31 @@ function insertLoves (conn, data, done) {
     datas = [data.couple_no, data.loves_condom];
   }
 
-  conn.query(sql.insertLoves(data.loves_date), datas, function (err, row) {
-    if(err) {
-      done(err);
-    } else {
-      if (row.affectedRows == 1) {
-        done(null, row);
+  sql.insertLoves(data, function (convertsql) {
+    conn.query(convertsql, datas, function (err, row) {
+      if(err) {
+        done(err);
       } else {
-        done('love가 생성되지 않았습니다!');
+        if (row.affectedRows == 1) {
+          done(null, row);
+        } else {
+          done('love가 생성되지 않았습니다!');
+        }
       }
-    }
+    });
   });
+
+  //conn.query(sql.insertLoves(data.loves_date), datas, function (err, row) {
+  //  if(err) {
+  //    done(err);
+  //  } else {
+  //    if (row.affectedRows == 1) {
+  //      done(null, row);
+  //    } else {
+  //      done('love가 생성되지 않았습니다!');
+  //    }
+  //  }
+  //});
 }
 
 function updateLoves (conn, data, done) {
@@ -56,6 +83,7 @@ function deleteLoves (conn, data, done) {
   });
 }
 
+exports.selectLoves = selectLoves;
 exports.insertLoves = insertLoves;
 exports.updateLoves = updateLoves;
 exports.deleteLoves = deleteLoves;
