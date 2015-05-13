@@ -15,7 +15,7 @@ var success_json = {
 };
 
 
-//성관계목록조회
+//성관계목록조회 (orderby - 0: 최신, 1:위험도 순)
 router.get('/:year/:month/:orderby', function (req, res, next) {
   var couple_no = req.session.couple_no;
   var orderby = req.params.orderby;
@@ -29,7 +29,7 @@ router.get('/:year/:month/:orderby', function (req, res, next) {
   };
 
   db_loves.getlist(data, function (err, result) {
-
+    res.json({result:result});
   });
 });
 

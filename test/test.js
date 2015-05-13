@@ -7,6 +7,8 @@ var expect = require('expect.js');
 var dday = require('../models/db_ddays');
 var moment = require('moment');
 var util = require('../util/dday_util');
+var love = require('../models/db_loves');
+
 //var expect = require('chai').expect;
 //
 //describe('login', function () {
@@ -66,101 +68,125 @@ var util = require('../util/dday_util');
 //    return res.body.success== 1 ? false : res.body.result.message;
 //  }
 //});
+//
+//describe('dday insert', function () {
+//  it('dday insert test', function (done) {
+//    var couple_no = 1;
+//    var dday_name = '2년';
+//    var dday_date = '2017-03-01';
+//    var data = {
+//      "couple_no" : couple_no,
+//      "dday_name" : dday_name,
+//      "dday_date" : dday_date
+//    };
+//
+//    dday.add(data, function (err, result) {
+//      if (err) {
+//        throw err;
+//      } else {
+//        console.log('result', result);
+//        done();
+//      }
+//    })
+//  });
+//});
+//
+//describe('dday update', function () {
+//  it('dday update test', function (done) {
+//    var dday_no = 2;
+//    var couple_no = 1;
+//    var dday_name = 'qweq';
+//    var dday_date = '2022-03-01';
+//    var data = {
+//      "couple_no" : couple_no,
+//      "dday_no" : dday_no,
+//      "dday_name" : dday_name,
+//      "dday_date" : dday_date
+//    };
+//
+//    dday.modify(data, function (err, result) {
+//      if (err) {
+//        throw err;
+//      } else {
+//        console.log('update result', result);
+//        done();
+//      }
+//    })
+//  });
+//});
+//
+//describe('dday delete', function () {
+//  it('dday delete test', function (done) {
+//    var dday_no = 14;
+//    var couple_no = 1;
+//    var data = {
+//      "couple_no" : couple_no,
+//      "dday_no" : dday_no
+//    };
+//
+//    dday.delete(data, function (err, result) {
+//      if (err) {
+//        throw err;
+//      } else {
+//
+//        console.log('result', result);
+//        //expect(result[0].dday_no).to.be(1);
+//        done();
+//      }
+//    })
+//  });
+//});
+//
+//describe('dday list', function () {
+//  it('dday list test', function (done) {
+//    var couple_no = 1;
+//    var data = {couple_no : couple_no};
+//    dday.getlist(data, function (err, result) {
+//      if (err) {
+//        throw err;
+//      } else {
+//        //console.log('result', result);
+//        util.each(result, util.dateFormat, function () {
+//          console.log('result', result);
+//          expect(result[0].dday_no).to.be(1);
+//
+//          done();
+//        });
+//
+//        //result.forEach(function (element, index, r) {
+//        //  console.log('index', index);
+//        //  r[index].dday_date = moment(r[index].dday_date).format('YYYY-MM-DD');
+//        //  console.log('r[' + index + ']', r[index]);
+//        //});
+//      }
+//    })
+//  });
+//});
 
-var insertId;
-
-describe('dday insert', function () {
-  it('dday insert test', function (done) {
-    var couple_no = 1;
-    var dday_name = '2년';
-    var dday_date = '2017-03-01';
-    var data = {
-      "couple_no" : couple_no,
-      "dday_name" : dday_name,
-      "dday_date" : dday_date
-    };
-
-    dday.add(data, function (err, result) {
-      if (err) {
-        throw err;
-      } else {
-        console.log('result', result);
-        done();
-      }
-    })
-  });
-});
-
-describe('dday update', function () {
-  it('dday update test', function (done) {
-    var dday_no = 2;
-    var couple_no = 1;
-    var dday_name = 'qweq';
-    var dday_date = '2022-03-01';
-    var data = {
-      "couple_no" : couple_no,
-      "dday_no" : dday_no,
-      "dday_name" : dday_name,
-      "dday_date" : dday_date
-    };
-
-    dday.modify(data, function (err, result) {
-      if (err) {
-        throw err;
-      } else {
-        console.log('update result', result);
-        done();
-      }
-    })
-  });
-});
-
-describe('dday delete', function () {
-  it('dday delete test', function (done) {
-    var dday_no = 14;
-    var couple_no = 1;
-    var data = {
-      "couple_no" : couple_no,
-      "dday_no" : dday_no
-    };
-
-    dday.delete(data, function (err, result) {
-      if (err) {
-        throw err;
-      } else {
-
-        console.log('result', result);
-        //expect(result[0].dday_no).to.be(1);
-        done();
-      }
-    })
-  });
-});
-
-describe('dday list', function () {
-  it('dday list test', function (done) {
-    var couple_no = 1;
-    var data = {couple_no : couple_no};
-    dday.getlist(data, function (err, result) {
-      if (err) {
-        throw err;
-      } else {
-        //console.log('result', result);
-        util.each(result, util.dateFormat, function () {
-          console.log('result', result);
-          expect(result[0].dday_no).to.be(1);
-
-          done();
-        });
-
-        //result.forEach(function (element, index, r) {
-        //  console.log('index', index);
-        //  r[index].dday_date = moment(r[index].dday_date).format('YYYY-MM-DD');
-        //  console.log('r[' + index + ']', r[index]);
-        //});
-      }
-    })
-  });
-});
+//describe('love list', function () {
+//  it('love list test', function (done) {
+//    var couple_no = 4;
+//    var orderby = 1;
+//    var year = 2015;
+//    var month = 2;
+//    var data = {
+//      couple_no: couple_no,
+//      year : year,
+//      month: month,
+//      orderby: orderby
+//    };
+//
+//    love.getlist(data, function (err, result) {
+//      if (err) {
+//        throw err;
+//      } else {
+//        //console.log('result', result);
+//        console.log('result', result);
+//        expect(result).to.be(1);
+//        done();
+//      }
+//    })
+//  });
+//});
 
 

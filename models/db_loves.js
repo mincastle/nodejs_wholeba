@@ -2,7 +2,7 @@ var mysql = require('mysql');
 var db_config = require('./db_config');
 
 var pool = mysql.createPool(db_config);
-var dao = require('./db_love_dao');
+var dao = require('./db_loves_dao');
 
 //러브목록조회
 exports.getlist = function (data, callback) {
@@ -10,7 +10,7 @@ exports.getlist = function (data, callback) {
     if (err) {
       callback(err);
     } else {
-
+      dao.selectLoves(conn, data, callback);
     }
   });
 };
