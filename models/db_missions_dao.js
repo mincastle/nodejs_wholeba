@@ -231,6 +231,23 @@ function selectOneMission(conn, data, done) {
   });
 }
 
+//진행중인 미션조회
+function selectRunningMission(conn, data, done) {
+  if(!conn) {
+    done('연결 에러');
+    return;
+  }
+  var param = [data.user_no];
+  conn.query(sql.selectRunningMission, param, function(err, rows) {
+    if(err) {
+      done(err);
+    } else {
+      //length = 0일수도있음
+      done(null, rows);
+    }
+  });
+}
+
 
 //미션확인시, 해당 미션의 mission_confirm과 state 갱신
 //data = {user_no, mlist_no};
@@ -263,12 +280,14 @@ function sendMissionConfirmPush (conn, data, done) {
 }
 
 //미션생성
-exports.selectMissionPartner = selectMissionPartner;
 exports.selectMissionandUser = selectMissionandUser;
 exports.insertMissionlist = insertMissionlist;
-exports.sendCreateMissionPush = sendCreateMissionPush;
-exports.selectOneMission = selectOneMission;
 exports.updateUserReward = updateUserReward;  //미션성공시에도 사용
+exports.sendCreateMissionPush = sendCreateMissionPush;
+
+//진행중인 미션조회
+exports.selectRunningMission = selectRunningMission;
+
 
 //미션확인
 exports.updateMissionConfirm = updateMissionConfirm;

@@ -83,6 +83,7 @@ exports.add = function (data, callback) {
               },
               function(arg3, done) {
                 //push
+                //todo push 해야함 reward update
                 dao.sendCreateMissionPush(conn, arg3, done);
               }
             ],
@@ -93,7 +94,6 @@ exports.add = function (data, callback) {
                 });
               } else {
                 //리워드 추가갯수
-                //todo push 해야함 reward update
                 if(result) {
                   conn.commit(function(err) {
                     if(err) {
@@ -113,6 +113,21 @@ exports.add = function (data, callback) {
     }
   });  //getConnection
 };
+
+/*
+  진행중인 미션조회
+  메인에서 미션팝업 들어왔을시 조회
+  1. user_no로 mlist_state=2|3인 미션 조회
+ */
+exports.runningMission = function(data, done) {
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      callback(err);
+    } else {
+      dao.selectRunningMission(conn, data, done);
+    }
+  });
+}
 
 /*
   missions확인

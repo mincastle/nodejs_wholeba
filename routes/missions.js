@@ -77,6 +77,13 @@ router.post('/add', function (req, res, next) {
   var theme_no = bodydata.theme_no;
   var data = {"user_no" : user_no, "couple_no" : couple_no, "theme_no" : theme_no};
 
+  //세션 체크
+  if (!user_no) {
+    fail_json.result.message = "세션정보 없음";
+    res.json(fail_json);
+    return;
+  }
+
   db_missions.add(data, function(err) {
     if (err) {
       fail_json.result = {};
@@ -88,6 +95,39 @@ router.post('/add', function (req, res, next) {
       res.json(success_json);
     }
   });
+});
+
+//진행중인 미션조회
+router.get('/', function(req, res, next) {
+  var user_no = req.session.user_no;
+  var data = {"user_no" : user_no};
+  //세션 체크
+  if (!user_no) {
+    fail_json.result.message = "세션정보 없음";
+    res.json(fail_json);
+    return;
+  }
+
+  db_missions.runningMission(data, function(err, results) {
+    if(err) {
+      fail_json.result = {};
+      fail_json.result.message = err;
+      res.json(fail_json);
+    } else {
+      if(results) {
+        success_json.result = {};
+        success_json.result.message = '진행중인 미션조회 성공';
+        success_json.result.item_cnt = results.length;
+        success_json.result.items = results;
+        res.json(success_json);
+      } else {
+        fail_json.result = {};
+        fail_json.result.message = '진행중인 미션조회 실패';
+        res.json(fail_json)
+      }
+    }
+  });
+
 });
 
 //미션확인
