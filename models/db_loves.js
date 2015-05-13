@@ -32,7 +32,7 @@ exports.modify = function (data, callback) {
     if (err) {
       callback(err);
     } else {
-
+      dao.updateLoves(conn, data, callback);
     }
   });
 };
@@ -43,7 +43,7 @@ exports.delete = function (data, callback) {
     if (err) {
       callback(err);
     } else {
-
+      dao.deleteLoves(conn, data, callback);
     }
   });
 };
