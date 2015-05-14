@@ -204,8 +204,14 @@ exports.updateUserReward = 'update reward set reward_cnt=reward_cnt + ? where us
 //진행중인 미션조회
 exports.selectRunningMission = 'select mlist_no, (select theme_no from mission m where m.mission_no=mlist.mission_no) as theme_no, mlist_name from missionlist mlist where user_no=? and mlist_state=3';
 
-//미션 확인
-exports.updateMissionConfirm = 'update missionlist set mlist_state=3 where user_no=? and mlist_no=?';
+//미션 확인시, mission_expiration 조회
+exports.selectMissionExpiration = 'select mission_expiration from mission where mission_no=(select mission_no from missionlist where mlist_no=?)';
+
+//미션 확인시, state와 expiredate 갱신
+exports.updateMissionConfirm =
+  'update missionlist set mlist_state=3, mlist_expiredate=? '+
+  'where user_no=? '+
+  'and mlist_no=?';
 
 //미션 확인시 푸시보낼 상대방과 보낼내용인 힌트조회
 exports.selectMissionConfirmPushInfo =
@@ -244,3 +250,17 @@ exports.selectUserReward =
           'where user_no=u.user_no)as reward '+
   'from user u '+
   'where user_no=?';
+
+//미션목록조회
+exports.selectMissionList =
+  'select mlist_no, user_no, mlist_name, mlist_successdate, mlist_expiredate, mlist_state, '+
+          '(select mission_hint '+
+          'from mission mi ' +
+          'where mi.mission_no=m.mission_no) mission_hint, ' +
+          '(select user_gender '+
+          'from user u '+
+          'where u.user_no=m.user_no) user_gender '+
+          'from missionlist m '+
+          'where user_no IN ((select user_no '+
+                              'from user '+
+                              'where couple_no=?))';

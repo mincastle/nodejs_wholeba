@@ -6,8 +6,9 @@ var async = require('async');
 var pool = mysql.createPool(db_config);
 
 //missions목록조회
-//oderby 0(최신순), 1(난이도순), 2(남자순), 3(여자순)
+//oderby 0(최신순), 1(남자순), 2(여자순)
 //state 0(실패) 1(성공) 2(확인안함) 3(진행중) 4(패스)
+//data = {user_no, couple_no, year, month, orderby}
 exports.getlist = function (data, callback) {
   var success = 1;
   callback(success);
@@ -142,7 +143,8 @@ exports.confirm = function (data, callback) {
       async.series(
         [
           function(done){
-            //mlist_state = 3 으로 갱신
+            //내부 트랜잭션 처리
+            //mission_expire 조회 후 mlist_expiredate, mlist_state 갱신
             dao.updateMissionConfirm(conn, data, done);
           },
           function(done) {
@@ -150,11 +152,11 @@ exports.confirm = function (data, callback) {
             dao.sendMissionConfirmPush(conn, data, done);
           }
         ],
-        function(err) {
+        function(err, result) {
         if(err) {
           callback(err);
         } else {
-          callback();
+          callback(null, result);
         }
       });
     }
