@@ -90,7 +90,7 @@ function checkAuthPhone(conn, result, done) {
       done(err, null);
     } else {
       console.log('authphone res :', row);
-      if (!row[0].cnt) {
+      if (row[0].cnt) {
         console.log('auth phone res : ', row);
         //row.couple_no를 가지고 상대방 전화번호를 찾아야함! (join_code == 2)
         result.row = row[0];
@@ -186,10 +186,12 @@ function getRespondentInfo(conn, result3, done) {
 //커플 승인자 이므로 화면에 보여줄 상대방 전화번호 얻기
 function getPartnerPhone(conn, result2, done) {
   var params = [result2.row.couple_no, result2.user_no];
+  console.log('partner_params', params);
   conn.query(sql.selectPartnerPhone, params, function (err, row) {
     if (err) {
       done(err, null);
     } else {
+      console.log('partner_row',row);
       if (row[0].user_phone) {
         result2.phone = row[0].user_phone;
         result2.join_code = 2;
@@ -355,7 +357,7 @@ function doLogin(conn, data, done) {
                 };
                 done('userphone changed', items);
               } else {
-                console.log('userphone  not changed');
+                console.log('userphone not changed');
                 done(null, row[0]);
               }
               break;

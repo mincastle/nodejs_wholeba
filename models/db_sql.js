@@ -139,36 +139,37 @@ exports.deleteDday = 'delete from dday where couple_no = ? and dday_no = ?';
 
 //****************************** LOVE ************************************//
 
-//exports.selectLoves = function (data, callback) {
-//  // 날짜부분
-//  var date = data.year + '-' + data.month + '-' + '1';
-//
-//  // 정렬부분
-//  var orderby;
-//  switch (data.orderby) {
-//    case 0:
-//      orderby = 'loves_date';
-//      break;
-//    case 1:
-//      orderby = 'loves_pregnancy';
-//      break;
-//  }
-//
-//  // between 2015-03-01 and DATE_ADD(DATE_ADD(LAST_DAY(2015-03-01), INTERVAL 1 DAY), INTERVAL -1 SECOND) - 3월을 예로 들면 2015-03-01 00:00:00 ~ 2015-03-31 23:59:59 범위를 갖는다.
-//  var sql = "select loves_no, loves_condom, loves_pregnancy, loves_date, loves_delete " +
-//            "from loves " +
-//            "where couple_no=? " +
-//            "and loves_date between " + date + " and DATE_ADD(DATE_ADD(LAST_DAY(" + date + "), INTERVAL 1 DAY), INTERVAL -1 SECOND) " +
-//            "order by " + orderby + ' DESC';
-//
-//  // 동적 sql을 작성한 후 콜백을 통해 값을 넘겨준다.
-//  callback(sql);
-//};
-exports.selectLoves = "select loves_no, loves_condom, loves_pregnancy, loves_date, loves_delete " +
+exports.selectLoves = function (data, callback) {
+  // 날짜부분
+  var date = data.year + '-' + data.month + '-' + '1';
+
+  // 정렬부분
+  var orderby;
+  switch (parseInt(data.orderby)) {
+    case 0:
+      orderby = 'loves_date';
+      break;
+    case 1:
+      orderby = 'loves_pregnancy';
+      break;
+  }
+
+  // between 2015-03-01 and DATE_ADD(DATE_ADD(LAST_DAY(2015-03-01), INTERVAL 1 DAY), INTERVAL -1 SECOND) - 3월을 예로 들면 2015-03-01 00:00:00 ~ 2015-03-31 23:59:59 범위를 갖는다.
+  var sql = "select loves_no, loves_condom, loves_pregnancy, loves_date, loves_delete " +
             "from loves " +
             "where couple_no=? " +
-            "and loves_date between ? and DATE_ADD(DATE_ADD(LAST_DAY(?), INTERVAL 1 DAY), INTERVAL -1 SECOND) " +
-            "order by ? DESC ";
+            "and loves_date between '" + date + "' and DATE_ADD(DATE_ADD(LAST_DAY('" + date + "'), INTERVAL 1 DAY), INTERVAL -1 SECOND) " +
+            "order by " + orderby + ' DESC';
+
+  // 동적 sql을 작성한 후 콜백을 통해 값을 넘겨준다.
+  callback(sql);
+};
+
+//exports.selectLoves = "select loves_no, loves_condom, loves_pregnancy, loves_date, loves_delete " +
+//            "from loves " +
+//            "where couple_no=? " +
+//            "and loves_date between ? and DATE_ADD(DATE_ADD(LAST_DAY(?), INTERVAL 1 DAY), INTERVAL -1 SECOND) " +
+//            "order by ? DESC ";
 
 exports.insertLoves = 'insert into loves(couple_no, loves_condom, loves_date) values (?, ?, ?)';
 //exports.insertLoves = function (date, callback) {
