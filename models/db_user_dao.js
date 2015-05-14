@@ -81,7 +81,7 @@ function checkUserId(conn, data, done) {
 }
 
 //check auth_phone
-function checkAuthPhone(result, done) {
+function checkAuthPhone(conn, result, done) {
   //auth_phone에 user_phone이 있는지 없는지 확인
   //couple_no와 결과 cnt 조회
   conn.query(sql.selectAuthPhone, [result.user_no], function (err, row) {
