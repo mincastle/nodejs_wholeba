@@ -83,7 +83,7 @@ router.post('/answer', function (req, res, next) {
       success_json.result.message = '커플승인 성공';
       success_json.result.items = {
         "couple_no" : result.couple_no,
-        "gender" : result.other_gender,
+        "user_gender" : result.other_gender,
         "user_req" :  result.user_req
       };
       res.json(success_json);
