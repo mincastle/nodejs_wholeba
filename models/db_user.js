@@ -106,7 +106,7 @@ exports.join_info = function (data, callback) {
     },
     function (result2, done) {
       if (result2.isAlreadyCouple == 1) {
-        if (result2.join_code) {  //join_code = 3
+        if (result2.join_code != undefined) {  //join_code = 3
           done(null, result2);
         } else {
           //couple_withdraw와 user_addition 조회
@@ -114,7 +114,7 @@ exports.join_info = function (data, callback) {
         }
       }
       else if (result2.isAlreadyCouple == 0) {
-        if (result2.join_code) {  //join_code = 1
+        if (result2.join_code != undefined) {  //join_code = 1
           done(null, result2);
         } else {
           //auth_phone 결과얻었으므로 couple_no로 상대방 전화번호 찾아야함
@@ -126,7 +126,7 @@ exports.join_info = function (data, callback) {
       }
     },
     function (result3, done) {
-      if (result3.join_code) {
+      if (result3.join_code != undefined) {
         //join_code = 0 | 1 | 2 | 3 | 5
         done(null, result3);
       } else {
@@ -141,7 +141,7 @@ exports.join_info = function (data, callback) {
       console.log('err', err);
       callback(err, null);
     } else {
-      if (result.join_code) {
+      if (result.join_code != undefined) {
         console.log('join info result : ', result);
         callback(null, result);
       }
