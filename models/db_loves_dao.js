@@ -4,27 +4,25 @@
 var sql = require('./db_sql');
 
 function selectLoves (conn, data, done) {
-  console.log('data', data);
-  var datas = [];
 
   sql.selectLoves(data, function (convertsql) {
+    var datas = [data.couple_no];
     conn.query(convertsql, datas, function (err, rows) {
-      done(null, convertsql);
+      done(null, rows);
     });
   });
-
-
 }
 
 function insertLoves (conn, data, done) {
   var datas;
-  if (data.loves_date) {
+  //if (data.loves_date) {
     datas = [data.couple_no, data.loves_condom, data.loves_date];
-  } else {
-    datas = [data.couple_no, data.loves_condom];
-  }
+  //} else {
+  //  datas = [data.couple_no, data.loves_condom];
+  //}
 
-  sql.insertLoves(data, function (convertsql) {
+  //sql.insertLoves(data, function (convertsql) {
+  var convertsql = "insert into loves(couple_no, loves_condom, loves_date) values (?, ?, ifnull(?, now()))"
     conn.query(convertsql, datas, function (err, row) {
       if(err) {
         done(err);
@@ -36,7 +34,7 @@ function insertLoves (conn, data, done) {
         }
       }
     });
-  });
+  //});
 
   //conn.query(sql.insertLoves(data.loves_date), datas, function (err, row) {
   //  if(err) {

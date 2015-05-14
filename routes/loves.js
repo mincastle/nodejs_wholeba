@@ -1,22 +1,29 @@
 var express = require('express');
 var router = express.Router();
 var db_loves = require('../models/db_loves');
+var util = require('../util/util');
 
 var fail_json = {
   "success": 0,
-  "result": {
-  }
+  "result": {}
 };
 
 var success_json = {
   "success": 1,
-  "result": {
-  }
+  "result": {}
 };
 
 
 //성관계목록조회 (orderby - 0: 최신, 1:위험도 순)
 router.get('/:year/:month/:orderby', function (req, res, next) {
+  var user_no = req.session.user_no;
+
+  // Session 검사
+  if (!user_no) {
+    fail_json.result.message = '세션정보 없음';
+    res.json(fail_json);
+  }
+
   var couple_no = req.session.couple_no;
   var orderby = req.params.orderby;
   var year = req.params.year;
@@ -28,8 +35,13 @@ router.get('/:year/:month/:orderby', function (req, res, next) {
     orderby: orderby
   };
 
-  db_loves.getlist(data, function (err, result) {
-    res.json({result:result});
+  db_loves.getlist(data, function (err, results) {
+    util.each(results, "loves_date", util.dateFormat, function (err, result) {
+      console.log('loves_date', result);
+      success_json.result.message = '성관계 목록 조회 성공';
+      success_json.result.items = result;
+      res.json({"result" : success_json});
+    });
   });
 });
 
@@ -45,13 +57,13 @@ router.post('/add', function (req, res, next) {
   }
 
   var couple_no = req.session.couple_no;
-  var relation_condom = req.body.relation_condom;
-  var relation_date = req.body.relation_date;
+  var loves_condom = req.body.loves_condom;
+  var loves_date = req.body.loves_date;
 
   var data = {
     couple_no: couple_no,
-    loves_condom: relation_condom,
-    loves_date: relation_date
+    loves_condom: loves_condom,
+    loves_date: loves_date
   };
 
   db_loves.add(data, function (err, result) {
@@ -68,7 +80,7 @@ router.post('/add', function (req, res, next) {
 
 
 //성관계수정
-router.post('/:relation_no/modify', function (req, res, next) {
+router.post('/:loves_no/modify', function (req, res, next) {
   var user_no = req.session.user_no;
 
   // Session 검사
@@ -79,14 +91,14 @@ router.post('/:relation_no/modify', function (req, res, next) {
 
   var couple_no = req.session.couple_no;
 
-  var relation_no = req.params.relation_no;
-  var relation_condom = req.body.relation_condom;
-  var relation_date = req.body.relation_date;
+  var loves_no = req.params.loves_no;
+  var loves_condom = req.body.loves_condom;
+  var loves_date = req.body.loves_date;
   var data = {
     couple_no: couple_no,
-    loves_no: relation_no,
-    loves_condom: relation_condom,
-    loves_date: relation_date
+    loves_no: loves_no,
+    loves_condom: loves_condom,
+    loves_date: loves_date
   };
 
   db_loves.modify(data, function (err) {
@@ -102,7 +114,7 @@ router.post('/:relation_no/modify', function (req, res, next) {
 
 
 //성관계삭제
-router.post('/:relation_no/delete', function (req, res, next) {
+router.post('/:loves_no/delete', function (req, res, next) {
   var user_no = req.session.user_no;
 
   // Session 검사
@@ -113,10 +125,10 @@ router.post('/:relation_no/delete', function (req, res, next) {
 
   var couple_no = req.session.couple_no;
   ////var couple_no = 1;
-  var relation_no = req.params.relation_no;
+  var loves_no = req.params.loves_no;
   var data = {
     couple_no: couple_no,
-    loves_no : relation_no
+    loves_no : loves_no
   };
 
   db_loves.delete(data, function (err) {

@@ -6,7 +6,7 @@ var request = require('supertest');
 var expect = require('expect.js');
 var dday = require('../models/db_ddays');
 var moment = require('moment');
-var util = require('../util/dday_util');
+var util = require('../util/util');
 var love = require('../models/db_loves');
 
 //var expect = require('chai').expect;
@@ -146,9 +146,9 @@ var love = require('../models/db_loves');
 //        throw err;
 //      } else {
 //        //console.log('result', result);
-//        util.each(result, util.dateFormat, function () {
+//        util.each(result, "dday_date", util.dateFormat, function () {
 //          console.log('result', result);
-//          expect(result[0].dday_no).to.be(1);
+//          //expect(result[0].dday_date).to.be(1);
 //
 //          done();
 //        });
@@ -163,30 +163,64 @@ var love = require('../models/db_loves');
 //  });
 //});
 
-//describe('love list', function () {
-//  it('love list test', function (done) {
-//    var couple_no = 4;
-//    var orderby = 1;
-//    var year = 2015;
-//    var month = 2;
-//    var data = {
-//      couple_no: couple_no,
-//      year : year,
-//      month: month,
-//      orderby: orderby
-//    };
+describe('love list', function () {
+  it('love list test', function (done) {
+    var couple_no = 4;
+    var orderby = 0;
+    var year = 2015;
+    var month = 3;
+    var data = {
+      couple_no: couple_no,
+      year: year,
+      month: month,
+      orderby: orderby
+    };
+
+    love.getlist(data, function (err, results) {
+      if (err) {
+        throw err;
+      } else {
+        //console.log('result', result);
+        util.each(results, "loves_date", util.dateFormat, function (err, result) {
+          console.log('result', result);
+        });
+        //expect(result).to.be(1);
+        done();
+      }
+    })
+  });
+});
+
+//describe('util', function () {
+//  it('util test', function (done) {
+//    var result = [{
+//      loves_no: 1,
+//      loves_condom: 1,
+//      loves_pregnancy: 80,
+//      loves_date: "Fri, 20 Mar 2015 00:00:00 GMT",
+//      loves_delete: 1
+//      },
+//      {
+//        loves_no: 2,
+//        loves_condom: 1,
+//        loves_pregnancy: 60,
+//        loves_date: "Sun, 01 Mar 2015 00:00:00 GMT",
+//        loves_delete: 1
+//      },
+//      {
+//        loves_no: 4,
+//        loves_condom: 1,
+//        loves_pregnancy: 20,
+//        loves_date: "Tue, 31 Mar 2015 23:59:59 GMT",
+//        loves_delete: 0
+//      }];
 //
-//    love.getlist(data, function (err, result) {
-//      if (err) {
-//        throw err;
-//      } else {
-//        //console.log('result', result);
-//        console.log('result', result);
-//        expect(result).to.be(1);
-//        done();
-//      }
+//    util.each(result,"loves_date", util.dateFormat, function (err, result) {
+//      console.log('result', result);
 //    })
 //  });
 //});
+
+
 
 

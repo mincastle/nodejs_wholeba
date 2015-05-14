@@ -4,7 +4,7 @@
 
 var moment = require('moment');
 
-function each(arr, iterator, callback) {
+function each(arr, field, iterator, callback) {
 
   if(!arr.length) {
     return callback(null, arr);
@@ -24,12 +24,13 @@ function each(arr, iterator, callback) {
   }
 
   arr.forEach(function (element, index, array) {
-    iterator(array, index, done);
+    iterator(array, field, index, done);
   });
 }
 
-function dateFormat(array, index, callback) {
-  array[index].dday_date = moment(array[index].dday_date).format('YYYY-MM-DD');
+// field 매개변수 : 변환할 field
+function dateFormat(array, field, index, callback) {
+  array[index][field] = moment(array[index][field]).format('YYYY-MM-DD');
   callback();
 }
 
