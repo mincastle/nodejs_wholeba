@@ -117,7 +117,7 @@ router.get('/join', function (req, res, next) {
         success_json.result.message = "가입정보조회 성공";
         success_json.result.items = {
           "join_code": result.join_code,
-          "phone": result.phone,
+          "partner_phone": result.phone,
           "user_gender": result.user_gender,
           "user_req": result.user_req
         };
@@ -187,23 +187,23 @@ router.post('/woman', function (req, res, next) {
     "period_end": period_end,
     "period_cycle": period_cycle
   };
-  syndromes = {
-    "user_no": user_no,
-    "items": [{
-                "syndrome_no": 1,
-                "syndrome_before": 1,
-                "syndrome_after": 0},
-              {
-                "syndrome_no": 2,
-                "syndrome_before": 1,
-                "syndrome_after": 1
-              },
-              {
-                "syndrome_no": 3,
-                "syndrome_before": 2,
-                "syndrome_after": 2
-              }]
-  };
+  //syndromes = {
+  //  "user_no": user_no,
+  //  "items": [{
+  //              "syndrome_no": 1,
+  //              "syndrome_before": 1,
+  //              "syndrome_after": 0},
+  //            {
+  //              "syndrome_no": 2,
+  //              "syndrome_before": 1,
+  //              "syndrome_after": 1
+  //            },
+  //            {
+  //              "syndrome_no": 3,
+  //              "syndrome_before": 2,
+  //              "syndrome_after": 2
+  //            }]
+  //};
   var pills = {"user_no": user_no, "user_pills": user_pills, "pills_date": pills_date, "pills_time": pills_time};
 
   db_user.woman(pills, period, syndromes, function (err, result) {
