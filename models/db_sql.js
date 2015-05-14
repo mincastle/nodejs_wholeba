@@ -253,7 +253,7 @@ exports.selectUserReward =
 
 //미션목록조회
 exports.selectMissionList =
-  'select mlist_no, user_no, mlist_name, mlist_successdate, mlist_expiredate, mlist_state, '+
+  'select mlist_no, user_no, mlist_name, mlist_successdate, mlist_regdate, mlist_expiredate, mlist_state, '+
           '(select mission_hint '+
           'from mission mi ' +
           'where mi.mission_no=m.mission_no) mission_hint, ' +
@@ -262,7 +262,10 @@ exports.selectMissionList =
           'where mi.mission_no=m.mission_no) theme_no, '+
           '(select user_gender '+
           'from user u '+
-          'where u.user_no=m.user_no) user_gender '+
+          'where u.user_no=m.user_no) user_gender, '+
+          '(select item_usedate '+
+          'from itemlist i '+
+          'where i.item_usemission=m.mlist_no) item_usedate '+
           'from missionlist m '+
           'where user_no IN ((select user_no '+
                               'from user '+
