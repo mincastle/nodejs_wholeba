@@ -68,6 +68,7 @@ router.post('/join', function (req, res, next) {
       res.json(fail_json);
     } else {
       if (result.affectedRows == 1) {
+        success_json.result = {};
         success_json.result.message = "회원가입 성공";
         success_json.result.user_no = result.user_no;
         //TODO : session user_no, couple_no 저장
@@ -101,9 +102,10 @@ router.get('/join', function (req, res, next) {
         success_json.result = {};  //reset
         //console.log('join_info result-----' , result);
         //공백일 경우 채워넣기
+        if (result.join_code == undefined) result.join_code = -1;
         if (result.phone == undefined) result.phone = "";
         if (result.user_gender == undefined) result.user_gender = "";
-        if (result.user_req == undefined) result.user_req = "";
+        if (result.user_req == undefined) result.user_req = -1;
 
         success_json.result.message = "가입정보조회 성공";
         success_json.result.items = {
