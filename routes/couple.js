@@ -50,6 +50,7 @@ router.post('/ask', function (req, res, next) {
       success_json.result.insertId = result;
       req.session.couple_no = result;
       //console.log('req.session.couple_birth', req.session.couple_birth);
+      //TODO : 상대방이 이미 가입한 사람이라면 상대 regid 가져와서 push 보내기
       res.json(success_json);
     }
   });
