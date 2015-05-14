@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var db_ddays = require('../models/db_ddays');
-var util = require('../util/dday_util');
+var util = require('../util/util');
 
 var fail_json = {
   "success": 0,
@@ -36,7 +36,7 @@ router.get('/', function (req, res, next) {
 
       success_json.result.items = results;
 
-      util.each(results, util.dateFormat, function (err, result) {
+      util.each(results, "dday_date", util.dateFormat, function (err, result) {
 
         res.json(success_json);
       });
