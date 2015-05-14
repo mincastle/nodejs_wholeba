@@ -13,13 +13,16 @@ var success_json = {
 };
 
 //미션리스트조회
+//orderby (0:최신순, 1:남자순, 2:여자순)
 router.get('/:year/:month/:orderby', function (req, res, next) {
   var user_no = req.session.user_no;
   var couple_no = req.session.couple_no;
   var orderby = parseInt(req.params.orderby);
   var year = parseInt(req.params.year);
   var month = parseInt(req.params.month);
-  var data = {"user_no" : user_no, "couple_no" : couple_no, "year" : year, "month" : month, "orderby" : orderby};
+  var date = year + '-' + month + '-' + '1';
+  var data = {"user_no" : user_no, "couple_no" : couple_no, "date" : date, "orderby" : orderby};
+
 
   //세션 체크
   if (!user_no || !couple_no) {
@@ -28,12 +31,52 @@ router.get('/:year/:month/:orderby', function (req, res, next) {
     return;
   }
 
-  db_missions.getlist(data, function (datas) {
-    if (!datas) {
+  db_missions.getlist(data, function (err, result) {
+    if (err) {
       fail_json.result = {};
-      fail_json.result.message = '미션리스트조회 실패';
+      fail_json.result.message = err;
       res.json(fail_json);
     } else {
+      //console.log('result----------', result);
+      var m_total = 0;
+      var m_completed = 0;
+      var f_total = 0;
+      var f_completed = 0;
+      var items = [];
+      var item = {};
+      var len = result.length;
+
+      //json setting
+      for(var i in result) {
+        item = {};
+        item.mlist_no = result[i].mlist_no;
+        item.gender = result[i].user_gender;
+        item.theme_no = result[i].theme_no;
+        item.content = result[i].mlist_name;
+        item.hint = result[i].mission_hint;
+        item.state = result[i].mlist_state;
+        //date setting
+        if(item.state == 1) {
+          item.date = result[i].mlist_successdate;
+        } else {
+          item.date = result[i].mlist_expiredate;
+        }
+        //gender mission value setting
+        if(item.gender == 'M') {
+          m_total++;
+          if(item.state == 1) {
+            m_completed++;
+          }
+        } else {
+          f_total++;
+          if(item.state == 1) {
+            f_completed++;
+          }
+        }
+        console.log('item' , item);
+        items.push(item);
+      }
+
       success_json.result = {};
       success_json.result.message = '미션목록조회 성공';
       res.json({
@@ -41,37 +84,13 @@ router.get('/:year/:month/:orderby', function (req, res, next) {
         "result": {
           "message": "미션목록조회 성공",
           "orderby": orderby,
-          "item_cnt": 3,
+          "item_cnt": items.length,
           "items": {
-            "m_total": 2,
-            "m_completed": 0,
-            "f_total": 1,
-            "f_completed": 1,
-            "item": [{
-              "mlist_no": 2,
-              "gender": "m",
-              "theme": "애교",
-              "content": "우쭈쭈",
-              "hint": "#애교 #귀욤",
-              "date": "2015-4-30",
-              "state": 3
-            }, {
-              "mlist_no": 1,
-              "gender": "f",
-              "theme": "섹시",
-              "content": "다음데이트에서 벽에 밀치고 키스하기",
-              "hint": "#벽 #섹시",
-              "date": "2015-4-20",
-              "state": 1
-            }, {
-              "mlist_no": 0,
-              "gender": "m",
-              "theme": "첫만남",
-              "content": "하루종일 손잡고 다니기",
-              "hint": "#설렘 #첫만남",
-              "date": "2015-4-10",
-              "state": 0
-            }]
+            "m_total": m_total,
+            "m_completed": m_completed,
+            "f_total": f_total,
+            "f_completed": f_completed,
+            "item": items
           }
         }
       });

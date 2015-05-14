@@ -213,7 +213,7 @@ exports.selectMissionExpiration = 'select mission_expiration from mission where 
 
 //미션 확인시, state와 expiredate 갱신
 exports.updateMissionConfirm =
-  'update missionlist set mlist_state=3, mlist_expiredate=? '+
+  'update missionlist set mlist_state=3, mlist_confirmdate=?, mlist_expiredate=? '+
   'where user_no=? '+
   'and mlist_no=?';
 
@@ -261,10 +261,21 @@ exports.selectMissionList =
           '(select mission_hint '+
           'from mission mi ' +
           'where mi.mission_no=m.mission_no) mission_hint, ' +
+          '(select theme_no '+
+          'from mission mi '+
+          'where mi.mission_no=m.mission_no) theme_no, '+
           '(select user_gender '+
           'from user u '+
           'where u.user_no=m.user_no) user_gender '+
           'from missionlist m '+
           'where user_no IN ((select user_no '+
                               'from user '+
-                              'where couple_no=?))';
+                              'where couple_no=?)) ' +
+          'and mlist_regdate between ? and DATE_ADD(DATE_ADD(LAST_DAY(?), INTERVAL 1 DAY), INTERVAL -1 SECOND) '+
+          'order by ';
+
+
+//미션목록조회시, orderby
+exports.orderbyLatest = 'm.mlist_confirmdate  IS NULL desc,  m.mlist_confirmdate  DESC';
+exports.orderbyMale = 'user_gender DESC, m.mlist_confirmdate  IS NULL DESC,  m.mlist_confirmdate  DESC';
+exports.orderbyFemale = 'user_gender ASC, m.mlist_confirmdate  IS NULL DESC,  m.mlist_confirmdate  DESC';
