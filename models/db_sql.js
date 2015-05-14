@@ -294,4 +294,13 @@ exports.selectMissionFail =
   'where date(mlist_expiredate) <= date(now()) '+
   'and mlist_state=3';
 
+//미션실패시, mlist_state=0 으로 갱신
 exports.updateMissionFail = 'update missionlist set mlist_state=0 where mlist_no=? and mlist_state=3';
+
+
+//****************************** ITEMS ************************************//
+
+//아이템 목록조회
+exports.selectItems =
+  'select item_no, item_name, item_exchange '+
+  'from item';
