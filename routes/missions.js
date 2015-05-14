@@ -50,15 +50,15 @@ router.get('/:year/:month/:orderby', function (req, res, next) {
       for(var i in result) {
         item = {};
         item.mlist_no = result[i].mlist_no;
-        item.gender = result[i].user_gender;
+        item.user_gender = result[i].user_gender;
         item.theme_no = result[i].theme_no;
-        item.content = result[i].mlist_name;
-        item.hint = result[i].mission_hint;
-        item.state = result[i].mlist_state;
-        item.regdate = result[i].mlist_regdate; //미션생성일자
-        item.successdate = result[i].mlist_successdate; //미션성공일자
-        item.itemusedate = result[i].item_usedate; //아이템사용일자
-        item.expiredate = result[i].mlist_expiredate; //미션유효일자
+        item.mlist_name = result[i].mlist_name;
+        item.mission_hint = result[i].mission_hint;
+        item.mlist_state = result[i].mlist_state;
+        item.mlist_regdate = result[i].mlist_regdate; //미션생성일자
+        item.mlist_successdate = result[i].mlist_successdate; //미션성공일자
+        item.item_usedate = result[i].item_usedate; //아이템사용일자
+        item.mlistexpiredate = result[i].mlist_expiredate; //미션유효일자
 
         //gender mission value setting
         if(item.gender == 'M') {

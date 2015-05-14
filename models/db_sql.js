@@ -294,4 +294,4 @@ exports.selectMissionFail =
   'where date(mlist_expiredate) <= date(now()) '+
   'and mlist_state=3';
 
-exports.updateMissionFail = 'update mlist_no set mlist_state=1 where mlist_no=?';
+exports.updateMissionFail = 'update missionlist set mlist_state=0 where mlist_no=? and mlist_state=3';
