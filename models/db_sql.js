@@ -257,6 +257,7 @@ exports.selectUserReward =
   'where user_no=?';
 
 //미션목록조회
+//todo couple_withdraw=0 
 exports.selectMissionList =
   'select mlist_no, user_no, mlist_name, mlist_successdate, mlist_regdate, mlist_expiredate, mlist_state, '+
           '(select mission_hint '+
