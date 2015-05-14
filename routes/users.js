@@ -5,7 +5,7 @@ var db_user = require('../models/db_user');
 var fail_json = {
   "success": 0,
   "result": {}
-}
+};
 
 var success_json = {
   "success": 1,
@@ -57,6 +57,11 @@ router.post('/join', function (req, res, next) {
   var user_pw = bodydata.user_pw;
   var user_phone = bodydata.user_phone;
   var user_regid = bodydata.user_regid;
+
+  if (!user_regid) {
+    next(new Error('reg_id 입력이 안되었습니다.'));
+  }
+
   var data = {"user_id": user_id, "user_pw": user_pw, "user_phone": user_phone, "user_regid": user_regid};
   console.log('data', data);
 
@@ -73,8 +78,8 @@ router.post('/join', function (req, res, next) {
         success_json.result.user_no = result.user_no;
         //TODO : session user_no, couple_no 저장
         req.session.user_no = result.user_no;
+        console.log('join_post', success_json);
         res.json(success_json);
-        console.log('join waterfall result : ', result);
       } else {
         res.json(fail_json);
       }
@@ -85,17 +90,19 @@ router.post('/join', function (req, res, next) {
 //가입정보조회
 router.get('/join', function (req, res, next) {
   var user_no = req.session.user_no;
-  var couple_no = req.session.couple_no;
   //세션 체크
   if (!user_no) {
     fail_json.result.message = "세션정보 없음";
     res.json(fail_json);
     return;
   }
+  var couple_no = req.session.couple_no;
   var data = {"user_no": user_no, "couple_no": couple_no};
+  console.log('join_date', data);
   db_user.join_info(data, function (err, result) {
     if (err) {
       fail_json.result.message = err;
+      console.log('join_get_fail', fail_json);
       res.json(fail_json);
     } else {
       if (result) {
@@ -114,6 +121,7 @@ router.get('/join', function (req, res, next) {
           "user_gender": result.user_gender,
           "user_req": result.user_req
         };
+        console.log('join_get', success_json);
         res.json(success_json);
       }
     }
@@ -148,6 +156,7 @@ router.post('/common', function (req, res, next) {
     } else {
       success_json.result = {};
       success_json.result.message = "공통정보등록 성공";
+      console.log('common_post', success_json);
       res.json(success_json);
     }
   });
@@ -233,7 +242,6 @@ router.post('/login', function (req, res, next) {
       res.json(accept_json);
     } else {
       if (result) {
-        console.log('login result', result);
         //TODO session setting
         //user_phone과 user_regid가 넘어오긴하지만 최신정보가 아니므로 사용하면 안됨!
         req.session.user_no = result.user_no;
@@ -242,7 +250,7 @@ router.post('/login', function (req, res, next) {
         success_json.result = {};
         success_json.result.message = "로그인 성공";
         success_json.result.items = result;
-
+        console.log('join_post', success_json);
         res.json(success_json);
       } else {
         fail_json.result.message = "로그인 실패";
@@ -282,6 +290,7 @@ router.post('/acceptlogin', function (req, res, next) {
         success_json.result.message = '중복 로그인 처리 성공!';
         success_json.result.items = result;
         // TODO : 상대 regid에 push를 보내 로그아웃 시킨다.
+        console.log('acceptlogin_post', success_json);
         res.json(success_json);
 
       } else {

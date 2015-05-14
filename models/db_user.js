@@ -90,61 +90,78 @@ exports.join = function (data, callback) {
 exports.join_info = function (data, callback) {
   var result = {};
   result.user_no = data.user_no; //result에 user_no 넣기
-  async.waterfall([
-    function (done) {
-      //couple_no가 있으면 couple_is 확인
-      if (data.couple_no) {
-        result.couple_no = data.couple_no;
-        result.isAlreadyCouple = 1; //falg
-        //check couple_is
-        dao.getCoupleIs(result, done);
-      } else {
-        result.isAlreadyCouple = 0; //flag
-        //check auth_phone
-        dao.checkAuthPhone(result, done);
-      }
-    },
-    function (result2, done) {
-      if (result2.isAlreadyCouple == 1) {
-        if (result2.join_code != undefined) {  //join_code = 3
-          done(null, result2);
-        } else {
-          //couple_withdraw와 user_addition 조회
-          dao.checkCoupleWithdrawandUserAddition(result2, done);
-        }
-      }
-      else if (result2.isAlreadyCouple == 0) {
-        if (result2.join_code != undefined) {  //join_code = 1
-          done(null, result2);
-        } else {
-          //auth_phone 결과얻었으므로 couple_no로 상대방 전화번호 찾아야함
-          dao.getPartnerPhone(result2, done);
-        }
-      }
-      else {
-        done('가입정보조회 실패', null);
-      }
-    },
-    function (result3, done) {
-      if (result3.join_code != undefined) {
-        //join_code = 0 | 1 | 2 | 3 | 5
-        done(null, result3);
-      } else {
-        //couple_is = 1 && couple_withdraw = 0 && user_addition = 0일때
-        //커플은 승인되었지만 추가정보를 입력하지 않았으므로 user_req와 user_gender 조회하여
-        //사용자에 맞는 추가정보입력 페이지로 이동
-        dao.getRespondentInfo(result3, done);
-      }
-    }
-  ], function (err, result) {
+
+  pool.getConnection(function (err, conn) {
     if (err) {
-      console.log('err', err);
       callback(err, null);
     } else {
-      if (result.join_code != undefined) {
-        console.log('join info result : ', result);
-        callback(null, result);
-      }
+      conn.beginTransaction(function(err) {
+        if(err) {
+          console.log('err', err);
+          conn.rollback(function () {
+            callback(err);
+          });
+        } else {
+          async.waterfall([
+            function (done) {
+              //couple_no가 있으면 couple_is 확인
+              if (data.couple_no) {
+                result.couple_no = data.couple_no;
+                result.isAlreadyCouple = 1; //falg
+                //check couple_is
+                dao.getCoupleIs(conn, result, done);
+              } else {
+                result.isAlreadyCouple = 0; //flag
+                //check auth_phone
+                dao.checkAuthPhone(conn, result, done);
+              }
+            },
+            function (result2, done) {
+              if (result2.isAlreadyCouple == 1) {
+                if (result2.join_code != undefined) {  //join_code = 3
+                  done(null, result2);
+                } else {
+                  //couple_withdraw와 user_addition 조회
+                  dao.checkCoupleWithdrawandUserAddition(conn, result2, done);
+                }
+              }
+              else if (result2.isAlreadyCouple == 0) {
+                if (result2.join_code != undefined) {  //join_code = 1
+                  done(null, result2);
+                } else {
+                  //auth_phone 결과얻었으므로 couple_no로 상대방 전화번호 찾아야함
+                  dao.getPartnerPhone(conn, result2, done);
+                }
+              }
+              else {
+                done('가입정보조회 실패', null);
+              }
+            },
+            function (result3, done) {
+              if (result3.join_code != undefined) {
+                //join_code = 0 | 1 | 2 | 3 | 5
+                done(null, result3);
+              } else {
+                //couple_is = 1 && couple_withdraw = 0 && user_addition = 0일때
+                //커플은 승인되었지만 추가정보를 입력하지 않았으므로 user_req와 user_gender 조회하여
+                //사용자에 맞는 추가정보입력 페이지로 이동
+                dao.getRespondentInfo(conn, result3, done);
+              }
+            }
+          ], function (err, result) {
+            if (err) {
+              console.log('err', err);
+              callback(err, null);
+            } else {
+              if (result.join_code != undefined) {
+                console.log('join info result : ', result);
+                callback(null, result);
+              }
+            }
+          });
+        }
+        conn.release();
+      });  //begin transaction
     }
   });
 };

@@ -82,60 +82,52 @@ function checkUserId(conn, data, done) {
 
 //check auth_phone
 function checkAuthPhone(result, done) {
-  pool.getConnection(function (err, conn) {
-    if (err) console.log('err', err);
-    else {
-      //auth_phone에 user_phone이 있는지 없는지 확인
-      //couple_no와 결과 cnt 조회
-      conn.query(sql.selectAuthPhone, [result.user_no], function (err, row) {
-        if (err) {
-          console.log('err', err);
-          done(err, null);
-        } else {
-          if (row[0].cnt == 1) {
-            console.log('auth phone res : ', row);
-            //row.couple_no를 가지고 상대방 전화번호를 찾아야함! (join_code == 2)
-            result.row = row[0];
-            done(null, result);
-          } else if (row[0].cnt == 0) {
-            // couple도 아니고 auth_phone에도 없음
-            // 커플요청페이지 보여줘야함
-            result.join_code = 1;
-            done(null, result);
-          }
-        }
-        conn.release();
-      });
+  //auth_phone에 user_phone이 있는지 없는지 확인
+  //couple_no와 결과 cnt 조회
+  conn.query(sql.selectAuthPhone, [result.user_no], function (err, row) {
+    if (err) {
+      console.log('err', err);
+      done(err, null);
+    } else {
+      console.log('authphone res :', row);
+      if (!row[0].cnt) {
+        console.log('auth phone res : ', row);
+        //row.couple_no를 가지고 상대방 전화번호를 찾아야함! (join_code == 2)
+        result.row = row[0];
+        done(null, result);
+        //} else if (row[0].cnt == 0) {
+      } else {
+        // couple도 아니고 auth_phone에도 없음
+        // 커플요청페이지 보여줘야함
+        result.join_code = 1;
+        done(null, result);
+      }
     }
   });
 }
 
 //join_code 조회를 위한 couple_withdraw와 user_addition조회
-function checkCoupleWithdrawandUserAddition(result2, done) {
-  pool.getConnection(function (err, conn) {
-    var params = [result2.couple_no];
-    conn.query(sql.selectCoupleWithdraw, params, function (err, row) {
-      if (err) {
-        done(err, null);
+function checkCoupleWithdrawandUserAddition(conn, result2, done) {
+  var params = [result2.couple_no];
+  conn.query(sql.selectCoupleWithdraw, params, function (err, row) {
+    if (err) {
+      done(err, null);
+    } else {
+      if (row[0].couple_withdraw == 1) {
+        //상대방이 탈퇴, 알림다이얼로그로 이동
+        result2.join_code = 5;
+        //done(null, result2);
+        selectUserGender(conn, result2, done);
+      } else if (row[0].couple_withdraw == 0) {
+        //user_addition 추가로 조회하여 메인으로 이동하거나(join_code = 0),
+        //추가정보 입력창으로 이동(join_code = 4)
+        checkUserAddition(result2, done);
       } else {
-        if (row[0].couple_withdraw == 1) {
-          //상대방이 탈퇴, 알림다이얼로그로 이동
-          result2.join_code = 5;
-          //done(null, result2);
-          selectUserGender(conn, result2, done);
-        } else if (row[0].couple_withdraw == 0) {
-          //user_addition 추가로 조회하여 메인으로 이동하거나(join_code = 0),
-          //추가정보 입력창으로 이동(join_code = 4)
-          checkUserAddition(result2, done);
-        } else {
-          done('커플탈퇴여부 값 이상', null);
-        }
+        done('커플탈퇴여부 값 이상', null);
       }
-      conn.release();
-    });
+    }
   });
 }
-
 
 //user_addition을 조회(join_code를 알아내기위함-가입정보조회)
 function checkUserAddition(result2, done) {
@@ -171,56 +163,42 @@ function checkUserAddition(result2, done) {
 
 
 //추가정보 입력안했기 때문에 유저의 user_req, user_gender 조회
-function getRespondentInfo(result3, done) {
-  pool.getConnection(function (err, conn) {
+function getRespondentInfo(conn, result3, done) {
+  var params = [result3.user_no];
+  conn.query(sql.selectUserReqandUserGender, params, function (err, row) {
     if (err) {
       done(err, null);
     } else {
-      var params = [result3.user_no];
-      conn.query(sql.selectUserReqandUserGender, params, function (err, row) {
-        if (err) {
-          done(err, null);
-        } else {
-          if (row[0]) {
-            //console.log('result3', row[0]);
-            result3.user_req = row[0].user_req;
-            result3.user_gender = row[0].user_gender;
-            result3.join_code = 4;
-            selectUserGender(conn, result3, done);
-            //done(null, result3);
-          } else {
-            done('사용자 커플요청정보, 성별 조회 실패', null);
-          }
-        }
-        conn.release();
-      });
+      if (row[0]) {
+        //console.log('result3', row[0]);
+        result3.user_req = row[0].user_req;
+        result3.user_gender = row[0].user_gender;
+        result3.join_code = 4;
+        selectUserGender(conn, result3, done);
+        //done(null, result3);
+      } else {
+        done('사용자 커플요청정보, 성별 조회 실패', null);
+      }
     }
   });
 }
 
 //커플 승인자 이므로 화면에 보여줄 상대방 전화번호 얻기
-function getPartnerPhone(result2, done) {
-  pool.getConnection(function (err, conn) {
+function getPartnerPhone(conn, result2, done) {
+  var params = [result2.row.couple_no, result2.user_no];
+  conn.query(sql.selectPartnerPhone, params, function (err, row) {
     if (err) {
       done(err, null);
     } else {
-      var params = [result2.row.couple_no, result2.user_no];
-      conn.query(sql.selectPartnerPhone, params, function (err, row) {
-        if (err) {
-          done(err, null);
-        } else {
-          if (row[0].user_phone) {
-            result2.phone = row[0].user_phone;
-            result2.join_code = 2;
-            done(null, result2);
-            //성별이 아직 없음 couple/ask 할때 넣음
-            //selectUserGender(conn, result2, done);
-          } else {
-            done('상대방 전화번호 조회 실패', null);
-          }
-        }
-        conn.release();
-      });
+      if (row[0].user_phone) {
+        result2.phone = row[0].user_phone;
+        result2.join_code = 2;
+        done(null, result2);
+        //성별이 아직 없음 couple/ask 할때 넣음
+        //selectUserGender(conn, result2, done);
+      } else {
+        done('상대방 전화번호 조회 실패', null);
+      }
     }
   });
 }
@@ -248,29 +226,23 @@ function insertUser(conn, data, arg1, done) {
   }
 }
 
-function getCoupleIs(result, done) {
-  pool.getConnection(function (err, conn) {
+function getCoupleIs(conn, result, done) {
+  var params = [result.couple_no];
+  conn.query(sql.selectCoupleIs, params, function (err, row) {
     if (err) done(err, null);
     else {
-      var params = [result.couple_no];
-      conn.query(sql.selectCoupleIs, params, function (err, row) {
-        if (err) done(err, null);
-        else {
-          console.log('get couple_is row : ', row);
-          if (row[0].couple_is == 0) {
-            // 커플요청은 했으나 상대방이 승인아직 안함,
-            // 버튼이 비활성화된 커플 요청페이지로 이동
-            result.join_code = 3;
-            //console.log('result : ', result);
-            selectUserGender(conn, result, done);
-            //done(null, result);
-          } else if (row[0].couple_is == 1) {
-            //user_addition, couple_withdraw 조회해야함
-            done(null, result);
-          } else done('커플승인여부 조회 실패', null);
-        }
-        conn.release();
-      });
+      console.log('get couple_is row : ', row);
+      if (row[0].couple_is == 0) {
+        // 커플요청은 했으나 상대방이 승인아직 안함,
+        // 버튼이 비활성화된 커플 요청페이지로 이동
+        result.join_code = 3;
+        //console.log('result : ', result);
+        selectUserGender(conn, result, done);
+        //done(null, result);
+      } else if (row[0].couple_is == 1) {
+        //user_addition, couple_withdraw 조회해야함
+        done(null, result);
+      } else done('커플승인여부 조회 실패', null);
     }
   });
 }
