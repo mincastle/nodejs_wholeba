@@ -55,12 +55,11 @@ router.get('/:year/:month/:orderby', function (req, res, next) {
         item.content = result[i].mlist_name;
         item.hint = result[i].mission_hint;
         item.state = result[i].mlist_state;
-        //date setting
-        if(item.state == 1) {
-          item.date = result[i].mlist_successdate;
-        } else {
-          item.date = result[i].mlist_expiredate;
-        }
+        item.regdate = result[i].mlist_regdate; //미션생성일자
+        item.successdate = result[i].mlist_successdate; //미션성공일자
+        item.itemusedate = result[i].item_usedate; //아이템사용일자
+        item.expiredate = result[i].mlist_expiredate; //미션유효일자
+
         //gender mission value setting
         if(item.gender == 'M') {
           m_total++;

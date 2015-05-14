@@ -33,7 +33,7 @@ function selectMissionsList(conn, data, done) {
         if(err) {
           done(err);
         } else {
-          //console.log('missionlist rows : ', rows);
+          console.log('missionlist rows : ', rows);
           done(null, rows);
         }
       });

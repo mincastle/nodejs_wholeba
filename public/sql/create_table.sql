@@ -129,6 +129,7 @@ create table itemlist(
 	item_no int not null comment'아이템번호',
 	user_no int not null comment'사용자번호',
 	item_usemission int comment'사용한 미션번호',
+	item_usedate datetime comment'아이템사용시간',
 	primary key(itemlist_no),
 	foreign key(item_no) references item(item_no),
 	foreign key(user_no) references user(user_no),
