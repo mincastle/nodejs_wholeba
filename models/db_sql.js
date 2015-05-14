@@ -29,13 +29,13 @@ exports.updateUserPhone = 'update user set user_phone=? where user_no=?';
 exports.updateUserIsLogin = 'update user set user_islogin=? where user_no=?';
 
 //가입정보조회시, 커플인증번호에 사용자 번호가 있는지 체크
-exports.selectAuthPhone = 'select couple_no, count(*) as cnt from couple where auth_phone in (select user_phone from user where user_no=?) and couple_is = 0;';
+exports.selectAuthPhone = 'select couple_no, count(*) as cnt from couple where auth_phone in (select user_phone from user where user_no=?) and couple_is = 0 and couple_withdraw=0';
 
 //가입정보조회시, couple_no 존재할 때 couple_is 조회
-exports.selectCoupleIs = 'select couple_is from couple where couple_no=?;';
+exports.selectCoupleIs = 'select couple_is from couple where couple_no=? and couple_withdraw=0;';
 
 //가입정보조회시, couple_is = 1일때, couple_withdraw 조회
-exports.selectCoupleWithdraw = 'select couple_withdraw from couple where couple_no=?;';
+exports.selectCoupleWithdraw = 'select couple_withdraw from couple where couple_no=? and couple_withdraw=0;';
 
 //가입정보조회시, couple_is = 1일때, user_addition 조회
 exports.selectUserAddition = 'select user_addition from user where user_no=?;';

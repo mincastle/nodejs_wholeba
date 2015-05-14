@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var db_couple = require('../models/db_couple');
 var moment = require('moment');
+var util = require('../util/util');
 
 var fail_json = {
   "success": 0,
@@ -110,16 +111,24 @@ router.get('/', function (req, res, next) {
       fail_json.result.message = err;
       res.json(fail_json);
     } else {
-      success_json.result.message = '조회 성공';
-      success_json.result.items = {
-        "m_reward": success.m_reward,
-        "m_condition": success.m_condition,
-        "f_reward": success.f_reward,
-        "f_condition": success.f_condition,
-        "couple_condom" : success.couple_condom,
-        "couple_birth": moment(success.couple_birth).format('YYYY-MM-DD')
-      };
-      res.json(success_json);
+      util.each([success], "couple_birth", util.dateFormat, function (err, result) {
+        if (err) {
+          fail_json.result.message = err;
+          res.json(fail_json);
+        } else {
+          console.log('couple_birth success', success);
+          success_json.result.message = '조회 성공';
+          success_json.result.items = {
+            "m_reward": result.m_reward,
+            "m_condition": result.m_condition,
+            "f_reward": result.f_reward,
+            "f_condition": result.f_condition,
+            "couple_condom" : result.couple_condom,
+            "couple_birth": result.couple_birth
+          };
+          res.json(success_json);
+        }
+      });
     }
   });
 });

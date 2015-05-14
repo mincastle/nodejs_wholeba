@@ -15,38 +15,21 @@ function selectLoves (conn, data, done) {
 
 function insertLoves (conn, data, done) {
   var datas;
-  //if (data.loves_date) {
-    datas = [data.couple_no, data.loves_condom, data.loves_date];
-  //} else {
-  //  datas = [data.couple_no, data.loves_condom];
-  //}
 
-  //sql.insertLoves(data, function (convertsql) {
+  datas = [data.couple_no, data.loves_condom, data.loves_date];
+
   var convertsql = "insert into loves(couple_no, loves_condom, loves_date) values (?, ?, ifnull(?, now()))"
-    conn.query(convertsql, datas, function (err, row) {
-      if(err) {
-        done(err);
+  conn.query(convertsql, datas, function (err, row) {
+    if(err) {
+      done(err);
+    } else {
+      if (row.affectedRows == 1) {
+        done(null, row);
       } else {
-        if (row.affectedRows == 1) {
-          done(null, row);
-        } else {
-          done('love가 생성되지 않았습니다!');
-        }
+        done('love가 생성되지 않았습니다!');
       }
-    });
-  //});
-
-  //conn.query(sql.insertLoves(data.loves_date), datas, function (err, row) {
-  //  if(err) {
-  //    done(err);
-  //  } else {
-  //    if (row.affectedRows == 1) {
-  //      done(null, row);
-  //    } else {
-  //      done('love가 생성되지 않았습니다!');
-  //    }
-  //  }
-  //});
+    }
+  });
 }
 
 function updateLoves (conn, data, done) {
