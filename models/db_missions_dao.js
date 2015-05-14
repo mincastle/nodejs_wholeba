@@ -10,6 +10,37 @@ var pool = mysql.createPool(db_config);
 //gcm sender
 var sender = new gcm.Sender('AIzaSyAl_chJ0kOOLwd9OLk68awMNr9I_grA3SM'); //server api key
 
+//미션목록조회
+//date = '2015-3-1'
+//state 0(실패) 1(성공) 2(확인안함) 3(진행중) 4(패스)d
+//data = {user_no, couple_no, date, orderby}
+function selectMissionsList(conn, data, done) {
+  if(!conn) {
+    done('연결 에러');
+    return;
+  }
+  else {
+    //orderby setting
+    switch(data.orderby) {
+      case 0 : var orderbySql = sql.orderbyLatest; break;
+      case 1 : var orderbySql = sql.orderbyMale; break;
+      case 2 : var orderbySql = sql.orderbyFemale; break;
+      default : done('orderby 값 이상 : ' + data.orderby);
+    }
+    var params = [data.couple_no, data.date, data.date];
+    if(orderbySql) {
+      conn.query(sql.selectMissionList + orderbySql, params, function(err, rows) {
+        if(err) {
+          done(err);
+        } else {
+          //console.log('missionlist rows : ', rows);
+          done(null, rows);
+        }
+      });
+    }
+  }
+}
+
 
 //미션생성시, theme을 랜덤으로 고르고, 미션수행할 유저 조회
 //data = {user_no, couple_no, mission_theme}
@@ -296,7 +327,7 @@ function updateMissionConfirm(conn, data, done) {
           function(done) {
             getMissionExpiredate(conn, data, done);
           },
-          //updateInfo = {user_no, mlist_no, mlist_expiredate}
+          //updateInfo = {user_no, mlist_no, mlist_confirmdate, mlist_expiredate}
           function(updateInfo, done) {
             updateMissionStateandExpiredate(conn, updateInfo, done);
           }
@@ -332,9 +363,12 @@ function getMissionExpiredate(conn, data, done) {
     } else {
       if(row[0].mission_expiration) {
         console.log('mission expiration : ', row[0].mission_expiration);
-        var expiredate = new Date();
-        expiredate.setDate(expiredate.getDate() + row[0].mission_expiration);
-        console.log('expiredate : ', expiredate);
+        var confirmdate = new Date();
+        var expiredate = new Date(confirmdate);
+        expiredate.setDate(confirmdate.getDate() + row[0].mission_expiration);
+        console.log('expiredate : ', expiredate.toLocaleDateString());
+        console.log('confirmdate : ', confirmdate.toLocaleDateString());
+        data.mlist_confirmdate = confirmdate;
         data.mlist_expiredate = expiredate;  //data에 추가
         done(null, data);
       } else {
@@ -346,7 +380,7 @@ function getMissionExpiredate(conn, data, done) {
 
 //미션확인시, 계산된 expiredate 로 , state도 같이 갱신
 function updateMissionStateandExpiredate(conn, data, done) {
-  var param = [ data.mlist_expiredate, data.user_no, data.mlist_no];
+  var param = [data.mlist_confirmdate, data.mlist_expiredate, data.user_no, data.mlist_no];
   conn.query(sql.updateMissionConfirm, param, function (err, row) {
     if (err) {
       done(err);
@@ -531,6 +565,7 @@ function sendRewardPush(conn, data, done) {
 
         //todo type 정한 후 바꾸어야함
         message.addData('type', 3);
+        message.addData('type', 3);
         message.addData('reward', rewardInfo.reward);
         sender.sendNoRetry(message, regid, function (err, result) {
           if (err) {
@@ -551,7 +586,7 @@ function sendRewardPush(conn, data, done) {
       }
     ], function (err, result) {
       if (err) {
-        console.log("ASDQWEWQE", err);
+        //console.log("ASDQWEWQE", err);
         done(err);
       } else {
         if (result) {
@@ -561,6 +596,7 @@ function sendRewardPush(conn, data, done) {
     });
 }
 
+//사용자의 리워드갯수 조회
 function selectUserReward(conn, data, done) {
   if (!conn) {
     done('연결 에러');
@@ -579,6 +615,9 @@ function selectUserReward(conn, data, done) {
     }
   });
 }
+
+//미션목록조회
+exports.selectMissionsList = selectMissionsList;
 
 //미션생성
 exports.selectMissionandUser = selectMissionandUser;

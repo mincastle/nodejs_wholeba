@@ -7,11 +7,18 @@ var pool = mysql.createPool(db_config);
 
 //missions목록조회
 //oderby 0(최신순), 1(남자순), 2(여자순)
-//state 0(실패) 1(성공) 2(확인안함) 3(진행중) 4(패스)
-//data = {user_no, couple_no, year, month, orderby}
+//date = '2015-3-1'
+//state 0(실패) 1(성공) 2(확인안함) 3(진행중) 4(패스)d
+//data = {user_no, couple_no, date, orderby}
 exports.getlist = function (data, callback) {
-  var success = 1;
-  callback(success);
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      callback(err);
+    } else {
+      dao.selectMissionsList(conn, data, callback);
+    }
+    conn.release();
+  });
 };
 
 //mission하나조회
