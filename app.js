@@ -89,6 +89,7 @@ var mariadb = require('./models/db_config');
 mysql.createConnection(mariadb).connect(function (err) {
   if(err) console.log('err', err);
   console.log('mariadb connected!');
+  require('./schedule/scheduler_mission');
 });
 
 module.exports = app;

@@ -616,6 +616,82 @@ function selectUserReward(conn, data, done) {
   });
 }
 
+//미션실패
+function updateMissionFail(conn, done) {
+  if(!conn) {
+    done('연결 에러');
+    return;
+  }
+  conn.beginTransaction(function(err) {
+    if(err) {
+      conn.rollback(function() {
+        done(err);
+      });
+    } else {
+      async.waterfall(
+        [
+          function(done) {
+            //미션 유효기간이 지난 진행중인 미션 조회
+            conn.query(sql.selectMissionFail, [], function(err, rows) {
+              if(err) {
+                done(err);
+              } else {
+                if(rows.length != 0) {
+                  done(null, rows);
+                } else {
+                  done('--------------------미션실패로 바꿀 미션이 없음');
+                }
+                console.log('select mission rows : ', rows);
+              }
+            });
+          },
+          function(failMissions, done) {
+            var param = [];
+            async.each(failMissions, function(mi, done) {
+              param = [mi.mlist_no];
+              conn.query(sql.updateMissionFail, param, function(err, row) {
+                if(err) {
+                  done(err);
+                }
+                if(row.affectedRows == failMissions.length) {
+                  //console.log('row', row);
+                  done(null);
+                }
+              });
+            }, function(err) {
+              if(err) {
+                done(err);
+              } else {
+                done(null);
+              }
+            });
+          } //update misson fail
+        ],
+        function(err) {
+          if(err) {
+            conn.rollback(function() {
+              done(err);
+            });
+          } else {
+            conn.commit(function(err) {
+              if(err) {
+                conn.rollback(function() {
+                  done(err);
+                });
+              } else {
+                done(null);
+              }
+            });
+          }
+        }); //async
+    }
+  });  //transaction
+}
+
+
+
+
+
 //미션목록조회
 exports.selectMissionsList = selectMissionsList;
 
@@ -638,3 +714,6 @@ exports.updateMissionSuccessRewardandSendRewardPush = updateMissionSuccessReward
 
 //리워드변화시에 매번 사용, 리워드조회해서 총갯수 푸시
 exports.sendRewardPush = sendRewardPush;
+
+//미션 실패
+exports.updateMissionFail = updateMissionFail;
