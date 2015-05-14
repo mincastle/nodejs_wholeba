@@ -282,3 +282,15 @@ exports.selectMissionList =
 exports.orderbyLatest = 'm.mlist_confirmdate  IS NULL desc,  m.mlist_confirmdate  DESC';
 exports.orderbyMale = 'user_gender DESC, m.mlist_confirmdate  IS NULL DESC,  m.mlist_confirmdate  DESC';
 exports.orderbyFemale = 'user_gender ASC, m.mlist_confirmdate  IS NULL DESC,  m.mlist_confirmdate  DESC';
+
+
+//****************************** SCHEDULE ************************************//
+
+//미션실패시, 유효기간이 지난 진행중인 미션을 조회
+exports.selectMissionFail =
+  'select mlist_no '+
+  'from missionlist '+
+  'where date(mlist_expiredate) <= date(now()) '+
+  'and mlist_state=3';
+
+exports.updateMissionFail = 'update mlist_no set mlist_state=1 where mlist_no=?';
