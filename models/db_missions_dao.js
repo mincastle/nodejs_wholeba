@@ -6,6 +6,7 @@ var db_config = require('./db_config');
 var sql = require('./db_sql');
 var async = require('async');
 var gcm = require('node-gcm');
+var commonDao = require('./db_common_dao');
 var pool = mysql.createPool(db_config);
 //gcm sender
 var sender = new gcm.Sender('AIzaSyBtz1plKo81Edizatu0vhhl9trNiFwtGb8'); //server api key
@@ -159,31 +160,6 @@ function insertMissionlist(conn, data, callback) {
   });
 }
 
-
-//미션 생성시, 미션 보낸 사람의 리워드 -1
-//todo unsigned int 처리
-function updateUserReward(conn, data, rewardnum, done) {
-  if (!conn) {
-    done('연결 에러');
-    return;
-  }
-  var params = [rewardnum, data.user_no];
-  conn.query(sql.updateUserReward, params, function (err, row) {
-    if (err) {
-      done(err);
-    } else {
-      if (row.affectedRows == 1) {
-        console.log('reward change : ', rewardnum);
-        console.log('alldata : ', data);
-        data.rewardchange = rewardnum;
-        done(null, data);  //data 그대로 전달
-      } else {
-        done('리워드 차감 실패');
-      }
-    }
-  });
-}
-
 //미션생성시,
 //미션 생성푸시 + 리워드 갯수 변화 푸시 전송
 function sendCreateMissionandRewardPush(conn, data, done) {
@@ -197,7 +173,7 @@ function sendCreateMissionandRewardPush(conn, data, done) {
         sendCreateMissionPush(conn, data, done);
       },
       function (done) {
-        sendRewardPush(conn, [data.user_no], done);
+        commonDao.sendRewardPush(conn, [data.user_no], done);
       }
     ],
     function (err) {
@@ -505,11 +481,11 @@ function updateMissionSuccessRewardandSendRewardPush(conn, data, done) {
       },
       function (rewardInfo, done) {
         //update reward
-        updateUserReward(conn, data, rewardInfo.mlist_reward, done);
+        commonDao.updateUserReward(conn, data, rewardInfo.mlist_reward, done);
       },
       function (arg1, done) {
         //reward push
-        sendRewardPush(conn, [data.user_no], done);
+        commonDao.sendRewardPush(conn, [data.user_no], done);
       }
     ], function (err, result) {
       if (err) {
@@ -539,75 +515,6 @@ function selectMissionReward(conn, data, done) {
         done(null, row[0]);
       } else {
         done('미션리워드 조회 실패');
-      }
-    }
-  });
-}
-
-//리워드 변화시 조회해서 푸시
-//todo data = [user_no] 로 넘길것!
-function sendRewardPush(conn, data, done) {
-  if (!conn) {
-    done('연결 에러');
-    return;
-  }
-  async.waterfall(
-    [
-      function (done) {
-        //리워드 조회
-        selectUserReward(conn, data, done);
-      },
-      function (rewardInfo, done) {
-        var message = new gcm.Message;
-        var regid = [rewardInfo.user_regid];
-        //console.log('push data : ', data);
-
-        message.addData('type', 8+"");
-        message.addData('reward_cnt', rewardInfo.reward_cnt);
-        sender.sendNoRetry(message, regid, function (err, result) {
-          if (err) {
-            console.log('push err', err);
-            done(err);
-          } else {
-            //console.log('push if err else');
-            //todo 안드랑 연결하면 주석풀기!!!!
-            //if (result.success) {
-            if (true) {
-              console.log('push result', result);
-              done(null, result);
-            } else {
-              done(err);
-            }
-          }
-        });
-      }
-    ], function (err, result) {
-      if (err) {
-        //console.log("ASDQWEWQE", err);
-        done(err);
-      } else {
-        if (result) {
-          done(null, result);
-        }
-      }
-    });
-}
-
-//사용자의 리워드갯수 조회
-function selectUserReward(conn, data, done) {
-  if (!conn) {
-    done('연결 에러');
-    return;
-  }
-  conn.query(sql.selectUserReward, data, function (err, row) {
-    if (err) {
-      done(err);
-    } else {
-      if (row[0]) {
-        console.log('select reward push info : ', row[0]);
-        done(null, row[0]);
-      } else {
-        done('리워드 조회 실패');
       }
     }
   });
@@ -685,17 +592,12 @@ function updateMissionFail(conn, done) {
   });  //transaction
 }
 
-
-
-
-
 //미션목록조회
 exports.selectMissionsList = selectMissionsList;
 
 //미션생성
 exports.selectMissionandUser = selectMissionandUser;
 exports.insertMissionlist = insertMissionlist;
-exports.updateUserReward = updateUserReward;  //미션성공시에도 사용
 exports.sendCreateMissionandRewardPush = sendCreateMissionandRewardPush;
 
 //진행중인 미션조회
@@ -708,9 +610,6 @@ exports.sendMissionConfirmPush = sendMissionConfirmPush;
 //미션성공
 exports.updateMissionSuccess = updateMissionSuccess;
 exports.updateMissionSuccessRewardandSendRewardPush = updateMissionSuccessRewardandSendRewardPush;
-
-//리워드변화시에 매번 사용, 리워드조회해서 총갯수 푸시
-exports.sendRewardPush = sendRewardPush;
 
 //미션 실패
 exports.updateMissionFail = updateMissionFail;
