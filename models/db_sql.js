@@ -200,8 +200,15 @@ exports.selectMissionPartner = 'select user_no as partner_no, user_regid as part
 //미션 생성
 exports.insertMissionlist = 'insert into missionlist(user_no, mission_no, mlist_name, mlist_reward, mlist_state, mlist_regdate)  values(?, ?, ?, ?, 2, now())';
 
-//미션 생성시, 만들어진 미션 조회(푸시로 보낼 힌트 얻기 위함)
-exports.selectOneMission = 'select mlist_name, mlist_regdate from missionlist where mlist_no=? and user_no=?';
+//미션 생성시, 만들어진 미션 조회(푸시로 보낼 정보 얻기 위함)
+exports.selectOneMission =
+  'select mlist_name, mlist_regdate, '+
+        '(select theme_no '+
+        'from mission m '+
+        'where m.mission_no=mlist.mission_no) as theme_no '+
+  'from missionlist mlist '+
+  'where mlist_no=? '+
+  'and user_no=?';
 
 //미션 생성시, 리워드 차감
 exports.updateUserReward = 'update reward set reward_cnt=reward_cnt + ? where user_no=?';
@@ -305,3 +312,10 @@ exports.updateMissionFail = 'update missionlist set mlist_state=0 where mlist_no
 exports.selectItems =
   'select item_no, item_name, item_exchange '+
   'from item';
+
+//아이템사용여부조회
+exports.selectMissionUseItem =
+  'select itemlist_no, count(item_usemission) as cnt '+
+  'from itemlist '+
+  'where user_no=? '+
+  'and item_usemission=?';

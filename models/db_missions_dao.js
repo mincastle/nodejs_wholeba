@@ -8,7 +8,7 @@ var async = require('async');
 var gcm = require('node-gcm');
 var pool = mysql.createPool(db_config);
 //gcm sender
-var sender = new gcm.Sender('AIzaSyAl_chJ0kOOLwd9OLk68awMNr9I_grA3SM'); //server api key
+var sender = new gcm.Sender('AIzaSyBtz1plKo81Edizatu0vhhl9trNiFwtGb8'); //server api key
 
 //미션목록조회
 //date = '2015-3-1'
@@ -229,10 +229,11 @@ function sendCreateMissionPush(conn, data, done) {
         //console.log('push data : ', data);
 
         //todo type 정한 후 바꾸어야함
-        message.addData('type', 3);
+        message.addData('type', 5+"");
         message.addData('mlist_no', allData.mlist_no);
         message.addData('mission_name', allData.mission.mlist_name);
-        message.addData('mission_regdate', allData.mission.mlist_regdate);
+        message.addData('mlist_regdate', allData.mission.mlist_regdate);
+        message.addData('theme_no', allData.mission.theme_no);
         sender.sendNoRetry(message, regid, function (err, result) {
           if (err) {
             console.log('err', err);
