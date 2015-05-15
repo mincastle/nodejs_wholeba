@@ -235,7 +235,7 @@ exports.selectMissionConfirmPushInfo =
                               'and not(user_no=mlist.user_no)) as partner_regid, ' +
           '(select mission_hint ' +
           'from mission m ' +
-          'where m.mission_no=mlist.mission_no) as hint ' +
+          'where m.mission_no=mlist.mission_no) as mission_hint ' +
   'from missionlist mlist ' +
   'where user_no=? ' +
   'and mlist_state=3 ' +

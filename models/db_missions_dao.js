@@ -228,7 +228,6 @@ function sendCreateMissionPush(conn, data, done) {
         var regid = [data.partner_regid];
         //console.log('push data : ', data);
 
-        //todo type 정한 후 바꾸어야함
         message.addData('type', 5+"");
         message.addData('mlist_no', allData.mlist_no);
         message.addData('mission_name', allData.mission.mlist_name);
@@ -414,9 +413,8 @@ function sendMissionConfirmPush(conn, data, done) {
         var regid = [pushinfo.partner_regid];
         //console.log('push data : ', data);
 
-        //todo type 정한 후 바꾸어야함
-        message.addData('type', 3);
-        message.addData('hint', pushinfo.hint);
+        message.addData('type', 6+"");
+        message.addData('mission_hint', pushinfo.mission_hint);
         sender.sendNoRetry(message, regid, function (err, result) {
           if (err) {
             console.log('err', err);
