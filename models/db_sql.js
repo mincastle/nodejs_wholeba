@@ -259,7 +259,7 @@ exports.selectUserReward =
   'select user_regid, '+
           '(select reward_cnt '+
           'from reward '+
-          'where user_no=u.user_no)as reward '+
+          'where user_no=u.user_no)as reward_cnt '+
   'from user u '+
   'where user_no=?';
 

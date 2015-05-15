@@ -562,10 +562,8 @@ function sendRewardPush(conn, data, done) {
         var regid = [rewardInfo.user_regid];
         //console.log('push data : ', data);
 
-        //todo type 정한 후 바꾸어야함
-        message.addData('type', 3);
-        message.addData('type', 3);
-        message.addData('reward', rewardInfo.reward);
+        message.addData('type', 8+"");
+        message.addData('reward_cnt', rewardInfo.reward_cnt);
         sender.sendNoRetry(message, regid, function (err, result) {
           if (err) {
             console.log('push err', err);
