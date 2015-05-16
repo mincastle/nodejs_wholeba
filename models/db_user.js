@@ -432,6 +432,46 @@ exports.logout = function (data, callback) {
 
 //회원탈퇴
 exports.withdraw = function (data, callback) {
-  var success = 1;
-  callback(success);
+  pool.getConnection(function (err, conn) {
+    if (err) {
+      callback(err);
+    } else {
+      conn.beginTransaction(function(err) {
+        if (err) {
+          conn.rollback(function () {
+            callback(err);
+          });
+        } else {
+          async.waterfall([function (done) {
+            dao.selectOtherUserNoandRegId(conn, data, done);
+          }, function (done) {
+            async.parallel([function (p_done) {
+              //dao.
+            }, function (p_done) {
+              //dao.
+            }], function (err, result) {
+
+            })
+          }], function (err, result) {
+            if (err) {
+              conn.rollback(function () {
+                callback(err);
+              });
+            } else {
+              conn.commit(function (err) {
+                if (err) {
+                  conn.rollback(function () {
+                    callback(err);
+                  });
+                } else {
+                  callback(null, result);
+                }
+              });
+            }
+          })
+        }
+        conn.release();
+      });
+    }
+  });
 };

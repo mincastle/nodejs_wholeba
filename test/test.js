@@ -4,6 +4,7 @@
 var request = require('supertest');
 //var app = require('../app');
 var expect = require('expect.js');
+var user = require('../models/db_user');
 var dday = require('../models/db_ddays');
 var moment = require('moment');
 var util = require('../util/util');
@@ -163,33 +164,33 @@ var love = require('../models/db_loves');
 //  });
 //});
 
-describe('love list', function () {
-  it('love list test', function (done) {
-    var couple_no = 4;
-    var orderby = 0;
-    var year = 2015;
-    var month = 3;
-    var data = {
-      couple_no: couple_no,
-      year: year,
-      month: month,
-      orderby: orderby
-    };
-
-    love.getlist(data, function (err, results) {
-      if (err) {
-        throw err;
-      } else {
-        //console.log('result', result);
-        util.each(results, "loves_date", util.dateFormat, function (err, result) {
-          console.log('result', result);
-        });
-        //expect(result).to.be(1);
-        done();
-      }
-    })
-  });
-});
+//describe('love list', function () {
+//  it('love list test', function (done) {
+//    var couple_no = 4;
+//    var orderby = 0;
+//    var year = 2015;
+//    var month = 3;
+//    var data = {
+//      couple_no: couple_no,
+//      year: year,
+//      month: month,
+//      orderby: orderby
+//    };
+//
+//    love.getlist(data, function (err, results) {
+//      if (err) {
+//        throw err;
+//      } else {
+//        //console.log('result', result);
+//        util.each(results, "loves_date", util.dateFormat, function (err, result) {
+//          console.log('result', result);
+//        });
+//        //expect(result).to.be(1);
+//        done();
+//      }
+//    })
+//  });
+//});
 
 //describe('util', function () {
 //  it('util test', function (done) {
@@ -221,6 +222,18 @@ describe('love list', function () {
 //  });
 //});
 
+describe('withdraw', function () {
+  it('withdraw test', function (done) {
+    var data = {
+      user_no : 58,
+      couple_no: 11
+    };
+    user.withdraw(data, function (err, result) {
+      console.log('result', result);
+      done();
+    })
+  });
+});
 
 
 

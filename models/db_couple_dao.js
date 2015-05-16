@@ -123,10 +123,10 @@ function mycondition(conn, data, done) {
       done(err);
     } else {
       console.log('row', row);
-      if(!row.affectedRows==1){
-        done('내 기분 업데이트를 실패했습니다.');
-      } else {
+      if(row.affectedRows == 1){
         done(null, row.changedRows);
+      } else {
+        done('내 기분 업데이트를 실패했습니다.');
       }
     }
   });

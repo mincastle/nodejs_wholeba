@@ -31,30 +31,30 @@ function insertReward(conn, arg2, done) {
   });
 
 }
-
-//자동로그인
-function isAutoLogin(data, done) {
-  pool.getConnection(function (err, conn) {
-    if (err) {
-      done(err, null);
-    } else {
-      var params = [data.user_no, data.user_phone];
-      console.log('params', params);
-      conn.query(sql.selectAutologin, params, function (err, row) {
-        if (err) {
-          done(err, null);
-        } else {
-          if (!row[0] || row[0].cnt == 0) {
-            done('로그인 정보가 변경되었습니다.', null);
-          } else {
-            done(null, row[0]);
-          }
-        }
-        conn.release();
-      });
-    }
-  });
-};
+//
+////자동로그인
+//function isAutoLogin(data, done) {
+//  pool.getConnection(function (err, conn) {
+//    if (err) {
+//      done(err, null);
+//    } else {
+//      var params = [data.user_no, data.user_phone];
+//      console.log('params', params);
+//      conn.query(sql.selectAutologin, params, function (err, row) {
+//        if (err) {
+//          done(err, null);
+//        } else {
+//          if (!row[0] || row[0].cnt == 0) {
+//            done('로그인 정보가 변경되었습니다.', null);
+//          } else {
+//            done(null, row[0]);
+//          }
+//        }
+//        conn.release();
+//      });
+//    }
+//  });
+//};
 
 //입력받은 user_id가 중복된 값인지 아닌지 확인
 function checkUserId(conn, data, done) {
@@ -552,8 +552,10 @@ function insertPeri(conn, params, done) {
 
 //insert 생리증후군
 function insertSyndromes(conn, syndromes, done) {
+  console.log('syndromeasdasdasd', syndromes);
   var user_no = syndromes.user_no;
   var syndromes = syndromes.items;
+  console.log('dasdasdsyndrome', syndromes);
   var length = syndromes.length;
   var params = [];
   console.log('length', length);
@@ -646,11 +648,30 @@ function selectUserGender(conn, result, done) {
       }
     }
   });
-
 }
 
+
+//회원 탈퇴, 상대방 user_no, user_regid가져오기
+function selectOtherUserNoandRegId (conn, data, done) {
+  var datas = [data.couple_no, data.user_no];
+  console.log('datas', datas);
+  conn.query(sql.selectOtherUserNoandRegId, datas, function (err, row) {
+    if (err) {
+      done(err);
+    } else {
+      if(row) {
+        done(null, row[0]);
+      } else {
+        done('상대방 user_no, user_regid 조회 실패');
+      }
+    }
+  });
+}
+
+
 //자동로그인 (/autologin)
-exports.isAutoLogin = isAutoLogin;
+//exports.isAutoLogin = isAutoLogin;
+
 
 //회원가입 (/join)
 exports.checkUserId = checkUserId;
@@ -684,4 +705,8 @@ exports.insertPeri = insertPeri; //private
 exports.insertSyndromes = insertSyndromes;
 exports.insertSyn = insertSyn; //private
 
+// 공통정보등록, 여성정보등록 후 추가 정보 등록 완료
 exports.updateUserAddition = updateUserAddition;
+
+// 회원탈퇴
+exports.selectOtherUserNoandRegId = selectOtherUserNoandRegId;

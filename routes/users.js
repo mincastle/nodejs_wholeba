@@ -12,41 +12,41 @@ var success_json = {
   "result": {}
 };
 
-
-/*
- 자동 로그인 {user_no, user_phone}
- 1. 클라이언트의 sharedPreference에 저장되어있는 값인 user_no값과 접속한 폰번호 값을 받아온다.
- 2. user_no값이 존재하는지 여부 확인
- 2.1 값이 존재한다면 해당 user_phone의 값과 parameter user_phone의 값과 비교한다.
- 2.1.1 값이 같다면 자동 로그인 성공(end)
- 2.1.2 값이 다르다면 자동 로그인 실패(end)
- 2.2 값이 존재하지 않는다면 자동 로그인 실패(end)
-
- 실패 시 : 회원가입, 로그인이 있는 페이지로 이동
- */
-
-router.post('/autologin', function (req, res, next) {
-  var bodydata = req.body;  // req.body -> req.body.data로 변경 대비
-
-  var user_no = bodydata.user_no;
-  var user_phone = bodydata.user_phone;
-
-  var data = {user_no: user_no, user_phone: user_phone};
-  db_user.autologin(data, function (err, result) {
-    if (err) {
-      console.error('err', err);
-      fail_json.result.message = err;
-      console.log('fail_json', fail_json);
-      res.json(fail_json);
-    } else {
-      success_json.result.message = "자동로그인 성공";
-      success_json.result.items = result;
-      req.session.user_no = user_no;
-      req.session.couple_no = result.couple_no;
-      res.json(success_json);
-    }
-  })
-});
+//
+///*
+// 자동 로그인 {user_no, user_phone}
+// 1. 클라이언트의 sharedPreference에 저장되어있는 값인 user_no값과 접속한 폰번호 값을 받아온다.
+// 2. user_no값이 존재하는지 여부 확인
+// 2.1 값이 존재한다면 해당 user_phone의 값과 parameter user_phone의 값과 비교한다.
+// 2.1.1 값이 같다면 자동 로그인 성공(end)
+// 2.1.2 값이 다르다면 자동 로그인 실패(end)
+// 2.2 값이 존재하지 않는다면 자동 로그인 실패(end)
+//
+// 실패 시 : 회원가입, 로그인이 있는 페이지로 이동
+// */
+//
+//router.post('/autologin', function (req, res, next) {
+//  var bodydata = req.body;  // req.body -> req.body.data로 변경 대비
+//
+//  var user_no = bodydata.user_no;
+//  var user_phone = bodydata.user_phone;
+//
+//  var data = {user_no: user_no, user_phone: user_phone};
+//  db_user.autologin(data, function (err, result) {
+//    if (err) {
+//      console.error('err', err);
+//      fail_json.result.message = err;
+//      console.log('fail_json', fail_json);
+//      res.json(fail_json);
+//    } else {
+//      success_json.result.message = "자동로그인 성공";
+//      success_json.result.items = result;
+//      req.session.user_no = user_no;
+//      req.session.couple_no = result.couple_no;
+//      res.json(success_json);
+//    }
+//  })
+//});
 
 
 //회원가입
@@ -177,7 +177,7 @@ router.post('/woman', function (req, res, next) {
   var period_end = bodydata.period_end;
   var period_cycle = bodydata.period_cycle;
   //todo 객체의 배열 받는 법?
-  var syndromes = bodydata.syndromes; //객체의 배열
+  //var syndromes = bodydata.syndromes; //객체의 배열
   var user_pills = bodydata.user_pills; //현재에 약을 먹는지 안먹는지
   var pills_date = bodydata.pills_date;
   var pills_time = bodydata.pills_time;
@@ -187,25 +187,16 @@ router.post('/woman', function (req, res, next) {
     "period_end": period_end,
     "period_cycle": period_cycle
   };
-  //syndromes = {
-  //  "user_no": user_no,
-  //  "items": [{
-  //              "syndrome_no": 1,
-  //              "syndrome_before": 1,
-  //              "syndrome_after": 0},
-  //            {
-  //              "syndrome_no": 2,
-  //              "syndrome_before": 1,
-  //              "syndrome_after": 1
-  //            },
-  //            {
-  //              "syndrome_no": 3,
-  //              "syndrome_before": 2,
-  //              "syndrome_after": 2
-  //            }]
-  //};
+  var reqSyndromes = bodydata.syndromes;
+  var syndromes = {
+    "user_no" : user_no,
+    "items" : reqSyndromes
+  };
+
   var pills = {"user_no": user_no, "user_pills": user_pills, "pills_date": pills_date, "pills_time": pills_time};
 
+  console.log('period', period);
+  console.log('pills', pills);
   db_user.woman(pills, period, syndromes, function (err, result) {
     if (err) {
       fail_json.result.message = err;
@@ -233,6 +224,7 @@ router.post('/login', function (req, res, next) {
   db_user.login(data, function (err, result) {
     if (err) {
       var accept_json = {};
+      accept_json.result = {};
       if(err == 'userphone changed') {
         accept_json.success = 2;
         accept_json.result = {};
@@ -335,7 +327,13 @@ router.post('/logout', function (req, res, next) {
   }
 });
 
-//회원탈퇴
+/*
+   회원탈퇴
+   1. 상대방의 user_no, regid를 조회한다.
+   2. 그리고 자신과 상대방의 user_withdraw를 1로 업데이트한다.(탈퇴)
+   3. couple_withdraw도 1로 한다.
+   4. 상대방 regid로 탈퇴되었다고 push한다.
+ */
 router.post('/withdraw', function (req, res, next) {
   var user_no = req.session.user_no;
   //세션체크
@@ -346,14 +344,16 @@ router.post('/withdraw', function (req, res, next) {
   }
 
   var couple_no = req.session.couple_no;
-  var data = [user_no, couple_no];
+  var data = {
+    user_no :user_no,
+    couple_no : couple_no
+  };
 
   db_user.withdraw(data, function (err, result) {
-    if (success) {
-      //success_json(res, "로그아웃");
-    } else {
-      //fail_json(res, "로그아웃");
-    }
+    success_json.result = {};
+    success_json.result.message = '성공';
+    success_json.result.item = result;
+    res.json = success_json;
   });
 });
 
