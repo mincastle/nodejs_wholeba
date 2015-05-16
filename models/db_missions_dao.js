@@ -115,7 +115,7 @@ function selectRandomMission(conn, data, done) {
   }
   console.log('thmeme data : ', data);
   var result = {};
-  var param = [data.theme_no];
+  var param = [data.user_no, data.theme_no];
   //mission_no, mission_name, mission_reward, mission_expiration 조회
   conn.query(sql.selectMissionTheme, param, function (err, row) {
     if (err) {
