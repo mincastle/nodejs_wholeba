@@ -8,6 +8,7 @@ var mysql = require('mysql');
 var session = require('express-session');  //session
 var redis = require('redis'); // redis
 var RedisStore = require('connect-redis')(session); // session을 redis에 저장하여 세션을 유지시킨다.
+var fs = require('fs');
 var client = redis.createClient();
 
 var routes = require('./routes/index');
@@ -60,7 +61,6 @@ app.use(session({
 //  resave: false
 //}));
 app.use(function (req, res, next) {
-  console.log('1', 1);
   if (!req.session) {
     return next('oh no'); // handle error
   }
@@ -111,10 +111,23 @@ app.use(function(err, req, res, next) {
 });
 
 var http = require('http');
+var https = require('https');
+
+var httpsOptions = {
+  key: fs.readFileSync('./key.pem', 'utf-8'), // key.pem을 utf-8로 읽는다.
+  cert: fs.readFileSync('./server.crt', 'utf-8') // server.crt 파일을 utf-8로 읽는다.
+};
+
 var server = http.createServer(app);
+var https_server = https.createServer(httpsOptions, app);
 var port = 80;
-server.listen(port);
-console.log('서버가 ' + port + '에서 실행중입니다!');
+var https_port = 443;
+server.listen(port, function () {
+  console.log('http 서버가 ' + port + '에서 실행중입니다!');
+});
+https_server.listen(https_port, function () {
+  console.log('https 서버가 ' + https_port + '에서 실행중입니다!');
+});
 
 var mariadb = require('./models/db_config');
 mysql.createConnection(mariadb).connect(function (err) {
