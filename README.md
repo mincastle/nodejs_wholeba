@@ -10,26 +10,26 @@
 - DataStores - MariaDB(MySQL OpenSource), MongoDB, Redis
 
 ## REST API 
-> REST API Definition  (25 completed / 6 Incompleted / 31 total)
+> REST API Definition  (26 completed / 5 Incompleted / 31 total)
 
 | Feature |	Method	| Request URL | Todo Status | Date  |
 | :---------- |	:-------:	| :-----------------| :--------: | :--------: |
-| 회원가입 |	POST	| /users/join | complete |   |
-| 가입정보 조회 |	GET	| /users/join | complete |   |
-| 커플 요청 |	POST	| /couple/ask | complete |   |
-| 커플 승인 |	POST	| /couple/answer | complete |   |
+| 회원가입 |	POST	| /users/join | complete | 2015-04-28  |
+| 가입정보 조회 |	GET	| /users/join | complete | 2015-05-07  |
+| 커플 요청 |	POST	| /couple/ask | complete | 2015-05-06  |
+| 커플 승인 |	POST	| /couple/answer | complete | 2015-05-06  |
 | 공통정보 등록 |	POST	| /users/common | complete | 2015-05-08 |
 | 여성정보 등록 |	POST	| /users/woman | complete | 2015-05-08 |
-| 로그인 |	POST	| /users/login | complete |   |
-| 중복로그인 수락 | POST | /users/acceptlogin | complete |   |
-| 커플정보 조회 |	GET	| /couple | complete |   |
+| 로그인 |	POST	| /users/login | complete | 2015-05-09  |
+| 중복로그인 수락 | POST | /users/acceptlogin | complete | 2015-05-10  |
+| 커플정보 조회 |	GET	| /couple | complete | 2015-05-10  |
 | 내기분 설정 |	POST	| /couple/mycondition | complete | 2015-05-11 |
 | 아이템 목록 조회 |	GET	| /items/buyinfo | complete | 2015-05-14  |
 | D-day 목록 조회 |	GET	| /ddays | complete | 2015-05-12 |
 | D-day 생성 |	POST	| /ddays/add | complete | 2015-05-12 |
 | D-day 수정 |	POST	| /ddays/:dday_no/modify | complete | 2015-05-12 |
 | D-day 삭제 |	POST	| /ddays/:dday_no/delete | complete | 2015-05-12 |
-| Love 목록 조회 |	GET	| /loves/:year/:month/:orderby | 2015-05-14 |   |
+| Love 목록 조회 |	GET	| /loves/:year/:month/:orderby | complete | 2015-05-14 |
 | Love 생성 |	POST	| /loves/add | complete | 2015-05-13  |
 | Love 수정 |	POST	| /loves/:relation_no/modify | complete | 2015-05-13 |
 | Love 삭제 |	POST	| /loves/:relation_no/delete | complete | 2015-05-13 |
@@ -44,4 +44,4 @@
 | 주기수정 |	POST	| /setting/herself/:period_no | Incomplete |   |
 | 공지사항 조회 |	GET	| /setting/notice | Incomplete |   |
 | 로그아웃 |	POST	| /users/logout | complete | 2015-05-07  |
-| 회원탈퇴 |	POST	| /users/withdraw | Incomplete |   |
+| 회원탈퇴 |	POST	| /users/withdraw | complete | 2015-05-16  |
