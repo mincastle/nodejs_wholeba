@@ -322,9 +322,20 @@ exports.selectItems =
   'select item_no, item_name, item_exchange '+
   'from item';
 
-//아이템사용여부조회
+//아이템사용시, 미션의 아이템사용여부조회
 exports.selectMissionUseItem =
   'select itemlist_no, count(item_usemission) as cnt '+
   'from itemlist '+
   'where user_no=? '+
   'and item_usemission=?';
+
+//아이템사용시, 아이템 교환칩갯수 조회
+exports.selectItemExchange =
+  'select item_exchange '+
+  'from item '+
+  'where item_no=?';
+
+//아이템사용시, insert itemlist
+exports.insertItemlist =
+  'insert into itemlist(user_no, item_no) '+
+  'values(?, ?)';
