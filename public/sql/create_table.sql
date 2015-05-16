@@ -25,7 +25,7 @@ create table user(
 	user_gender char(1) comment'성별',
 	user_birth date comment'생일',
 	user_req int comment'커플요청자여부',
-	user_regdate date not null comment '회원 가입일',
+	user_regdate datetime not null comment '회원 가입일',
 	user_addition int not null default 0 comment'추가정보입력여부',
 	feel_no int not null default 1 comment '내기분',
 	user_level int not null default 1 comment'레벨',
@@ -78,7 +78,7 @@ create table synlist(
 create table reward(
 	reward_no int not null auto_increment comment'리워드번호',
 	user_no int not null comment'사용자번호',
-	reward_cnt int not null default 0 comment'리워드갯수',
+	reward_cnt int unsigned not null default 0 comment'리워드갯수',
 	primary key(reward_no),
 	foreign key(user_no) references user(user_no)
 );
