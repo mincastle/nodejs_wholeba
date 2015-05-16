@@ -123,6 +123,7 @@ create table item(
 	item_no int not null auto_increment comment'아이템번호',
 	item_name varchar(30) unique not null comment'아이템이름',
 	item_exchange int not null comment'필요칩갯수',
+	item_hintchanged int not null default 0 comment'아이템사용시, 힌트변경여부',
 	primary key(item_no)
 );
 

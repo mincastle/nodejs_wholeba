@@ -8,8 +8,6 @@ var async = require('async');
 var gcm = require('node-gcm');
 var commonDao = require('./db_common_dao');
 var pool = mysql.createPool(db_config);
-//gcm sender
-var sender = new gcm.Sender('AIzaSyBtz1plKo81Edizatu0vhhl9trNiFwtGb8'); //server api key
 
 //미션목록조회
 //date = '2015-3-1'
@@ -209,7 +207,7 @@ function sendCreateMissionPush(conn, data, done) {
         message.addData('mission_name', allData.mission.mlist_name);
         message.addData('mlist_regdate', allData.mission.mlist_regdate);
         message.addData('theme_no', allData.mission.theme_no);
-        sender.sendNoRetry(message, regid, function (err, result) {
+        commonDao.getSender().sendNoRetry(message, regid, function (err, result) {
           if (err) {
             console.log('err', err);
             done(err);
@@ -391,7 +389,7 @@ function sendMissionConfirmPush(conn, data, done) {
 
         message.addData('type', 6+"");
         message.addData('mission_hint', pushinfo.mission_hint);
-        sender.sendNoRetry(message, regid, function (err, result) {
+        commonDao.getSender().sendNoRetry(message, regid, function (err, result) {
           if (err) {
             console.log('err', err);
             done(err);
