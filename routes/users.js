@@ -20,12 +20,19 @@ router.post('/join', function (req, res, next) {
   var user_pw = bodydata.user_pw;
   var user_phone = bodydata.user_phone;
   var user_regid = bodydata.user_regid;
+  var user_regdate = bodydata.user_regdate;
 
   if (!user_regid) {
     next(new Error('reg_id 입력이 안되었습니다.'));
   }
 
-  var data = {"user_id": user_id, "user_pw": user_pw, "user_phone": user_phone, "user_regid": user_regid};
+  var data = {
+    "user_id": user_id,
+    "user_pw": user_pw,
+    "user_phone": user_phone,
+    "user_regid": user_regid,
+    "user_regdate" : user_regdate
+  };
   console.log('data', data);
 
   db_user.join(data, function (err, result) {

@@ -32,7 +32,7 @@ create table user(
 	user_public int comment'여성일경우 정보공개여부',
 	user_pills int comment'여성일경우 피임약복용여부',
 	user_islogin int not null default 1 comment '현재 접속여부',
-	user_withdraw int not null default 0 comment '회원탈퇴여부'
+	user_withdraw int not null default 0 comment '회원탈퇴여부',
 	primary key(user_no),
 	foreign key(couple_no) references couple(couple_no),
 	foreign key(feel_no) references feel(feel_no)

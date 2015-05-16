@@ -8,7 +8,7 @@
 exports.selectUserId = 'select count(*) as cnt from user where user_id=?';
 
 //회원가입시, 사용자 생성
-exports.insertUser = 'insert into user(user_id, user_pw, user_phone, user_regid) values(?, ?, ?, ?)';
+exports.insertUser = 'insert into user(user_id, user_pw, user_phone, user_regid, user_regdate) values(?, ?, ?, ?, ?)';
 
 //회원가입시, 사용자의 리워드 행 생성
 exports.insertReward = 'insert into reward(user_no) values(?);';

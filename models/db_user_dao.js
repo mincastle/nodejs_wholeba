@@ -189,7 +189,7 @@ function insertUser(conn, data, arg1, done) {
     return;
   }
   if (arg1.cnt == 0) {
-    var params = [data.user_id, data.user_pw, data.user_phone, data.user_regid];
+    var params = [data.user_id, data.user_pw, data.user_phone, data.user_regid, data.user_regdate];
     conn.query(sql.insertUser, params, function (err, row) {
       if (err) {
         done(err, null);
