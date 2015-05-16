@@ -73,6 +73,13 @@ insert into mission(mission_name, mission_expiration, mission_hint, theme_no) va
 insert into mission(mission_name, mission_expiration, mission_hint, theme_no) values ('살포시 백허그 하기',10 , '뒤',(select theme_no from theme where theme_name='천사'));
 insert into mission(mission_name, mission_expiration, mission_hint, theme_no) values ('새치 뽑아주기',10 , '머리카락',(select theme_no from theme where theme_name='천사'));
 
+//기분
+insert into feel(feel_name) values ('보통');
+insert into feel(feel_name) values ('화가난다');
+insert into feel(feel_name) values ('마이아파');
+insert into feel(feel_name) values ('음흉음흉');
+insert into feel(feel_name) values ('기분좋아');
+
 //아이템
 insert into item(item_name, item_exchange) values('미션다시뽑기',1);
 insert into item(item_name, item_exchange) values('미션 유효기간 늘리기',1);

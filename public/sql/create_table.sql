@@ -25,12 +25,14 @@ create table user(
 	user_gender char(1) comment'성별',
 	user_birth date comment'생일',
 	user_req int comment'커플요청자여부',
+	user_regdate date not null comment '회원 가입일',
 	user_addition int not null default 0 comment'추가정보입력여부',
-	feel_no int comment'내기분',
+	feel_no int not null default 1 comment '내기분',
 	user_level int not null default 1 comment'레벨',
 	user_public int comment'여성일경우 정보공개여부',
 	user_pills int comment'여성일경우 피임약복용여부',
 	user_islogin int not null default 1 comment '현재 접속여부',
+	user_withdraw int not null default 0 comment '회원탈퇴여부'
 	primary key(user_no),
 	foreign key(couple_no) references couple(couple_no),
 	foreign key(feel_no) references feel(feel_no)
