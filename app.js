@@ -4,10 +4,11 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var mysql = require('mysql');
 var session = require('express-session');  //session
 var redis = require('redis'); // redis
-var redisStore = require('connect-redis')(session); // session을 redis에 저장하여 세션을 유지시킨다.
-
+var RedisStore = require('connect-redis')(session); // session을 redis에 저장하여 세션을 유지시킨다.
+var client = redis.createClient();
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -17,11 +18,9 @@ var loves = require('./routes/loves');
 var missions = require('./routes/missions');
 var items = require('./routes/items');
 var setting = require('./routes/setting');
-var mysql = require('mysql');
 
 var test = require('./test/post_test');
 
-//var client = redis.createClient();
 var app = express();
 
 // view engine setup
@@ -36,21 +35,37 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'user_public')));
 
-//session
-app.use(session({
-  secret: 'keyboard cat',
-  resave: false
-}));
+/*
+ {
+ "host": "127.0.0.1",
+ "port": 6379,
+ "ttl" : 6000,
+ "db" : 6
+ }
+ */
+var options = require('./models/db_redisconfig');
+
+options.client = client;
 
 // redis-session
-//app.use(session(
-//  {
-//    secret: 'keyboard cat',
-//    store: new redisStore({ host: "127.0.0.1", port: 6379, client: client }),
-//    saveUninitialized: false, // don't create session until something stored,
-//    resave: false // don't save session if unmodified
-//  }
-//));
+app.use(session({
+  secret: 'keyboard cat',
+  store: new RedisStore(options),
+  saveUninitialized: false, // don't create session until something stored,
+  resave: false // don't save session if unmodified
+}));
+//session
+//app.use(session({
+//  secret: 'keyboard cat',
+//  resave: false
+//}));
+app.use(function (req, res, next) {
+  console.log('1', 1);
+  if (!req.session) {
+    return next('oh no'); // handle error
+  }
+  next();
+});
 
 
 app.use('/', routes);
@@ -77,10 +92,11 @@ app.use(function(req, res, next) {
 if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: err
-    });
+    //res.render('error', {
+    //  message: err.message,
+    //  error: err
+    //});
+    res.json({"result" : err});
   });
 }
 
