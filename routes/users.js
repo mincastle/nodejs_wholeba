@@ -350,10 +350,16 @@ router.post('/withdraw', function (req, res, next) {
   };
 
   db_user.withdraw(data, function (err, result) {
-    success_json.result = {};
-    success_json.result.message = '성공';
-    success_json.result.item = result;
-    res.json = success_json;
+    if (err) {
+      fail_json.result.message = "회원탈퇴 실패";
+      res.json(fail_json);
+    } else {
+      success_json.result = {};
+      success_json.result.message = '회원탈퇴 성공';
+      success_json.result.data = result;
+      // TODO : 상대방에게 push 보내기
+      res.json = success_json;
+    }
   });
 });
 

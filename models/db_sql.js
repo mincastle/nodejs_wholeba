@@ -73,8 +73,14 @@ exports.insertSyndrome = 'insert into synlist(user_no, syndrome_no, syndrome_bef
 //추가정보입력 후, user_addition 업데이트
 exports.updateUserAddition = 'update user set user_addition=1 where user_no=?';
 
-//회원탈퇴를 위한 상대방 user_no, reg_id 가져오기
-exports.selectOtherUserNoandRegId = 'select user_no as other_no, user_regid as other_regid from user where couple_no=? and user_no <> ?';
+//회원탈퇴를 위한 상대방 reg_id 가져오기
+exports.selectOtherRegId = 'select user_regid as other_regid from user where couple_no=? and user_no <> ?';
+
+//회원탈퇴를 위해서 couple_no의 유저들 회원탈퇴 여부 수정
+exports.updateUserWithdraw = 'update user set user_withdraw=1 where couple_no=?';
+
+//회원탈퇴를 위해서 couple의 회원탈퇴 여부 수정
+exports.updateCoupleWithdraw = 'update couple set couple_withdraw=1 where couple_no=?';
 
 //****************************** COUPLE ************************************//
 

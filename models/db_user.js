@@ -443,16 +443,20 @@ exports.withdraw = function (data, callback) {
           });
         } else {
           async.waterfall([function (done) {
-            dao.selectOtherUserNoandRegId(conn, data, done);
+            dao.selectOtherRegId(conn, data, done);
           }, function (done) {
             async.parallel([function (p_done) {
-              //dao.
+              dao.updateUserWithdraw (conn, data, p_done);
             }, function (p_done) {
-              //dao.
-            }], function (err, result) {
-
-            })
-          }], function (err, result) {
+              dao.updateCoupleWithdraw (conn, data, p_done);
+            }], function (err) {
+              if (err) {
+                done(err);
+              } else {
+                done(null);
+              }
+            });
+          }], function (err) {
             if (err) {
               conn.rollback(function () {
                 callback(err);
@@ -464,7 +468,7 @@ exports.withdraw = function (data, callback) {
                     callback(err);
                   });
                 } else {
-                  callback(null, result);
+                  callback(null, data);
                 }
               });
             }
