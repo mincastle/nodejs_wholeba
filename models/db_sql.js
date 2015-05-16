@@ -73,6 +73,9 @@ exports.insertSyndrome = 'insert into synlist(user_no, syndrome_no, syndrome_bef
 //추가정보입력 후, user_addition 업데이트
 exports.updateUserAddition = 'update user set user_addition=1 where user_no=?';
 
+//회원탈퇴를 위한 상대방 user_no, reg_id 가져오기
+exports.selectOtherUserNoandRegId = 'select user_no as other_no, user_regid as other_regid from user where couple_no=? and user_no <> ?';
+
 //****************************** COUPLE ************************************//
 
 //커플 요청 시, couple 생성
@@ -96,11 +99,11 @@ exports.updateUserCoupleNoandGenderandUserReq = 'update user set couple_no=?, us
 exports.selectCoupleInfo =
   'select (select user_no from user a where a.user_gender=u.user_gender and a.couple_no=u.couple_no) m_userno, ' +
   //'       (select user_level from user a where a.user_gender=u.user_gender and a.couple_no=u.couple_no) m_level, ' +
-  '       (select (select feel_name from feel f where f.feel_no=a.feel_no) from user a where a.user_gender=u.user_gender and a.couple_no=u.couple_no) m_condition, ' +
+  '       (select feel_no from user a where a.user_gender=u.user_gender and a.couple_no=u.couple_no) m_condition, ' +
   '	      (select reward_cnt from reward r where user_no=(select user_no from user a where a.user_gender=u.user_gender and a.couple_no=u.couple_no and a.user_no=r.user_no)) m_reward, ' +
   '       (select user_no from user a where user_gender="F" and a.couple_no=u.couple_no) f_userno, ' +
   //'       (select user_level from user a where user_gender="F" and a.couple_no=u.couple_no) f_level, ' +
-  '       (select (select feel_name from feel f where f.feel_no=a.feel_no) from user a where user_gender="F" and a.couple_no=u.couple_no) f_condition, ' +
+  '       (select feel_no from user a where user_gender="F" and a.couple_no=u.couple_no) f_condition, ' +
   '	      (select reward_cnt from reward r where user_no=(select user_no from user a where a.user_gender="F" and a.couple_no=u.couple_no and a.user_no=r.user_no)) f_reward, ' +
   '       (select couple_condom from couple c where c.couple_no=u.couple_no) couple_condom, ' +
   '       (select couple_birth from couple c where c.couple_no=u.couple_no) couple_birth ' +
