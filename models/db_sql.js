@@ -201,7 +201,16 @@ exports.deleteLoves = 'update loves set loves_delete = 1 where couple_no=? and l
 //****************************** MISSION ************************************//
 
 //미션 생성시, 테마에 따라 랜덤으로 1개 미션 조회
-exports.selectMissionTheme = 'select mission_no, mission_name, mission_reward, mission_expiration from mission where theme_no=? order by rand() limit 1';
+//사용자가 옛날에 수행했던 미션 제외
+exports.selectMissionTheme =
+  'select mission_no, mission_name, mission_reward, mission_expiration '+
+  'from mission m '+
+  'where not(m.mission_no in '+
+                              '(select mlist.mission_no '+
+                              'from missionlist mlist '+
+                              'where user_no=?)) '+
+  'and theme_no=? '+
+  'order by rand() limit 1';
 
 //미션 생성시, 미션 수행할 유저와 그 유저가 가진 진행중인 미션갯수
 exports.selectMissionPartner = 'select user_no as partner_no, user_regid as partner_regid, (select count(mlist_no) from missionlist where user_no=partner_no and ((mlist_state=2) or (mlist_state=3))) as mlist_cnt from user where couple_no=? and not(user_no=?)';
