@@ -89,7 +89,8 @@ router.get('/join', function (req, res, next) {
           "join_code": result.join_code,
           "partner_phone": result.phone,
           "user_gender": result.user_gender,
-          "user_req": result.user_req
+          "user_req": result.user_req,
+          "user_regdate" : result.user_regdate
         };
         console.log('join_get', success_json);
         res.json(success_json);
