@@ -110,6 +110,10 @@ router.post('/add', function (req, res, next) {
     fail_json.result.message = "세션정보 없음";
     res.json(fail_json);
     return;
+  } else if(!couple_no) {
+    fail_json.result.message = "커플세션정보 없음";
+    res.json(fail_json);
+    return;
   }
 
   db_missions.add(data, function(err) {

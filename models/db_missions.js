@@ -2,6 +2,7 @@ var mysql = require('mysql');
 var db_config = require('./db_config');
 var dao = require('./db_missions_dao');
 var async = require('async');
+var commonDao = require('./db_common_dao');
 
 var pool = mysql.createPool(db_config);
 
@@ -87,7 +88,7 @@ exports.add = function (data, callback) {
               },
               function(arg2, done) {
                 //reward 차감
-                dao.updateUserReward(conn, arg2, -1, done);
+                commonDao.updateUserReward(conn, arg2, -1, done);
               },
               function(arg3, done) {
                 //push

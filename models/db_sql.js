@@ -232,7 +232,13 @@ exports.selectOneMission =
 exports.updateUserReward = 'update reward set reward_cnt=reward_cnt + ? where user_no=?';
 
 //진행중인 미션조회
-exports.selectRunningMission = 'select mlist_no, (select theme_no from mission m where m.mission_no=mlist.mission_no) as theme_no, mlist_name from missionlist mlist where user_no=? and mlist_state=3';
+exports.selectRunningMission =
+  'select mlist_no, '+
+          '(select theme_no '+
+          'from mission m '+
+          'where m.mission_no=mlist.mission_no) as theme_no'+
+  ', mlist_name '+
+  'from missionlist mlist '+'where user_no=? and mlist_state=3';
 
 //미션 확인시, mission_expiration 조회
 exports.selectMissionExpiration = 'select mission_expiration from mission where mission_no=(select mission_no from missionlist where mlist_no=?)';
@@ -348,3 +354,15 @@ exports.selectItemExchange =
 exports.insertItemlist =
   'insert into itemlist(user_no, item_no) '+
   'values(?, ?)';
+
+//아이템 사용시, 바꿀 미션 조회
+exports.selectAnotherMission =
+  'select mission_no, mission_name, mission_reward, mission_expiration, '+
+          '(select mlist_confirmdate from missionlist where mlist_no=?) mlist_confirmdate'+
+  'from mission m '+
+  'where not(m.mission_no in '+
+                              '(select mlist.mission_no '+
+                              'from missionlist mlist '+
+                              'where user_no=?)) '+
+  'and theme_no=? '+
+  'order by rand() limit 1';
