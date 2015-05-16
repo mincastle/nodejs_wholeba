@@ -40,42 +40,28 @@ router.get('/', function (req, res, next) {
   });
 });
 
-//아이템구매
-router.post('/:item_no/buy', function (req, res, next) {
-  var user_no = req.session.user_no | -1;
-  var item_no = req.params.item_no;
-  var data = [user_no, item_no];
 
-  db_items.buy(data, function (err, result) {
-    if(err) {
-      fail_json.result = {};
-      fail_json.result.message = '아이템 사용 실패';
-      res.json(fail_json);
-    } else if(result) {
-      success_json.result = {};
-      success_json.result.message = '아이템 사용 성공';
-      res.json(success_json);
-    } else {
-      fail_json.result = {};
-      fail_json.result.message = '아이템 사용 실패';
-      res.json(fail_json);
-    }
-  });
-});
-
-
-
-//보유아이템사용
-router.post('/:item_no/apply/:mlist_no', function (req, res, next) {
-  var user_no = req.session.user_no | -1;
+//아이템사용
+router.post('/:item_no/use/:mlist_no', function (req, res, next) {
+  var bodydata = req.body;
+  var user_no = req.session.user_no;
   var item_no = req.params.item_no;
   var mlist_no = req.params.mlist_no;
-  var data = [user_no, item_no, mlist_no];
+  var mission_name = bodydata.mission_name;
+  var item_usedate = bodydata.item_usedate;
+  var data = {"user_no" : user_no, "item_no" : item_no, "item_usedate" : item_usedate,
+    "mlist_no" : mlist_no, "mission_name" : mission_name};
 
-  db_items.apply(data, function (err, result) {
+  //세션체크
+  if(!user_no) {
+    fail_json.result.message = '세션정보 없음';
+    res.json(fail_json);
+  }
+
+  db_items.use(data, function (err, result) {
     if(err) {
       fail_json.result = {};
-      fail_json.result.message = '아이템 사용 실패';
+      fail_json.result.message = err;
       res.json(fail_json);
     } else if(result) {
       success_json.result = {};
@@ -88,6 +74,34 @@ router.post('/:item_no/apply/:mlist_no', function (req, res, next) {
     }
   });
 });
+
+
+//아이템구매
+//추후 구현 예정
+//router.post('/:item_no/buy', function (req, res, next) {
+//  var user_no = req.session.user_no;
+//  var item_no = req.params.item_no;
+//  var data = {"user_no" : user_no, "item_no" : item_no};
+//
+//  db_items.buy(data, function (err, result) {
+//    if(err) {
+//      fail_json.result = {};
+//      fail_json.result.message = '아이템 사용 실패';
+//      res.json(fail_json);
+//    } else if(result) {
+//      success_json.result = {};
+//      success_json.result.message = '아이템 사용 성공';
+//      res.json(success_json);
+//    } else {
+//      fail_json.result = {};
+//      fail_json.result.message = '아이템 사용 실패';
+//      res.json(fail_json);
+//    }
+//  });
+//});
+
+
+
 
 /*
  보유아이템조회
