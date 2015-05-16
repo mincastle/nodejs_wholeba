@@ -651,16 +651,17 @@ function selectUserGender(conn, result, done) {
 }
 
 
-//회원 탈퇴, 상대방 user_no, user_regid가져오기
-function selectOtherUserNoandRegId (conn, data, done) {
+//회원 탈퇴, 상대방 user_regid가져오기
+function selectOtherRegId (conn, data, done) {
   var datas = [data.couple_no, data.user_no];
-  console.log('datas', datas);
-  conn.query(sql.selectOtherUserNoandRegId, datas, function (err, row) {
+  conn.query(sql.selectOtherRegId, datas, function (err, row) {
     if (err) {
       done(err);
     } else {
       if(row) {
-        done(null, row[0]);
+        data.other_regid = row[0].other_regid;
+        console.log('data', data);
+        done(null);
       } else {
         done('상대방 user_no, user_regid 조회 실패');
       }
@@ -668,6 +669,41 @@ function selectOtherUserNoandRegId (conn, data, done) {
   });
 }
 
+function updateUserWithdraw (conn, data, done) {
+  var datas = [data.couple_no];
+
+  conn.query(sql.updateUserWithdraw, datas, function (err, row) {
+    if (err) {
+      done(err);
+    } else {
+      if (row.affectedRows == 2) {
+        done(null);
+      } else {
+        done('user 탈퇴 실패하였습니다.');
+      }
+    }
+  });
+}
+
+function updateCoupleWithdraw (conn, data, done) {
+  var datas = [data.couple_no];
+
+  console.log('couple_withdraw', datas);
+  conn.query(sql.updateCoupleWithdraw, datas, function (err, row) {
+    if (err) {
+      done(err);
+    } else {
+      console.log('couple_withdraw_row', row);
+      if (row.affectedRows == 1) {
+        done(null, data);
+      } else {
+        done('couple 탈퇴 실패하였습니다.');
+      }
+    }
+  });
+}
+
+/* --------------------------- exports --------------------------- */
 
 //자동로그인 (/autologin)
 //exports.isAutoLogin = isAutoLogin;
@@ -709,4 +745,6 @@ exports.insertSyn = insertSyn; //private
 exports.updateUserAddition = updateUserAddition;
 
 // 회원탈퇴
-exports.selectOtherUserNoandRegId = selectOtherUserNoandRegId;
+exports.selectOtherRegId = selectOtherRegId;
+exports.updateUserWithdraw = updateUserWithdraw;
+exports.updateCoupleWithdraw = updateCoupleWithdraw;
