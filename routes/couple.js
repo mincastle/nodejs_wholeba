@@ -87,6 +87,7 @@ router.post('/answer', function (req, res, next) {
         "user_gender" : result.other_gender,
         "user_req" :  result.user_req
       };
+      req.session.couple_no = result.couple_no;
       res.json(success_json);
     }
   });
