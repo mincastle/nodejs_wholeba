@@ -46,9 +46,7 @@ router.post('/join', function (req, res, next) {
         success_json.result = {};
         success_json.result.message = "회원가입 성공";
         success_json.result.user_no = result.user_no;
-        //TODO : session user_no, couple_no 저장
         req.session.user_no = result.user_no;
-        console.log('join_post', success_json);
         res.json(success_json);
       } else {
         res.json(fail_json);

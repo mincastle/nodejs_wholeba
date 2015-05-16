@@ -20,6 +20,7 @@ create table user(
 	couple_no int comment'커플번호',
 	user_id varchar(30) not null unique comment'아이디(이메일)',
 	user_pw varchar(48) not null comment'비밀번호',
+	user_salt varchar(13) not null comment 'pbkdf2 암호화',
 	user_regid varchar(50) not null comment 'GCM ID',
 	user_phone char(13) not null comment'휴대폰번호',
 	user_gender char(1) comment'성별',

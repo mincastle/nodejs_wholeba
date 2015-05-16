@@ -6,7 +6,8 @@ var db_config = require('./db_config');
 var sql = require('./db_sql');
 var async = require('async');
 var pool = mysql.createPool(db_config);
-
+var crypto = require('crypto');
+var db_crypto = require('./db_crypto');
 
 //해당 사용자의 리워드 행 추가
 //arg2.insertId = user_no
@@ -189,16 +190,28 @@ function insertUser(conn, data, arg1, done) {
     return;
   }
   if (arg1.cnt == 0) {
-    var params = [data.user_id, data.user_pw, data.user_phone, data.user_regid, data.user_regdate];
-    conn.query(sql.insertUser, params, function (err, row) {
+    var salt = "" + Math.round(new Date().valueOf() * Math.random()); // 최대 13자이다.
+
+    crypto.pbkdf2(data.user_pw, salt, db_crypto.iterations, db_crypto.keylen, function (err, derivedKey) {
       if (err) {
-        done(err, null);
+        done('암호화중 오류가 발생했습니다.');
       } else {
-        if (row) {
-          done(null, row);
-        } else {
-          done('이미 존재하는 아이디입니다.');
-        }
+
+        var cryp_pass = Buffer(derivedKey, 'binary').toString('hex');
+
+        var params = [data.user_id, cryp_pass, salt, data.user_phone, data.user_regid, data.user_regdate];
+        console.log('params', params);
+        conn.query(sql.insertUser, params, function (err, row) {
+          if (err) {
+            done(err, null);
+          } else {
+            if (row) {
+              done(null, row);
+            } else {
+              done('회원 등록 중 에러 발생했습니다.');
+            }
+          }
+        });
       }
     });
   }
@@ -307,47 +320,68 @@ function updateUserBirth(conn, data, done) {
 }
 
 //login
-function doLogin(conn, data, done) {
-  var params = [data.user_id, data.user_pw];
-  console.log('data.user_phone', data.user_phone);
-  conn.query(sql.selectLogin, params, function (err, row) {
+function selectUserSalt(conn, data, done) {
+  var datas = [data.user_id];
+  conn.query(sql.selectUserSalt, datas, function (err, row) {
     if (err) {
-      done(err, null);
+      done(err);
     } else {
-      console.log('do login : ', row[0]);
       if (row) {
-        if (row[0].cnt == 1) {
-          switch (row[0].user_islogin) {
-            case 0 : // 로그아웃 처리 되어있는 경우
-              done(null, row[0]);
-              break;
-            case 1:  // 기기에 로그인 되어있거나 강제종료 되어있는 경우
-              if (data.user_phone != row[0].user_phone) {
-                console.log('userphone changed');
-                var items = {
-                  "user_no" : row[0].user_no,
-                  "user_regid" : data.user_regid,
-                  "user_phone" : data.user_phone,
-                  "user_regid_old" : row[0].user_regid,
-                  "user_phone_old" : row[0].user_phone
-                };
-                done('userphone changed', items);
-              } else {
-                console.log('userphone not changed');
-                done(null, row[0]);
-              }
-              break;
-          }
-        } else {
-          done('존재하지 않는 아이디이거나 비밀번호가 틀렸습니다');
-        }
+        data.user_salt = row[0].user_salt;
+        done(null);
       } else {
-        done('로그인에 실패했습니다.');
+        done('해당하는 아이디의 salt가 없습니다.');
       }
     }
   });
-}
+};
 
+//login
+function doLogin(conn, data, done) {
+  crypto.pbkdf2(data.user_pw, data.user_salt, db_crypto.iterations, db_crypto.keylen, function (err, derivedKey) {
+    if (err) {
+      done('암호화중 오류가 발생했습니다.');
+    } else {
+      var cryp_pass = Buffer(derivedKey, 'binary').toString('hex');
+
+      var datas = [data.user_id, cryp_pass];
+      conn.query(sql.selectLogin, datas, function (err, row) {
+        if (err) {
+          done(err);
+        } else {
+          if (row) {
+            if (row[0].cnt == 1) {
+              switch (row[0].user_islogin) {
+                case 0 : // 로그아웃 처리 되어있는 경우
+                  done(null, row[0]);
+                  break;
+                case 1:  // 기기에 로그인 되어있거나 강제종료 되어있는 경우
+                  if (data.user_phone != row[0].user_phone) {
+                    var items = {
+                      "user_no" : row[0].user_no,
+                      "user_regid" : data.user_regid,
+                      "user_phone" : data.user_phone,
+                      "user_regid_old" : row[0].user_regid,
+                      "user_phone_old" : row[0].user_phone
+                    };
+                    done('userphone changed', items);
+                  } else {
+                    console.log('userphone not changed', row[0]);
+                    done(null, row[0]);
+                  }
+                  break;
+              }
+            } else {
+              done('존재하지 않는 아이디이거나 비밀번호가 틀렸습니다');
+            }
+          } else {
+            done('로그인에 실패했습니다.');
+          }
+        }
+      });
+    }
+  });
+}
 
 //사용자의 전화번호와 gcm id가 변경되면 갱신
 //arg는 조회된 값, data는 입력받은 값
@@ -672,6 +706,7 @@ exports.insertUser = insertUser;
 //로그인
 exports.updateUserPhone = updateUserPhone; //private
 exports.updateUserRegIdandUserPhone = updateUserRegIdandUserPhone;
+exports.selectUserSalt = selectUserSalt;
 exports.doLogin = doLogin;
 exports.updateUserIsLogin = updateUserIsLogin; //로그인과 로그아웃에서 사용
 
