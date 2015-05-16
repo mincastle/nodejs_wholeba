@@ -5,6 +5,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');  //session
+var redis = require('redis'); // redis
+var redisStore = require('connect-redis')(session); // session을 redis에 저장하여 세션을 유지시킨다.
+
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -18,6 +21,7 @@ var mysql = require('mysql');
 
 var test = require('./test/post_test');
 
+//var client = redis.createClient();
 var app = express();
 
 // view engine setup
@@ -37,6 +41,17 @@ app.use(session({
   secret: 'keyboard cat',
   resave: false
 }));
+
+// redis-session
+//app.use(session(
+//  {
+//    secret: 'keyboard cat',
+//    store: new redisStore({ host: "127.0.0.1", port: 6379, client: client }),
+//    saveUninitialized: false, // don't create session until something stored,
+//    resave: false // don't save session if unmodified
+//  }
+//));
+
 
 app.use('/', routes);
 app.use('/users', users);
