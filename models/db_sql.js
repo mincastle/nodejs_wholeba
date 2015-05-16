@@ -366,3 +366,24 @@ exports.selectAnotherMission =
                               'where user_no=?)) '+
   'and theme_no=? '+
   'order by rand() limit 1';
+
+//아이템 사용시, 새로뽑은 미션으로 업데이트
+exports.updateMissionReselected =
+  'update missionlist '+
+  'set mission_no=?, mlist_name=?, mlist_reward=?, mlist_expiredate=? '+
+  'where user_no=? '+
+  'and mlist_no=?';
+
+//아이템 사용시, 아이템사용시간과 사용한미션 업데이트
+exports.updateItemlistUse =
+  'update itemlist '+
+  'set item_usedate=?, item_usemission=? '+
+  'where user_no=?';
+
+//유효기간늘리기 아이템 사용시, 새로 계산된 유효기간으로 업데이트
+exports.updateItemExpiredate =
+  'update missionlist '+
+  'set mlist_expiredate='+
+                        '(DATE_ADD(mlist_expiredate, INTERVAL 3 DAY)) '+
+  'where user_no=? '+
+  'and mlist_no=?';
