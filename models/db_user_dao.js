@@ -31,30 +31,6 @@ function insertReward(conn, arg2, done) {
   });
 
 }
-//
-////자동로그인
-//function isAutoLogin(data, done) {
-//  pool.getConnection(function (err, conn) {
-//    if (err) {
-//      done(err, null);
-//    } else {
-//      var params = [data.user_no, data.user_phone];
-//      console.log('params', params);
-//      conn.query(sql.selectAutologin, params, function (err, row) {
-//        if (err) {
-//          done(err, null);
-//        } else {
-//          if (!row[0] || row[0].cnt == 0) {
-//            done('로그인 정보가 변경되었습니다.', null);
-//          } else {
-//            done(null, row[0]);
-//          }
-//        }
-//        conn.release();
-//      });
-//    }
-//  });
-//};
 
 //입력받은 user_id가 중복된 값인지 아닌지 확인
 function checkUserId(conn, data, done) {
@@ -533,23 +509,6 @@ function insertPeri(conn, params, done) {
   });
 }
 
-// 1st para in async.each() is the array of items
-//async.each(items,
-//  // 2nd param is the function that each item is passed to
-//  function(item, callback){
-//    // Call an asynchronous function, often a save() to DB
-//    item.someAsyncCall(function (){
-//      // Async call is done, alert via callback
-//      callback();
-//    });
-//  },
-//  // 3rd param is the function to call when everything's done
-//  function(err){
-//    // All tasks are done now
-//    doSomethingOnceAllAreDone();
-//  }
-//);
-
 //insert 생리증후군
 function insertSyndromes(conn, syndromes, done) {
   console.log('syndromeasdasdasd', syndromes);
@@ -704,10 +663,6 @@ function updateCoupleWithdraw (conn, data, done) {
 }
 
 /* --------------------------- exports --------------------------- */
-
-//자동로그인 (/autologin)
-//exports.isAutoLogin = isAutoLogin;
-
 
 //회원가입 (/join)
 exports.checkUserId = checkUserId;

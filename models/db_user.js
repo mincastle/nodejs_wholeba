@@ -6,11 +6,6 @@ var dao = require('./db_user_dao');
 
 var pool = mysql.createPool(db_config);
 
-//자동로그인
-exports.autologin = function (data, callback) {
-  dao.isAutoLogin(data, callback);
-};
-
 /*
  * 회원가입
  * 0. 아이디 중복 검사

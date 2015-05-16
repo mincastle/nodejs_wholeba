@@ -12,43 +12,6 @@ var success_json = {
   "result": {}
 };
 
-//
-///*
-// 자동 로그인 {user_no, user_phone}
-// 1. 클라이언트의 sharedPreference에 저장되어있는 값인 user_no값과 접속한 폰번호 값을 받아온다.
-// 2. user_no값이 존재하는지 여부 확인
-// 2.1 값이 존재한다면 해당 user_phone의 값과 parameter user_phone의 값과 비교한다.
-// 2.1.1 값이 같다면 자동 로그인 성공(end)
-// 2.1.2 값이 다르다면 자동 로그인 실패(end)
-// 2.2 값이 존재하지 않는다면 자동 로그인 실패(end)
-//
-// 실패 시 : 회원가입, 로그인이 있는 페이지로 이동
-// */
-//
-//router.post('/autologin', function (req, res, next) {
-//  var bodydata = req.body;  // req.body -> req.body.data로 변경 대비
-//
-//  var user_no = bodydata.user_no;
-//  var user_phone = bodydata.user_phone;
-//
-//  var data = {user_no: user_no, user_phone: user_phone};
-//  db_user.autologin(data, function (err, result) {
-//    if (err) {
-//      console.error('err', err);
-//      fail_json.result.message = err;
-//      console.log('fail_json', fail_json);
-//      res.json(fail_json);
-//    } else {
-//      success_json.result.message = "자동로그인 성공";
-//      success_json.result.items = result;
-//      req.session.user_no = user_no;
-//      req.session.couple_no = result.couple_no;
-//      res.json(success_json);
-//    }
-//  })
-//});
-
-
 //회원가입
 router.post('/join', function (req, res, next) {
   var bodydata = req.body;
