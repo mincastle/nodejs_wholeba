@@ -7,6 +7,13 @@ var sql = require('./db_sql');
 var async = require('async');
 var gcm = require('node-gcm');
 var pool = mysql.createPool(db_config);
+//gcm sender
+var sender = new gcm.Sender('AIzaSyBtz1plKo81Edizatu0vhhl9trNiFwtGb8'); //server api key
+
+//다른 dao에서 푸시 접근시 사용
+function getSender() {
+  return sender;
+}
 
 //todo unsigned int 처리
 function updateUserReward(conn, data, rewardnum, done) {
@@ -100,6 +107,9 @@ function selectUserReward(conn, data, done) {
     }
   });
 }
+
+//get gcm sender
+exports.getSender = getSender;
 
 //리워드갯수 갱신
 exports.updateUserReward = updateUserReward;
