@@ -21,15 +21,15 @@ insert into feel(feel_name) values ('음흉음흉');
 insert into feel(feel_name) values ('기분좋아');
 
 -- 4. 아이템 데이터 등록하기
-insert into item(item_name, item_exchange) values('미션다시뽑기',1);
-insert into item(item_name, item_exchange) values('미션 유효기간 늘리기',1);
-insert into item(item_name, item_exchange) values('악마미션으로 다시 뽑기',2);
-insert into item(item_name, item_exchange) values('섹시미션으로 다시 뽑기',2);
-insert into item(item_name, item_exchange) values('천사미션으로 다시 뽑기',2);
-insert into item(item_name, item_exchange) values('애교미션으로 다시 뽑기',2);
-insert into item(item_name, item_exchange) values('처음미션으로 다시 뽑기',2);
-insert into item(item_name, item_exchange) values('미션패스',3);
-insert into item(item_name, item_exchange) values('미션 내마음대로 쓰기',5);
+insert into item(item_name, item_exchange, item_hintchanged) values('미션다시뽑기',1,1);
+insert into item(item_name, item_exchange, item_hintchanged) values('미션 유효기간 늘리기',1,0);
+insert into item(item_name, item_exchange, item_hintchanged) values('악마미션으로 다시 뽑기',2,1);
+insert into item(item_name, item_exchange, item_hintchanged) values('섹시미션으로 다시 뽑기',2,1);
+insert into item(item_name, item_exchange, item_hintchanged) values('천사미션으로 다시 뽑기',2,1);
+insert into item(item_name, item_exchange, item_hintchanged) values('애교미션으로 다시 뽑기',2,1);
+insert into item(item_name, item_exchange, item_hintchanged) values('처음미션으로 다시 뽑기',2,1);
+insert into item(item_name, item_exchange, item_hintchanged) values('미션패스',3,0);
+insert into item(item_name, item_exchange, item_hintchanged) values('미션 내마음대로 쓰기',5,0);
 
 -- 5. 생리증후군 데이터 등록하기
 insert into syndrome(syndrome_name) values('식욕');

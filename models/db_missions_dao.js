@@ -115,7 +115,15 @@ function selectRandomMission(conn, data, done) {
   }
   console.log('thmeme data : ', data);
   var result = {};
-  var param = [data.user_no, data.theme_no];
+  var param = [data.user_no];
+  if(data.theme_no == 0) {
+    var randomThemeNo = Math.floor((Math.random() * 5) + 1);  //랜덤일시 1~5중 하나 선택
+    console.log('random theme : ', randomThemeNo);
+    param.push(randomThemeNo);
+  } else {
+    param.push(data.theme_no);
+  }
+
   //mission_no, mission_name, mission_reward, mission_expiration 조회
   conn.query(sql.selectMissionTheme, param, function (err, row) {
     if (err) {
@@ -203,10 +211,10 @@ function sendCreateMissionPush(conn, data, done) {
         //console.log('push data : ', data);
 
         message.addData('type', 5+"");
-        message.addData('mlist_no', allData.mlist_no);
+        message.addData('mlist_no', allData.mlist_no+"");
         message.addData('mission_name', allData.mission.mlist_name);
         message.addData('mlist_regdate', allData.mission.mlist_regdate);
-        message.addData('theme_no', allData.mission.theme_no);
+        message.addData('theme_no', allData.mission.theme_no+"");
         commonDao.getSender().sendNoRetry(message, regid, function (err, result) {
           if (err) {
             console.log('err', err);
@@ -216,7 +224,7 @@ function sendCreateMissionPush(conn, data, done) {
             //todo 안드랑 연결하면 주석풀기!!!!
             //if (result.success) {
             if (true) {
-              console.log('push result', result);
+              console.log('create mission push result', result);
               done(null, allData);
             } else {
               done(err);
@@ -590,6 +598,65 @@ function updateMissionFail(conn, done) {
   });  //transaction
 }
 
+//미션팝업요청보내기
+//data = {user_no, couple_no, mlist_no}
+function sendMissionPopupPush(conn, data, done) {
+  if(!conn) {
+    done('연결 에러');
+    return;
+  }
+  async.waterfall(
+    [
+      function(done) {
+        var param = [data.user_no];
+        conn.query(sql.selectPartnerNoandRegid, param, function(err, row) {
+          if(err) {
+            done(err);
+          } else {
+            if(row[0]) {
+              console.log('select partner info row[0] : ', row[0]);
+              done(null, row[0]);
+            } else {
+              done('상대방 gcmid 조회 실패');
+            }
+          }
+        });
+      },
+      function(pushinfo, done) {
+        //pushinfo = {user_no, user_regid}
+        var message = new gcm.Message;
+        var regid = [pushinfo.partner_regid];
+        //console.log('push data : ', data);
+
+        message.addData('type', 4+"");
+        message.addData('mlist_no', data.mlist_no+'');
+        commonDao.getSender().sendNoRetry(message, regid, function (err, result) {
+          if (err) {
+            console.log('err', err);
+            done(err);
+          }
+          else {
+            //todo 안드랑 연결하면 주석풀기!!!!
+            //if (result.success) {
+            if (true) {
+              console.log('ask popup push result', result);
+              done(null);
+            } else {
+              done(err);
+            }
+          }
+        });
+      }
+    ],
+    function(err) {
+      if(err) {
+        done(err);
+      } else {
+        done(null);
+      }
+    });
+}
+
 //미션목록조회
 exports.selectMissionsList = selectMissionsList;
 
@@ -611,3 +678,6 @@ exports.updateMissionSuccessRewardandSendRewardPush = updateMissionSuccessReward
 
 //미션 실패
 exports.updateMissionFail = updateMissionFail;
+
+//미션팝업요청보내기
+exports.sendMissionPopupPush = sendMissionPopupPush;

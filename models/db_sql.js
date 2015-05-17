@@ -302,7 +302,10 @@ exports.selectMissionList =
           'where u.user_no=m.user_no) user_gender, '+
           '(select item_usedate '+
           'from itemlist i '+
-          'where i.item_usemission=m.mlist_no) item_usedate '+
+          'where i.item_usemission=m.mlist_no) item_usedate, '+
+          '(select item_no '+
+          'from itemlist i '+
+          'where i.item_usemission=m.mlist_no) item_no '+
           'from missionlist m '+
           'where user_no IN ((select user_no '+
                               'from user '+
@@ -312,9 +315,9 @@ exports.selectMissionList =
 
 
 //미션목록조회시, orderby
-exports.orderbyLatest = 'm.mlist_confirmdate  IS NULL desc,  m.mlist_confirmdate  DESC';
-exports.orderbyMale = 'user_gender DESC, m.mlist_confirmdate  IS NULL DESC,  m.mlist_confirmdate  DESC';
-exports.orderbyFemale = 'user_gender ASC, m.mlist_confirmdate  IS NULL DESC,  m.mlist_confirmdate  DESC';
+exports.orderbyLatest = 'm.mlist_confirmdate  IS NULL ASC,  m.mlist_confirmdate  ASC';
+exports.orderbyMale = 'user_gender ASC, m.mlist_confirmdate  IS NULL ASC,  m.mlist_confirmdate  ASC';
+exports.orderbyFemale = 'user_gender DESC, m.mlist_confirmdate  IS NULL ASC,  m.mlist_confirmdate  ASC';
 
 
 //****************************** SCHEDULE ************************************//
@@ -328,6 +331,15 @@ exports.selectMissionFail =
 
 //미션실패시, mlist_state=0 으로 갱신
 exports.updateMissionFail = 'update missionlist set mlist_state=0 where mlist_no=? and mlist_state=3';
+
+//미션팝업요청시, 상대방 user_no, regid 조회
+exports.selectPartnerNoandRegid =
+  'select user_no as partner_no, user_regid as partner_regid '+
+  'from user u '+
+  'where u.couple_no='+
+                      '(select couple_no '+
+                      'from user uu where uu.user_no=u.user_no) '+
+  'and not(user_no=?)';
 
 
 //****************************** ITEMS ************************************//
@@ -358,7 +370,7 @@ exports.insertItemlist =
 //아이템 사용시, 바꿀 미션 조회
 exports.selectAnotherMission =
   'select mission_no, mission_name, mission_reward, mission_expiration, '+
-          '(select mlist_confirmdate from missionlist where mlist_no=?) mlist_confirmdate'+
+          '(select mlist_confirmdate from missionlist where mlist_no=?) mlist_confirmdate '+
   'from mission m '+
   'where not(m.mission_no in '+
                               '(select mlist.mission_no '+
@@ -378,7 +390,8 @@ exports.updateMissionReselected =
 exports.updateItemlistUse =
   'update itemlist '+
   'set item_usedate=?, item_usemission=? '+
-  'where user_no=?';
+  'where user_no=? '+
+  'and itemlist_no=?';
 
 //유효기간늘리기 아이템 사용시, 새로 계산된 유효기간으로 업데이트
 exports.updateItemExpiredate =
@@ -387,3 +400,43 @@ exports.updateItemExpiredate =
                         '(DATE_ADD(mlist_expiredate, INTERVAL 3 DAY)) '+
   'where user_no=? '+
   'and mlist_no=?';
+
+//패스이용권 사용시, mlist_state = 4로 업데이트
+exports.updateUsePassMissionState =
+  'update missionlist set mlist_state=4 '+
+  'where user_no=? '+
+  'and mlist_no=?';
+
+//내마음대로쓰기 아이템 사용시, mlist_name 업데이트
+exports.updateCustomMissionName =
+  'update missionlist set mlist_name=? '+
+  'where user_no=? '+
+  'and mlist_no=?';
+
+//아이템 사용시, 푸시보낼정보 조회
+exports.selectUseItemPushInfo =
+  'select item_usemission, '+
+          'item_usedate, '+
+          '(select user_regid '+
+          'from user '+
+          'where couple_no='+
+                          '(select couple_no '+
+                          'from user '+
+                          'where user_no=ilist.user_no) '+
+                          'and not(user_no=ilist.user_no)) as partner_regid, '+
+          '(select item_name '+
+          'from item i '+
+          'where i.item_no=ilist.item_no) as item_name,'+
+          '(select item_hintchanged '+
+          'from item i '+
+          'where i.item_no=ilist.item_no) as item_hintchanged,' +
+          '(select mission_hint '+
+          'from mission '+
+          'where mission_no='+
+                            '(select mission_no '+
+                            'from missionlist m '+
+                            'where m.mlist_no=ilist.item_usemission)) as mission_hint '+
+  'from itemlist ilist '+
+  'where user_no=? '+
+  'and itemlist_no=? '+
+  'and item_no=?';

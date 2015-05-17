@@ -8,7 +8,7 @@ var async = require('async');
 var gcm = require('node-gcm');
 var pool = mysql.createPool(db_config);
 //gcm sender
-var sender = new gcm.Sender('AIzaSyBtz1plKo81Edizatu0vhhl9trNiFwtGb8'); //server api key
+var sender = new gcm.Sender('AIzaSyBtz1plKo81Edizatu0vhhl9trNiFwtGb8'); //server key
 
 //다른 dao에서 푸시 접근시 사용
 function getSender() {
@@ -53,23 +53,25 @@ function sendRewardPush(conn, data, done) {
         selectUserReward(conn, data, done);
       },
       function (rewardInfo, done) {
-        var message = new gcm.Message;
-        var regid = [rewardInfo.user_regid];
-        //console.log('push data : ', data);
+        var message = new gcm.Message();
+        message.addData('type', 8+'');
+        message.addData('reward_cnt', rewardInfo.reward_cnt+'');
 
-        message.addData('type', 8+"");
-        message.addData('reward_cnt', rewardInfo.reward_cnt);
-        sender.sendNoRetry(message, regid, function (err, result) {
+        var registrationIds = [];
+        registrationIds.push(rewardInfo.user_regid);
+        console.log('reward push regid : ', rewardInfo.user_regid);
+        console.log('reward push regid length : ', rewardInfo.user_regid.length);
+
+        sender.sendNoRetry(message, registrationIds, function (err, result) {
           if (err) {
             console.log('push err', err);
             done(err);
           } else {
-            //console.log('push if err else');
+            console.log('reward push result', result);
             //todo 안드랑 연결하면 주석풀기!!!!
             //if (result.success) {
             if (true) {
-              console.log('push result', result);
-              done(null, data);  //data 그대로 전달
+              done(null, data);  //data 그대로
             } else {
               done(err);
             }
@@ -78,7 +80,6 @@ function sendRewardPush(conn, data, done) {
       }
     ], function (err, result) {
       if (err) {
-        //console.log("ASDQWEWQE", err);
         done(err);
       } else {
         if (result) {
