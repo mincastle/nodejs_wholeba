@@ -440,3 +440,11 @@ exports.selectUseItemPushInfo =
   'where user_no=? '+
   'and itemlist_no=? '+
   'and item_no=?';
+
+//****************************** SETTING ************************************//
+
+//여성정보공개설정
+exports.updateUserPublic =
+  'update user set user_public=? '+
+  'where user_no=? '+
+  'and user_gender="F"';

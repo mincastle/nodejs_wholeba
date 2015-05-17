@@ -2,35 +2,40 @@ var express = require('express');
 var router = express.Router();
 var db_setting = require('../models/db_setting');
 
-function fail_json(res, str) {
-  res.json({
-    "success": 0,
-    "result": {
-      "message": str + " 실패"
-    }
-  });
+var fail_json = {
+  "success": 0,
+  "result": {}
 }
 
-function success_json(res, str) {
-  res.json({
-    "success": 1,
-    "result": {
-      "message": str + " 성공"
-    }
-  });
-}
+var success_json = {
+  "success": 1,
+  "result": {}
+};
 
 //여성정보공개설정
-router.post('/user_public', function (req, res, next) {
-  var user_no = req.session.user_no | -1;
-  var user_public = req.body.user_public;
-  var data = [user_no, user_public];
-
-  db_setting.user_public(data, function (success) {
-    if (success) {
-      success_json(res, "여성정보공개설정");
+router.post('/public', function (req, res, next) {
+  var bodydata = req.body;
+  var user_no = req.session.user_no;
+  var user_public = parseInt(bodydata.user_public);
+  var data = {
+    "user_no" : user_no,
+    "user_public" : user_public
+  };
+  //세션체크
+  if (!user_no) {
+    fail_json.result.message = "세션정보 없음";
+    res.json(fail_json);
+    return;
+  }
+  db_setting.setPublic(data, function (err) {
+    if (err) {
+      fail_json.result = {};
+      fail_json.result.message = '여성정보공개설정 성공';
+      res.json(fail_json);
     } else {
-      fail_json(res, "여성정보공개설정");
+      success_json.result = {};
+      success_json.result.message = '여성정보공개설정 실패';
+      res.json(success_json);
     }
   });
 });
@@ -41,8 +46,8 @@ router.get('/herself', function (req, res, next) {
   var couple_no = req.session.couple_no | -1;
   var data = [user_no, couple_no];
 
-  db_setting.herself(data, function (datas) {
-    if (!datas) {
+  db_setting.herself(data, function (err, result) {
+    if (result) {
       res.json({
         "success": 1,
         "result": {
@@ -74,23 +79,29 @@ router.get('/herself', function (req, res, next) {
         }
       });
     } else {
-      fail_json(res, "여성정보조회");
+      fail_json.result = {};
+      fail_json.result.message = '여성정보조회 실패';
+      res.json(fail_json);
     }
   });
 });
 
 
-//직전주기수정
+//주기수정
 router.post('/herself/:period_no', function (req, res, next) {
   var user_no = req.session.user_no | -1;
   var period_no = req.params.period_no;
   var data = [user_no, period_no];
 
-  db_setting.updatePeriod(data, function (datas) {
-    if (!datas) {
-      success_json(res, "직전주기수정");
+  db_setting.updatePeriod(data, function (err) {
+    if (err) {
+      fail_json.result = {};
+      fail_json.result.message = '여성정보공개설정 성공';
+      res.json(fail_json);
     } else {
-      fail_json(res, "직전주기수정");
+      success_json.result = {};
+      success_json.result.message = '여성정보공개설정 실패';
+      res.json(success_json);
     }
   });
 });

@@ -48,9 +48,13 @@ router.post('/:item_no/use/:mlist_no', function (req, res, next) {
   var item_no = parseInt(req.params.item_no);
   var mlist_no = parseInt(req.params.mlist_no);
   var mission_name = bodydata.mission_name;
-  var item_usedate = bodydata.item_usedate;
-  var data = {"user_no" : user_no, "item_no" : item_no, "item_usedate" : item_usedate,
-    "mlist_no" : mlist_no, "mission_name" : mission_name};
+  var item_usedate = new Date(bodydata.item_usedate);
+  var data = {
+    "user_no" : user_no,
+    "item_no" : item_no,
+    "item_usedate" : item_usedate,
+    "mlist_no" : mlist_no,
+    "mission_name" : mission_name};
 
   //세션체크
   if(!user_no) {
