@@ -211,10 +211,10 @@ function sendCreateMissionPush(conn, data, done) {
         //console.log('push data : ', data);
 
         message.addData('type', 5+"");
-        message.addData('mlist_no', allData.mlist_no);
+        message.addData('mlist_no', allData.mlist_no+"");
         message.addData('mission_name', allData.mission.mlist_name);
         message.addData('mlist_regdate', allData.mission.mlist_regdate);
-        message.addData('theme_no', allData.mission.theme_no);
+        message.addData('theme_no', allData.mission.theme_no+"");
         commonDao.getSender().sendNoRetry(message, regid, function (err, result) {
           if (err) {
             console.log('err', err);
