@@ -315,9 +315,9 @@ exports.selectMissionList =
 
 
 //미션목록조회시, orderby
-exports.orderbyLatest = 'm.mlist_confirmdate  IS NULL desc,  m.mlist_confirmdate  DESC';
-exports.orderbyMale = 'user_gender DESC, m.mlist_confirmdate  IS NULL DESC,  m.mlist_confirmdate  DESC';
-exports.orderbyFemale = 'user_gender ASC, m.mlist_confirmdate  IS NULL DESC,  m.mlist_confirmdate  DESC';
+exports.orderbyLatest = 'm.mlist_confirmdate  IS NULL ASC,  m.mlist_confirmdate  ASC';
+exports.orderbyMale = 'user_gender ASC, m.mlist_confirmdate  IS NULL ASC,  m.mlist_confirmdate  ASC';
+exports.orderbyFemale = 'user_gender DESC, m.mlist_confirmdate  IS NULL ASC,  m.mlist_confirmdate  ASC';
 
 
 //****************************** SCHEDULE ************************************//
@@ -331,6 +331,15 @@ exports.selectMissionFail =
 
 //미션실패시, mlist_state=0 으로 갱신
 exports.updateMissionFail = 'update missionlist set mlist_state=0 where mlist_no=? and mlist_state=3';
+
+//미션팝업요청시, 상대방 user_no, regid 조회
+exports.selectPartnerNoandRegid =
+  'select user_no as partner_no, user_regid as partner_regid '+
+  'from user u '+
+  'where u.couple_no='+
+                      '(select couple_no '+
+                      'from user uu where uu.user_no=u.user_no) '+
+  'and not(user_no=?)';
 
 
 //****************************** ITEMS ************************************//

@@ -79,14 +79,14 @@ router.get('/:year/:month/:orderby', function (req, res, next) {
         }
 
         //gender mission value setting
-        if(item.gender == 'M') {
+        if(item.user_gender == 'M') {
           m_total++;
-          if(item.state == 1) {
+          if(item.mlist_state == 1) {
             m_completed++;
           }
         } else {
           f_total++;
-          if(item.state == 1) {
+          if(item.mlist_state == 1) {
             f_completed++;
           }
         }
@@ -143,7 +143,11 @@ router.post('/add', function (req, res, next) {
   db_missions.add(data, function(err) {
     if (err) {
       fail_json.result = {};
-      fail_json.result.message = err;
+      if(err.code == "ER_DATA_OUT_OF_RANGE") {
+        fail_json.result.message = '리워드 갯수 부족';
+      } else {
+        fail_json.result.message = err;
+      }
       res.json(fail_json);
     } else {
       success_json.result = {};
@@ -237,6 +241,44 @@ router.post('/:mlist_no/success', function (req, res, next) {
     }
   });
 });
+
+//미션팝업요청보내기
+router.post('/askpopup', function(req, res, next) {
+  var bodydata = req.body;
+  var user_no = req.session.user_no;
+  var couple_no = req.session.couple_no;
+  var mlist_no = bodydata.mlist_no;
+  var data = {
+    "user_no" : user_no,
+    "couple_no" : couple_no,
+    "mlist_no" : mlist_no
+  }
+
+  //세션 체크
+  if (!user_no) {
+    fail_json.result.message = "세션정보 없음";
+    res.json(fail_json);
+    return;
+  } else if(!couple_no) {
+    fail_json.result.message = "커플세션정보 없음";
+    res.json(fail_json);
+    return;
+  }
+
+  db_missions.askpopup(data, function(err) {
+    if (err) {
+      fail_json.result = {};
+      fail_json.result.message = err;
+      res.json(fail_json);
+    } else {
+      success_json.result = {};
+      success_json.result.message = '미션팝업보내기 성공';
+      res.json(success_json);
+    }
+  });
+});
+
+
 
 //todo 미션삭제
 //추후 구현 예정

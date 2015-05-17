@@ -228,3 +228,20 @@ exports.success = function (data, callback) {
     }
   });
 };
+
+/*
+  미션팝업요청보내기
+  1. partner_regid 조회
+  2. 상대방에서 mlist_no,couple_no 푸시
+  data = {user_no, couple_no, mlist_no}
+ */
+exports.askpopup = function(data, callback) {
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      callback(err);
+    } else {
+      dao.sendMissionPopupPush(conn, data, callback);
+    }
+    conn.release();
+  }); //connection
+}
