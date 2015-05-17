@@ -59,7 +59,7 @@ exports.get = function (data, callback) {
   2. missionlist insert
   3. 2의 유저에게 push(mlist_no, mlist_name, mlist_regdate)
   4. 보낸사람의 reward 차감
- data = {user_no, couple_no, mission_theme}
+ data = {user_no, couple_no, theme_no}
  */
 exports.add = function (data, callback) {
   pool.getConnection(function(err, conn) {
@@ -95,14 +95,15 @@ exports.add = function (data, callback) {
                 dao.sendCreateMissionandRewardPush(conn, arg3, done);
               }
             ],
-            function(err) {
+            function(err, result) {
               if(err) {
+                console.log('err', err);
                 conn.rollback(function() {
                   callback(err);
                 });
               } else {
                 //리워드 추가갯수
-                if(result) {
+                //if(result) {
                   conn.commit(function(err) {
                     if(err) {
                       conn.rollback(function() {
@@ -112,7 +113,7 @@ exports.add = function (data, callback) {
                       callback(null, result);
                     }
                   });  //commit
-                }
+                //}
               }
             }); //async
         }

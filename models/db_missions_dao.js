@@ -115,7 +115,15 @@ function selectRandomMission(conn, data, done) {
   }
   console.log('thmeme data : ', data);
   var result = {};
-  var param = [data.user_no, data.theme_no];
+  var param = [data.user_no];
+  if(data.theme_no == 0) {
+    var randomThemeNo = Math.floor((Math.random() * 5) + 1);  //랜덤일시 1~5중 하나 선택
+    console.log('random theme : ', randomThemeNo);
+    param.push(randomThemeNo);
+  } else {
+    param.push(data.theme_no);
+  }
+
   //mission_no, mission_name, mission_reward, mission_expiration 조회
   conn.query(sql.selectMissionTheme, param, function (err, row) {
     if (err) {
@@ -216,7 +224,7 @@ function sendCreateMissionPush(conn, data, done) {
             //todo 안드랑 연결하면 주석풀기!!!!
             //if (result.success) {
             if (true) {
-              console.log('push result', result);
+              console.log('create mission push result', result);
               done(null, allData);
             } else {
               done(err);

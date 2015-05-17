@@ -53,12 +53,30 @@ router.get('/:year/:month/:orderby', function (req, res, next) {
         item.user_gender = result[i].user_gender;
         item.theme_no = result[i].theme_no;
         item.mlist_name = result[i].mlist_name;
-        item.mission_hint = result[i].mission_hint;
         item.mlist_state = result[i].mlist_state;
+        if(!result[i].mission_hint) {
+          item.mission_hint = '';  //없으면 빈string으로 보냄
+        } else {
+          item.mission_hint = result[i].mission_hint;
+        }
         item.mlist_regdate = result[i].mlist_regdate; //미션생성일자
-        item.mlist_successdate = result[i].mlist_successdate; //미션성공일자
-        item.item_usedate = result[i].item_usedate; //아이템사용일자
-        item.mlistexpiredate = result[i].mlist_expiredate; //미션유효일자
+        if(!result[i].mlist_successdate) {
+          item.mlist_successdate = '';
+        } else {
+          item.mlist_successdate = result[i].mlist_successdate;
+        }
+        if(!result[i].item_no) {
+          item.item_no = -1;
+          item.item_usedate = '';
+        } else {
+          item.item_no = result[i].item_no;
+          item.item_usedate = result[i].item_usedate; //아이템사용일자
+        }
+        if(!result[i].mlist_expiredate) {
+          item.mlistexpiredate = '';
+        } else {
+          item.mlistexpiredate = result[i].mlist_expiredate; //미션유효일자
+        }
 
         //gender mission value setting
         if(item.gender == 'M') {
@@ -102,8 +120,9 @@ router.post('/add', function (req, res, next) {
   var bodydata = req.body;
   var user_no = req.session.user_no;
   var couple_no = req.session.couple_no;
-  var theme_no = bodydata.theme_no;
+  var theme_no = parseInt(bodydata.theme_no);
   var data = {"user_no" : user_no, "couple_no" : couple_no, "theme_no" : theme_no};
+  console.log('data', data);
 
   //세션 체크
   if (!user_no) {
@@ -114,6 +133,11 @@ router.post('/add', function (req, res, next) {
     fail_json.result.message = "커플세션정보 없음";
     res.json(fail_json);
     return;
+  }
+
+  if(!theme_no) {
+    fail_json.result.message = '테마번호 없음';
+    res.json(fail_json);
   }
 
   db_missions.add(data, function(err) {

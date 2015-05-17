@@ -302,7 +302,10 @@ exports.selectMissionList =
           'where u.user_no=m.user_no) user_gender, '+
           '(select item_usedate '+
           'from itemlist i '+
-          'where i.item_usemission=m.mlist_no) item_usedate '+
+          'where i.item_usemission=m.mlist_no) item_usedate, '+
+          '(select item_no '+
+          'from itemlist i '+
+          'where i.item_usemission=m.mlist_no) item_no '+
           'from missionlist m '+
           'where user_no IN ((select user_no '+
                               'from user '+
