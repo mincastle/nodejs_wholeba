@@ -169,7 +169,7 @@ function getPartnerPhone(conn, result2, done) {
       done(err, null);
     } else {
       console.log('partner_row',row);
-      if (row[0].user_phone) {
+      if (row[0]) {
         result2.phone = row[0].user_phone;
         result2.join_code = 2;
         done(null, result2);
@@ -326,7 +326,7 @@ function selectUserSalt(conn, data, done) {
     if (err) {
       done(err);
     } else {
-      if (row) {
+      if (row[0]) {
         data.user_salt = row[0].user_salt;
         done(null);
       } else {
@@ -338,6 +338,10 @@ function selectUserSalt(conn, data, done) {
 
 //login
 function doLogin(conn, data, done) {
+  if(!data.user_salt){
+    done('user_salt 없음');
+    return;
+  }
   crypto.pbkdf2(data.user_pw, data.user_salt, db_crypto.iterations, db_crypto.keylen, function (err, derivedKey) {
     if (err) {
       done('암호화중 오류가 발생했습니다.');
@@ -633,7 +637,7 @@ function selectUserGender(conn, result, done) {
       done(err);
     } else {
       //console.log('성별 row[0]' , row[0]);
-      if(row[0].user_gender) {
+      if(row[0]) {
         result.user_gender = row[0].user_gender;
         done(null, result);
       } else {
