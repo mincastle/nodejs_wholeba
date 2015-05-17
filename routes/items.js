@@ -45,8 +45,8 @@ router.get('/', function (req, res, next) {
 router.post('/:item_no/use/:mlist_no', function (req, res, next) {
   var bodydata = req.body;
   var user_no = req.session.user_no;
-  var item_no = req.params.item_no;
-  var mlist_no = req.params.mlist_no;
+  var item_no = parseInt(req.params.item_no);
+  var mlist_no = parseInt(req.params.mlist_no);
   var mission_name = bodydata.mission_name;
   var item_usedate = bodydata.item_usedate;
   var data = {"user_no" : user_no, "item_no" : item_no, "item_usedate" : item_usedate,
@@ -61,7 +61,11 @@ router.post('/:item_no/use/:mlist_no', function (req, res, next) {
   db_items.use(data, function (err, result) {
     if(err) {
       fail_json.result = {};
-      fail_json.result.message = err;
+      if(err.code == "ER_DATA_OUT_OF_RANGE") {
+        fail_json.result.message = '리워드 갯수 부족';
+      } else {
+        fail_json.result.message = err;
+      }
       res.json(fail_json);
     } else if(result) {
       success_json.result = {};
