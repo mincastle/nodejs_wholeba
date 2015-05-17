@@ -51,6 +51,8 @@ router.post('/join', function (req, res, next) {
         console.log('join_post', success_json);
         res.json(success_json);
       } else {
+        fail_json.result = {};
+        fail_json.result.message = '회원가입 실패';
         res.json(fail_json);
       }
     }
@@ -194,6 +196,7 @@ router.post('/login', function (req, res, next) {
   db_user.login(data, function (err, result) {
     if (err) {
       var accept_json = {};
+      accept_json.success = 0;
       accept_json.result = {};
       if(err == 'userphone changed') {
         accept_json.success = 2;
@@ -215,6 +218,7 @@ router.post('/login', function (req, res, next) {
         console.log('join_post', success_json);
         res.json(success_json);
       } else {
+        fail_json.result={};
         fail_json.result.message = "로그인 실패";
         res.json(fail_json);
       }
