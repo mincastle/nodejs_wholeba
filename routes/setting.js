@@ -41,43 +41,64 @@ router.post('/public', function (req, res, next) {
 });
 
 //여성정보조회
-router.get('/herself', function (req, res, next) {
-  var user_no = req.session.user_no | -1;
-  var couple_no = req.session.couple_no | -1;
-  var data = [user_no, couple_no];
+router.get('/herself/:user_gender', function (req, res, next) {
+  var user_no = req.session.user_no;
+  var couple_no = req.session.couple_no;
+  var user_gender = req.params.user_gender;
+  var data = {
+    "user_no" : user_no,
+    "couple_no" : couple_no,
+    "user_gender" : user_gender
+  };
+  //세션체크
+  if (!user_no) {
+    fail_json.result = {};
+    fail_json.result.message = "세션정보 없음";
+    res.json(fail_json);
+    return;
+  } else if(!couple_no) {
+    fail_json.result = {};
+    fail_json.result.message = "커플세션정보 없음";
+    res.json(fail_json);
+  }
 
+  //result = [] 안에, 생리주기(객체의배열)와 피임약복용여부(객체)가
+  //순서를 모른채 들어있음
   db_setting.herself(data, function (err, result) {
     if (result) {
-      res.json({
-        "success": 1,
-        "result": {
-          "message": "여성정보조회 성공",
-          "items": {
-            "period_cnt": 2,
-            "syndrome_cnt": 1,
-            "avg_cycle": 30,
-            "period": [{
-              "period_no": 1,
-              "period_start": "2015-04-01",
-              "period_end": "2015-04-05",
-              "period_cycle": 29
-            }, {
-              "period_no": 0,
-              "period_start": "2015-03-03",
-              "period_end": "2015-03-09",
-              "period_cycle": 30
-            }],
-            "syndrome": [{
-              "syndrome_no": 1,
-              "syndrome_name": "우울",
-              "syndrome_start": "2015-"
-            }],
-            "is_pills": 1,
-            "pills_date": "2015-04-15",
-            "pills_time": "14:00"
-          }
-        }
-      });
+      var pills = {};
+      var periods = [];
+      if(result[0].user_pills != undefined) {
+        pills = result[0];
+        periods = result[1];
+      } else {
+        pills = result[1];
+        periods = result[0];
+      }
+      //기본값세팅
+      if(pills.user_pills == 0) {
+        pills.pills_date = '';
+        pills.pills_time = '';
+        pills_no = '';
+      }
+      //평균주기 계산
+      var cycleSum = 0;
+      for(i in periods) {
+        cycleSum += periods[i].period_cycle;
+      }
+      var avg_cycle = cycleSum / periods.length;
+      success_json.result = {};
+      success_json.result.message = '여성정보조회 성공';
+      success_json.result.items = {
+        "period_cnt" : periods.length,
+        "avg_cycle" : avg_cycle,
+        "period" : periods,
+        "pills_no" : pills.pills_no,
+        "user_pills" : pills.user_pills,
+        "pills_date" : pills.pills_date,
+        "pills_time" : pills.pills_time
+      }
+      res.json(success_json);
     } else {
       fail_json.result = {};
       fail_json.result.message = '여성정보조회 실패';

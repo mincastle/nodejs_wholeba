@@ -198,7 +198,7 @@ function useItem(conn, data, done) {
       if (err) {
         done(err);
       } else if (result) {
-        done(null, result);
+        done(null, result[1]); //series는 결과가 배열로
       } else {
         done('아이템 사용처리 실패');
       }
