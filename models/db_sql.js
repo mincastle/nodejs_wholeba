@@ -168,6 +168,7 @@ exports.selectLoves = function (data, callback) {
             "from loves " +
             "where couple_no=? " +
             "and loves_date between '" + date + "' and DATE_ADD(DATE_ADD(LAST_DAY('" + date + "'), INTERVAL 1 DAY), INTERVAL -1 SECOND) " +
+            "and loves_delete=0 " +
             "order by " + orderby + ' DESC';
 
   // 동적 sql을 작성한 후 콜백을 통해 값을 넘겨준다.
