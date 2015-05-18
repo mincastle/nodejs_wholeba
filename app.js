@@ -8,7 +8,6 @@ var mysql = require('mysql');
 var session = require('express-session');  //session
 var redis = require('redis'); // redis
 var RedisStore = require('connect-redis')(session); // session을 redis에 저장하여 세션을 유지시킨다.
-var fs = require('fs');
 var client = redis.createClient();
 
 var routes = require('./routes/index');
@@ -44,14 +43,14 @@ app.use(express.static(path.join(__dirname, 'user_public')));
  "db" : 6
  }
  */
-var options = require('./models/db_redisconfig');
+var redis_options = require('./models/db_redisconfig');
 
-options.client = client;
+redis_options.client = client;
 
 // redis-session
 app.use(session({
   secret: 'keyboard cat',
-  store: new RedisStore(options),
+  store: new RedisStore(redis_options),
   saveUninitialized: false, // don't create session until something stored,
   resave: false // don't save session if unmodified
 }));
@@ -60,12 +59,7 @@ app.use(session({
 //  secret: 'keyboard cat',
 //  resave: false
 //}));
-app.use(function (req, res, next) {
-  if (!req.session) {
-    return next('oh no'); // handle error
-  }
-  next();
-});
+
 
 
 app.use('/', routes);
@@ -112,19 +106,22 @@ app.use(function(err, req, res, next) {
 
 var http = require('http');
 var https = require('https');
+var fs = require('fs');
 
-var httpsOptions = {
+var options = {
   key: fs.readFileSync('./key.pem', 'utf-8'), // key.pem을 utf-8로 읽는다.
   cert: fs.readFileSync('./server.crt', 'utf-8') // server.crt 파일을 utf-8로 읽는다.
 };
 
 var server = http.createServer(app);
-var https_server = https.createServer(httpsOptions, app);
+var https_server = https.createServer(options, app);
 var port = 80;
 var https_port = 443;
+
 server.listen(port, function () {
   console.log('http 서버가 ' + port + '에서 실행중입니다!');
 });
+
 https_server.listen(https_port, function () {
   console.log('https 서버가 ' + https_port + '에서 실행중입니다!');
 });

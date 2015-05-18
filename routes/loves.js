@@ -21,7 +21,7 @@ router.get('/:year/:month/:orderby', function (req, res, next) {
   // Session 검사
   if (!user_no) {
     fail_json.result.message = '세션정보 없음';
-    res.json(fail_json);
+    next(fail_json);
   }
 
   var couple_no = req.session.couple_no;
