@@ -62,8 +62,8 @@ exports.use = function (data, callback) {
               dao.useItem(conn, data, done);
             },
             function(insertItemlistInfo2, done) {
-              //todo insertItemlistInfo2가 배열로 옴!! 나중에 확인해야함
-              dao.sendUseItemPush(conn, insertItemlistInfo2[1], done);
+              //data = {user_no, item_no, mlist_no, itemlist_no, mission_name, item_usedate}
+              dao.sendUseItemPush(conn, insertItemlistInfo2, done);
             }
           ],
           function(err, result) {
