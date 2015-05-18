@@ -54,7 +54,8 @@ router.post('/:item_no/use/:mlist_no', function (req, res, next) {
     "item_no" : item_no,
     "item_usedate" : item_usedate,
     "mlist_no" : mlist_no,
-    "mission_name" : mission_name};
+    "mission_name" : mission_name
+  };
 
   //세션체크
   if(!user_no) {
