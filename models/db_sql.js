@@ -8,13 +8,13 @@
 exports.selectUserId = 'select count(*) as cnt from user where user_id=?';
 
 //회원가입시, 사용자 생성
-exports.insertUser = 'insert into user(user_id, user_pw, user_phone, user_regid, user_regdate) values(?, ?, ?, ?, ?)';
+exports.insertUser = 'insert into user(user_id, user_pw, user_salt, user_phone, user_regid, user_regdate) values(?, ?, ?, ?, ?, ?)';
 
 //회원가입시, 사용자의 리워드 행 생성
 exports.insertReward = 'insert into reward(user_no) values(?);';
 
-//자동로그인
-//exports.selectAutologin =  "select couple_no, count(user_no) cnt from user where user_no=? and user_phone=?";
+//로그인시, 해당 user_salt 가져오기
+exports.selectUserSalt = 'select user_salt from user where user_id=?';
 
 //로그인시, 입력 아이디와 패스워드와 같은 행이 있는지 조회
 exports.selectLogin = 'select user_no, couple_no, user_phone, user_regid, user_islogin, user_regdate, count(*) as cnt from user where user_id=? and user_pw=? and user_withdraw=0';

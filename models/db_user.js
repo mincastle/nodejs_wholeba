@@ -322,8 +322,9 @@ exports.login = function (data, callback) {
             callback(err);
           });
         } else {
-          async.waterfall([
-            function (done) {
+          async.waterfall([function (done) {
+              dao.selectUserSalt(conn, data, done);
+            }, function (done) {
               dao.doLogin(conn, data, done);
             }, function (arg, done) {
                 console.log('arg', arg);
