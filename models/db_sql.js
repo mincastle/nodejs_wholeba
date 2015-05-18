@@ -448,3 +448,28 @@ exports.updateUserPublic =
   'update user set user_public=? '+
   'where user_no=? '+
   'and user_gender="F"';
+
+//여성정보조회시, 여자번호와 공개설정 조회
+exports.selectWomanUserNo =
+  'select user_no as female_no, user_public as female_public '+
+  'from user '+
+  'where couple_no=? '+
+  'and user_gender="F"';
+
+//여성정보조회시, 생리주기 조회
+exports.selectUserPeriods =
+  'select period_no, period_start, period_end, period_cycle '+
+  'from period '+
+  'where user_no=? '+
+  'order by period_start DESC';
+
+//여성정보조회시, 피임약복용여부 조회
+exports.selectUserPills =
+  'select pills_no, pills_date, pills_time, '+
+        '(select user_pills '+
+        'from user u '+
+        'where u.user_no=p.user_no '+
+        'and u.user_gender="F") as user_pills '+
+  'from pills p '+
+  'where user_no=? '+
+  'order by pills_date DESC limit 1';
