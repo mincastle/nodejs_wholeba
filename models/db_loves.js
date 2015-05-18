@@ -11,6 +11,7 @@ exports.getlist = function (data, callback) {
       callback(err);
     } else {
       dao.selectLoves(conn, data, callback);
+      conn.release();
     }
   });
 };
@@ -22,6 +23,7 @@ exports.add = function (data, callback) {
       callback(err);
     } else {
       dao.insertLoves(conn, data, callback);
+      conn.release();
     }
   });
 };
@@ -33,6 +35,7 @@ exports.modify = function (data, callback) {
       callback(err);
     } else {
       dao.updateLoves(conn, data, callback);
+      conn.release();
     }
   });
 };
@@ -44,6 +47,7 @@ exports.delete = function (data, callback) {
       callback(err);
     } else {
       dao.deleteLoves(conn, data, callback);
+      conn.release();
     }
   });
 };

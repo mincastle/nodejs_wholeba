@@ -18,13 +18,16 @@ function insertLoves (conn, data, done) {
 
   datas = [data.couple_no, data.loves_condom, data.loves_date];
 
-  var convertsql = "insert into loves(couple_no, loves_condom, loves_date) values (?, ?, ifnull(?, now()))"
-  conn.query(convertsql, datas, function (err, row) {
+  conn.query(sql.insertLoves, datas, function (err, row) {
     if(err) {
       done(err);
     } else {
-      if (row.affectedRows == 1) {
-        done(null, row);
+      if(row) {
+        if (row.affectedRows == 1) {
+          done(null, row);
+        } else {
+          done('love가 생성되지 않았습니다!');
+        }
       } else {
         done('love가 생성되지 않았습니다!');
       }

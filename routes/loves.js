@@ -39,8 +39,11 @@ router.get('/:year/:month/:orderby', function (req, res, next) {
     util.each(results, "loves_date", util.dateFormat, function (err, result) {
       console.log('loves_date', result);
       success_json.result.message = '성관계 목록 조회 성공';
-      success_json.result.items = result;
-      res.json({"result" : success_json});
+      success_json.result.items = {};
+      success_json.result.items.today_condom = 50 || -1;
+      success_json.result.items.today_notcondom = 90 || -1;
+      success_json.result.items.item = result;
+      res.json(success_json);
     });
   });
 });
