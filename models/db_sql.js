@@ -485,11 +485,8 @@ exports.selectUserPeriods =
 
 //여성정보조회시, 피임약복용여부 조회
 exports.selectUserPills =
-  'select pills_no, pills_date, pills_time, '+
-        '(select user_pills '+
-        'from user u '+
-        'where u.user_no=p.user_no '+
-        'and u.user_gender="F") as user_pills '+
-  'from pills p '+
-  'where user_no=? '+
+  'select p.pills_no, p.pills_date, p.pills_time, u.user_pills '+
+  'from pills p, user u '+
+  'where u.user_no=? '+
+  'and u.user_gender="F" '+
   'order by pills_date DESC limit 1';
