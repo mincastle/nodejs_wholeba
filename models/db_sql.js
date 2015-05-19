@@ -74,7 +74,7 @@ exports.insertSyndrome = 'insert into synlist(user_no, syndrome_no, syndrome_bef
 exports.updateUserAddition = 'update user set user_addition=1 where user_no=?';
 
 //회원탈퇴를 위한 상대방 reg_id 가져오기
-exports.selectOtherRegId = 'select user_regid as other_regid from user where couple_no=? and user_no <> ?';
+exports.selectOtherRegId = 'select user_regid as other_regid from user where couple_no=? and user_no <> ? and user_withdraw=0';
 
 //회원탈퇴를 위해서 couple_no의 유저들 회원탈퇴 여부 수정
 exports.updateUserWithdraw = 'update user set user_withdraw=1 where couple_no=?';
@@ -88,7 +88,10 @@ exports.updateCoupleWithdraw = 'update couple set couple_withdraw=1 where couple
 exports.insertMakeCouple = 'insert into couple(auth_phone) values (?)';
 
 //커플 요청 시, 요청 user의 user_gender, couple_no 업데이트
-exports.updateUserGenderandCoupleNoandUserReq = 'update user set user_gender=?, couple_no=?, user_req=1 where user_no=?';
+exports.updateUserGenderandCoupleNoandUserReq = 'update user set user_gender=?, couple_no=?, user_req=1 where user_no=? and user_withdraw=0';
+
+//커플 요청 시, 상대방 user_regid 가져오기(push하기 위해서) - 회원탈퇴에 이미 존재
+//exports.selectOtherRegId = 'select user_regid as other_regid from user where couple_no=? and user_no<>? and user_withdraw=0';
 
 //커플 승인자가 맞는지 확인
 exports.selectCheckAnswerCouple = 'select couple_no from couple where couple_is=0 and auth_phone=(select user_phone from user where user_no=?)';
@@ -96,11 +99,11 @@ exports.selectCheckAnswerCouple = 'select couple_no from couple where couple_is=
 //커플 승인 후, couple_is 업데이트
 exports.updateCoupleIs = 'update couple set couple_is=1 where couple_no=?';
 
-//커플 승인 시, 요청자 성별에 따른 승인자 성별 구하기
-exports.selectOtherGender = 'select (case user_gender when "M" then "F" when "F" then "M" end) as other_gender from user where couple_no=? and user_no <> ?';
+//커플 승인 시, 요청자 성별에 따른 승인자 성별 및 Regid 구하기
+exports.selectOtherGenderandUserRegId = 'select (case user_gender when "M" then "F" when "F" then "M" end) as other_gender, user_regid from user where couple_no=? and user_no <> ? and user_withdraw=0';
 
 //커플 승인 후, 해당 user의 couple_no, gender 업데이트
-exports.updateUserCoupleNoandGenderandUserReq = 'update user set couple_no=?, user_gender=?, user_req=0 where user_no=?';
+exports.updateUserCoupleNoandGenderandUserReq = 'update user set couple_no=?, user_gender=?, user_req=0 where user_no=? and user_withdraw=0';
 
 exports.selectCoupleInfo =
   'select (select user_no from user a where a.user_gender=u.user_gender and a.couple_no=u.couple_no) m_userno, ' +

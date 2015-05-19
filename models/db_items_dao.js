@@ -142,6 +142,7 @@ function useItem(conn, data, done) {
     done('연결 에러');
     return;
   }
+  console.log('usermission_data', data);
   async.series(
     [
       function (done) {
