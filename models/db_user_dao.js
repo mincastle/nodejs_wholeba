@@ -227,9 +227,9 @@ function getCoupleIs(conn, result, done) {
         // 커플요청은 했으나 상대방이 승인아직 안함,
         // 버튼이 비활성화된 커플 요청페이지로 이동
         result.join_code = 3;
+        done(null, result);
         //console.log('result : ', result);
-        selectUserGender(conn, result, done);
-        //done(null, result);
+        //selectUserGender(conn, result, done); //성별이 아직 없음, 승인해야생김
       } else if (row[0].couple_is == 1) {
         //user_addition, couple_withdraw 조회해야함
         done(null, result);
