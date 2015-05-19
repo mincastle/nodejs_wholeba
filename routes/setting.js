@@ -79,7 +79,7 @@ router.get('/herself/:user_gender', function (req, res, next) {
       if(pills.user_pills == 0) {
         pills.pills_date = '';
         pills.pills_time = '';
-        pills_no = '';
+        pills.pills_no = '';
       }
       //평균주기 계산
       var cycleSum = 0;

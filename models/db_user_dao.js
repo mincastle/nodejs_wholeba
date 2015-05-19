@@ -552,7 +552,7 @@ function insertSyndromes(conn, syndromes, done) {
   console.log('syndromeasdasdasd', syndromes);
   var user_no = syndromes.user_no;
   var syndromes = syndromes.items;
-  console.log('dasdasdsyndrome', syndromes);
+  //console.log('dasdasdsyndrome', syndromes);
   var length = syndromes.length;
   var params = [];
   console.log('length', length);
@@ -700,6 +700,25 @@ function updateCoupleWithdraw (conn, data, done) {
   });
 }
 
+//스케줄러, 매일00:00 pills에 새로 추가해줄 user_no 조회
+function selectPillstoUpdate(conn, done) {
+  if(!conn) {
+    done('연결 에러');
+    return;
+  }
+  conn.query(sql.selectPillstoUpdate, [], function(err, rows) {
+    if(err) {
+      done(err);
+    } else {
+      if(rows.length != 0) {
+        done(null, rows);
+      } else {
+        done('추가할 피임약정보 없음');
+      }
+    }
+  });
+}
+
 /* --------------------------- exports --------------------------- */
 
 //회원가입 (/join)
@@ -742,3 +761,6 @@ exports.updateUserAddition = updateUserAddition;
 exports.selectOtherRegId = selectOtherRegId;
 exports.updateUserWithdraw = updateUserWithdraw;
 exports.updateCoupleWithdraw = updateCoupleWithdraw;
+
+//피임약추가 스케줄러
+exports.selectPillstoUpdate = selectPillstoUpdate;

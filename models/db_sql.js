@@ -316,9 +316,9 @@ exports.selectMissionList =
 
 
 //미션목록조회시, orderby
-exports.orderbyLatest = 'm.mlist_confirmdate  IS NULL ASC,  m.mlist_confirmdate  ASC';
-exports.orderbyMale = 'user_gender ASC, m.mlist_confirmdate  IS NULL ASC,  m.mlist_confirmdate  ASC';
-exports.orderbyFemale = 'user_gender DESC, m.mlist_confirmdate  IS NULL ASC,  m.mlist_confirmdate  ASC';
+exports.orderbyLatest = 'm.mlist_confirmdate  IS NULL DESC,  m.mlist_confirmdate  DESC';
+exports.orderbyMale = 'user_gender DESC, m.mlist_confirmdate  IS NULL DESC,  m.mlist_confirmdate  DESC';
+exports.orderbyFemale = 'user_gender ASC, m.mlist_confirmdate  IS NULL DESC,  m.mlist_confirmdate  DESC';
 
 
 //****************************** SCHEDULE ************************************//
@@ -342,6 +342,19 @@ exports.selectPartnerNoandRegid =
                       'from user uu where uu.user_no=u.user_no) '+
   'and not(user_no=?)';
 
+//피임약복용시, 유저당 가장 최근것 조회
+exports.selectPillstoUpdate =
+  'select p.pills_no, p.user_no, '+
+          'MAX(p.pills_date)as pills_date, p.pills_time, u.user_pills '+
+  'from pills p, user u '+
+  'where p.user_no = u.user_no '+
+  'and u.user_pills is not null '+
+  'group by p.user_no';
+
+//피임약복용시간 추가
+exports.insertPillstoUpdate =
+  'insert into pills(user_no, pills_time, pills_date) '+
+  'values(?, ?, DATE_ADD(date(pills_date), INTERVAL 28 DAY))';
 
 //****************************** ITEMS ************************************//
 
@@ -462,7 +475,7 @@ exports.selectUserPeriods =
   'select period_no, period_start, period_end, period_cycle '+
   'from period '+
   'where user_no=? '+
-  'order by period_start DESC';
+  'order by period_start DESC limit 4';
 
 //여성정보조회시, 피임약복용여부 조회
 exports.selectUserPills =
