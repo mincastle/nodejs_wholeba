@@ -38,9 +38,9 @@
 | Mission 확인 |	POST	| /missions/:mlist_no/confirm | complete | 2015-05-14  |
 | Mission 생성 |	POST	| /missions/add | complete | 2015-05-11  |
 | Mission 성공 |	POST	| /missions/:mlist_no/success | complete | 2015-05-14  |
-| 아이템 사용 |	POST	| /items/:item_no/use/:mlist_no | Incomplete |   |
-| 여성정보공개 설정 |	POST	| /setting/public | Incomplete |   |
-| 여성정보 조회 |	GET	| /setting/herself | Incomplete |   |
+| 아이템 사용 |	POST	| /items/:item_no/use/:mlist_no | complete | 2015-05-16  |
+| 여성정보공개 설정 |	POST	| /setting/public | complete | 2015-05-17  |
+| 여성정보 조회 |	GET	| /setting/herself | complete | 2015-05-18  |
 | 주기수정 |	POST	| /setting/herself/:period_no | Incomplete |   |
 | 공지사항 조회 |	GET	| /setting/notice | Incomplete |   |
 | 로그아웃 |	POST	| /users/logout | complete | 2015-05-07  |

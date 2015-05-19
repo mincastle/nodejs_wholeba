@@ -35,6 +35,7 @@ function selectHerUserNo(conn, data, done) {
     done('연결 에러');
     return;
   }
+  console.log('data.user_gender', data.user_gender);
   if(data.user_gender == 'F') {
     done(null, data);  //여자일 경우 그대로 전송
   } else {
@@ -95,12 +96,13 @@ function getHerInfo(conn, herUserNo, done) {
       }
     ],
     function(err, result) {
+      console.log('getHerInfo_err', err);
       if(err) {
         done(err);
       } else if (result) {
         done(null, result);
       } else {
-        done('여성정보조회 실패');
+        done('getHerInfo 실패');
       }
     }
   )
@@ -139,11 +141,12 @@ function selectUserPills(conn, herUserNo, done) {
     if(err) {
       done(err);
     } else {
+      console.log('selectUserPills_row', row);
       if(row[0]) {
         console.log('------------select pills info, user_pills : ', row[0].user_pills);
         done(null, row[0]);
       } else {
-        done('피임약복용여부 조회 실패');
+        done('selectUserPills 피임약복용여부 조회 실패');
       }
     }
 

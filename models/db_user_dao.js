@@ -250,9 +250,9 @@ function selectUserReqandUserGender(conn, data, done) {
     }
     else {
       if (row) {
-        console.log('row[0]', row[0]);
         if (row[0].user_req != undefined) {
           console.log('select user_req : ', row[0]);
+          data.user_req = row[0].user_req;
           done(null, row[0]);
         } else {
           done('커플요청여부 조회 실패', null);

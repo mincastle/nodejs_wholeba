@@ -190,12 +190,17 @@ exports.common = function (data, callback) {
               function (done) {
                 if (data.user_gender == 'F') {
                   done(null);
-                  return;
+                } else {
+                  dao.updateUserAddition(conn, data, done);
                 }
-                dao.updateUserAddition(conn, data, done);
-              }
-            ],
-            function (err, result) {
+              },
+              function (done) {
+                if (data.user_gender == 'F') {
+                  done(null);
+                } else {
+                  dao.updateUserAddition(conn, data, done);
+                }
+            }], function (err, result) {
               if (err) {
                 console.log('err', err);
                 conn.rollback(function() {
@@ -327,10 +332,10 @@ exports.login = function (data, callback) {
             }, function (done) {
               dao.doLogin(conn, data, done);
             }, function (arg, done) {
-                console.log('arg', arg);
+              console.log('arg', arg);
               dao.updateUserRegIdandUserPhone(conn, data, arg, done);
             }, function (arg2, done) {
-                console.log('arg2', arg2);
+              console.log('arg2', arg2);
               dao.updateUserIsLogin(conn, arg2, 1, done);
             }],
             function (err, result) {

@@ -7,21 +7,23 @@ var sql = require('./db_sql');
 function insertMakeCouple (conn, data, done) {
   var datas = [data.auth_phone];
   conn.query(sql.insertMakeCouple, datas, function (err, row) {
-    //console.log('updateCoupleIs_row', row);
     if (err) {
       done(err);
-    } else if (row.affectedRows == 0) {
-      done('정상적으로 생성되지 않았습니다.');
     } else {
-      done(null, row.insertId);
+      if (row.affectedRows == 1) {
+        data.couple_no = row.insertId;
+        done(null);
+      } else {
+        done('커플이 정상적으로 생성되지 않았습니다.');
+      }
     }
   });
 }
 
 //커플 요청 시, 요청 user의 user_gender, couple_no 업데이트
-function updateUserGenderandCoupleNoandUserReq (conn, data, insertId, done) {
-  console.log('insertId', insertId);
-  var datas = [data.user_gender, insertId, data.user_no];
+function updateUserGenderandCoupleNoandUserReq (conn, data, done) {
+  //console.log('insertId', insertId);
+  var datas = [data.user_gender, data.couple_no, data.user_no];
   conn.query(sql.updateUserGenderandCoupleNoandUserReq, datas, function (err, row) {
     //console.log('updateUserGender_row', row);
     if (err) {
@@ -29,7 +31,7 @@ function updateUserGenderandCoupleNoandUserReq (conn, data, insertId, done) {
     } else if (row.affectedRows == 0) {
       done('정상적으로 업데이트 되지 않았습니다.');
     } else {
-      done(null, insertId);
+      done(null);
     }
   });
 }
@@ -80,10 +82,27 @@ function updateUserCoupleNoandGenderandUserReq(conn, couple_no, other_gender, da
   });
 }
 
-function selectOtherGender(conn, couple_no, data, done) {
+function selectAnswerRegId(conn, data, done) {
+  var datas = [data.auth_phone];
+
+  conn.query(sql.selectAnswerRegId, datas, function (err, row) {
+    if (err) {
+      done(err);
+    } else {
+      if(!row[0]) {
+        done("상대방 regid 조회 실패!");
+      } else {
+        data.other_regid = row[0].other_regid;
+        done(null);
+      }
+    }
+  });
+}
+
+function selectOtherGenderandUserRegId(conn, couple_no, data, done) {
   var datas = [couple_no, data.user_no];
   console.log('datas_water', datas);
-  conn.query(sql.selectOtherGender, datas, function (err, row) {
+  conn.query(sql.selectOtherGenderandUserRegId, datas, function (err, row) {
     //console.log('updateCoupleIs_row', row);
     if (err) {
       done(err);
@@ -92,6 +111,7 @@ function selectOtherGender(conn, couple_no, data, done) {
       if (!row[0]) {
         done("성별 조회 실패");
       }else{
+        data.other_regid = row[0].user_regid;
         done(null, couple_no, row[0].other_gender);
       }
     }
@@ -132,6 +152,11 @@ function mycondition(conn, data, done) {
   });
 }
 
+function insertBasicDday(conn, result, data, done) {
+
+}
+
+
 //
 //function insertMakeDday(coupleNo, data, done) {
 //  // dday 테이블에 dday 추가
@@ -168,11 +193,12 @@ exports.updateUserGenderandCoupleNoandUserReq = updateUserGenderandCoupleNoandUs
 exports.selectCheckAnswerCouple = selectCheckAnswerCouple;
 exports.updateCoupleIs = updateCoupleIs;
 exports.updateUserCoupleNoandGenderandUserReq = updateUserCoupleNoandGenderandUserReq;
-exports.selectOtherGender = selectOtherGender;
+exports.selectAnswerRegId = selectAnswerRegId;
+exports.selectOtherGenderandUserRegId = selectOtherGenderandUserRegId;
 
 exports.selectCoupleInfo = selectCoupleInfo;
 exports.mycondition = mycondition;
-
+exports.insertBasicDday = insertBasicDday;
 
 
 

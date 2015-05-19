@@ -8,6 +8,7 @@ var async = require('async');
 var gcm = require('node-gcm');
 var commonDao = require('./db_common_dao');
 var pool = mysql.createPool(db_config);
+var mission_cnt = 100; // 미만 값으로
 
 //미션목록조회
 //date = '2015-3-1'
@@ -94,7 +95,7 @@ function selectMissionPartner(conn, data, done) {
       if (row[0].partner_no) {
         console.log('select mission partner row[0] : ', row[0]);
         //확인안하거나 진행중이 미션이 3개이상인지 조회
-        if (row[0].mlist_cnt > 2) {
+        if (row[0].mlist_cnt > mission_cnt) {
           done('상대방의 진행중인 미션: ' + row[0].mlist_cnt + '개 (미션생성실패)');
         } else {
           done(null, row[0]);

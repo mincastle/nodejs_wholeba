@@ -2,7 +2,7 @@ var mysql = require('mysql');
 var db_config = require('./db_config');
 var async = require('async');
 var dao = require('./db_couple_dao');
-
+var gcm = require('../gcm/gcm');
 var pool = mysql.createPool(db_config);
 
 /*
@@ -26,10 +26,16 @@ exports.ask = function (data, callback) {
         } else {
           async.waterfall([function (done) {
               dao.insertMakeCouple(conn, data, done);
-            }, function (arg1, done) {
-              dao.updateUserGenderandCoupleNoandUserReq(conn, data, arg1, done);
+            }, function (done) {
+              dao.updateUserGenderandCoupleNoandUserReq(conn, data, done);
+            //}, function (done) {
+            //   TODO : select로 상대방 regid 가져오기
+            //  dao.selectOtherRegId(conn, data, done);
+            //}, function (other_regid, done) {
+            //   TODO : 상대에게 Push 보내기
+
             }],
-            function (err, insertId) {
+            function (err) {
               if (err) {
                 conn.rollback(function () {
                   callback(err);
@@ -41,7 +47,8 @@ exports.ask = function (data, callback) {
                       callback(err);
                     });
                   } else {
-                    callback(null, insertId);
+                    dao.selectAnswerRegId(conn, data, callback);
+                    //callback(null, insertId);
                   }
                 });
               }
@@ -80,7 +87,7 @@ exports.answer = function (data, callback) {
             },function (couple_no, done) {
               dao.updateCoupleIs(conn, couple_no, done);
             }, function (couple_no, done) {
-              dao.selectOtherGender(conn, couple_no, data, done);
+              dao.selectOtherGenderandUserRegId(conn, couple_no, data, done);
             }, function (couple_no, other_gender, done) {
               dao.updateUserCoupleNoandGenderandUserReq(conn, couple_no, other_gender, data, done);
             }],

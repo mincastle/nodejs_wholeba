@@ -115,7 +115,6 @@ router.post('/:loves_no/modify', function (req, res, next) {
   });
 });
 
-
 //성관계삭제
 router.post('/:loves_no/delete', function (req, res, next) {
   var user_no = req.session.user_no;

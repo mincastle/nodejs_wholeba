@@ -91,7 +91,7 @@ exports.insertMakeCouple = 'insert into couple(auth_phone) values (?)';
 exports.updateUserGenderandCoupleNoandUserReq = 'update user set user_gender=?, couple_no=?, user_req=1 where user_no=? and user_withdraw=0';
 
 //커플 요청 시, 상대방 user_regid 가져오기(push하기 위해서) - 회원탈퇴에 이미 존재
-//exports.selectOtherRegId = 'select user_regid as other_regid from user where couple_no=? and user_no<>? and user_withdraw=0';
+exports.selectAnswerRegId = 'select user_regid as other_regid from user where couple_no is null and user_phone=? and user_withdraw=0';
 
 //커플 승인자가 맞는지 확인
 exports.selectCheckAnswerCouple = 'select couple_no from couple where couple_is=0 and auth_phone=(select user_phone from user where user_no=?)';

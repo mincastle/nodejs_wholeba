@@ -3,6 +3,7 @@ var router = express.Router();
 var db_couple = require('../models/db_couple');
 var moment = require('moment');
 var util = require('../util/util');
+var gcm = require('../gcm/gcm');
 
 var fail_json = {
   "success": 0,
@@ -42,16 +43,19 @@ router.post('/ask', function (req, res, next) {
     user_gender : user_gender
   };
 
-  db_couple.ask(data, function (err, result) {
+  db_couple.ask(data, function (err) {
     if(err){
       fail_json.result.message = err;
       res.json(fail_json);
     } else {
       success_json.result.message = '커플요청 성공';
-      success_json.result.insertId = result;
-      req.session.couple_no = result;
+      success_json.result.insertId = data.couple_no;
+      req.session.couple_no = data.couple_no;
       //console.log('req.session.couple_birth', req.session.couple_birth);
       //TODO : 상대방이 이미 가입한 사람이라면 상대 regid 가져와서 push 보내기
+      gcm.sendCoupleAskPush(data, function (err, result) {
+        console.log('push_result', result);
+      });
       res.json(success_json);
     }
   });
@@ -82,12 +86,15 @@ router.post('/answer', function (req, res, next) {
       res.json(fail_json);
     } else {
       success_json.result.message = '커플승인 성공';
+
       success_json.result.items = {
         "couple_no" : result.couple_no,
         "user_gender" : result.other_gender,
         "user_req" :  result.user_req
+        //"other_regid" : data.other_regid
       };
       req.session.couple_no = result.couple_no;
+
       res.json(success_json);
     }
   });
