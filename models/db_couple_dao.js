@@ -152,41 +152,6 @@ function mycondition(conn, data, done) {
   });
 }
 
-function insertBasicDday(conn, result, data, done) {
-
-}
-
-
-//
-//function insertMakeDday(coupleNo, data, done) {
-//  // dday 테이블에 dday 추가
-//  pool.getConnection(function (err, conn) {
-//    if (err) {
-//      console.log('connection err', err);
-//      done(err);
-//      return;
-//    }
-//    var couple_no = data.couple_no || coupleNo;
-//    var dday_name = data.dday_name || '처음 만난 날';
-//    var dday_date = data.dday_date || data.couple_birth;
-//    var dday_repeat = data.repeat || 0;
-//
-//    var datas = [couple_no, dday_name, dday_repeat];
-//    console.log('datas datas', datas);
-//    conn.query(sql.insertMakeDday, datas, function (err, row) {
-//      console.log('updateUserGender_row', row);
-//      if (err) {
-//        done(err);
-//      } else if (row.affectedRows == 0) {
-//        done('정상적으로 생성되지 않았습니다.');
-//      } else {
-//        done(null, row.insertId);
-//      }
-//      conn.release();
-//    });
-//  });
-//}
-
 exports.insertMakeCouple = insertMakeCouple;
 exports.updateUserGenderandCoupleNoandUserReq = updateUserGenderandCoupleNoandUserReq;
 
@@ -198,7 +163,6 @@ exports.selectOtherGenderandUserRegId = selectOtherGenderandUserRegId;
 
 exports.selectCoupleInfo = selectCoupleInfo;
 exports.mycondition = mycondition;
-exports.insertBasicDday = insertBasicDday;
 
 
 

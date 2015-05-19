@@ -184,8 +184,8 @@ exports.common = function (data, callback) {
               function (done) {
                 dao.selectUserReqandUserGender(conn, data, done);
               },
-              function (arg1, done) {
-                dao.updateCoupleandUserBirth(conn, data, arg1, done);
+              function (done) {
+                dao.updateCoupleandUserBirth(conn, data, done);
               },
               function (done) {
                 if (data.user_gender == 'F') {
@@ -193,12 +193,11 @@ exports.common = function (data, callback) {
                 } else {
                   dao.updateUserAddition(conn, data, done);
                 }
-              },
-              function (done) {
-                if (data.user_gender == 'F') {
+              },function (done) {
+                if (data.user_req == 0) {
                   done(null);
                 } else {
-                  dao.updateUserAddition(conn, data, done);
+                  dao.insertBasicDday(conn, data, done);
                 }
             }], function (err, result) {
               if (err) {

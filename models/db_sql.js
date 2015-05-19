@@ -58,6 +58,9 @@ exports.updateCoupleBirth = 'update couple set couple_birth=? where couple_no in
 //공통정보등록시, 유저의 생일 등록
 exports.updateUserBirth = 'update user set user_birth=? where user_no=?';
 
+//공통정보등록시, 유저 기본 Dday 등록
+exports.insertBasicDday = '';
+
 //여성정보등록시, 피임약 복용할 경우, pills 테이블에 행 추가
 exports.insertPills = 'insert into pills(user_no, pills_date, pills_time) values(?, ?, ?);';
 

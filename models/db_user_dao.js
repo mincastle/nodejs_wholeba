@@ -253,7 +253,8 @@ function selectUserReqandUserGender(conn, data, done) {
         if (row[0].user_req != undefined) {
           console.log('select user_req : ', row[0]);
           data.user_req = row[0].user_req;
-          done(null, row[0]);
+          data.user_gender = row[0].user_gender;
+          done(null);
         } else {
           done('커플요청여부 조회 실패', null);
         }
@@ -265,16 +266,15 @@ function selectUserReqandUserGender(conn, data, done) {
 }
 
 //update couple_birth, user_birth
-function updateCoupleandUserBirth(conn, data, arg, done) {
+function updateCoupleandUserBirth(conn, data, done) {
   if (!conn) {
     done('연결 에러');
     return;
   }
 
-  data.user_gender = arg.user_gender;
   //user_req = 1 이면 커플요청자이므로 사귄날 update
   //그 후에 user_birth update
-  if (arg.user_req == 1) {
+  if (data.user_req == 1) {
     if (!data.couple_birth) {
       done('커플의 사귄날 입력정보 없음', null);
       return;
@@ -290,7 +290,7 @@ function updateCoupleandUserBirth(conn, data, arg, done) {
     });
   }
   //user_req = 0이면 커플요청받은사람 이므로 생일만 update
-  else if (arg.user_req == 0) {
+  else if (data.user_req == 0) {
     updateUserBirth(conn, data, done);
   } else {
     done('사용자의 커플요청여부 에러', null);
@@ -719,6 +719,27 @@ function selectPillstoUpdate(conn, done) {
   });
 }
 
+
+function insertBasicDday(conn, data, done) {
+  if(!conn) {
+    done('연결 에러');
+    return;
+  }
+
+  var datas = [];
+  conn.query(sql.insertBasicDday, datas, function(err, rows) {
+    if(err) {
+      done(err);
+    } else {
+      if(rows.length != 0) {
+        done(null, rows);
+      } else {
+        done('추가할 피임약정보 없음');
+      }
+    }
+  });
+}
+
 /* --------------------------- exports --------------------------- */
 
 //회원가입 (/join)
@@ -742,6 +763,7 @@ exports.getPartnerPhone = getPartnerPhone;
 
 //공통정보등록 (/common)
 exports.selectUserReqandUserGender = selectUserReqandUserGender;
+exports.insertBasicDday = insertBasicDday;
 exports.updateUserBirth = updateUserBirth; //private
 exports.updateCoupleandUserBirth = updateCoupleandUserBirth;
 
