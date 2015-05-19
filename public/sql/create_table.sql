@@ -114,6 +114,8 @@ create table missionlist(
 	mlist_expiredate datetime comment'미션만기날짜,아이템사용시 연장가능',
 	mlist_reward int not null comment'미션성공시받는 리워드 갯수',
 	mlist_state int not null default 2 comment'미션상태',
+	mlist_userpopupdate datetime comment'수행자의 팝업시간',
+	mlist_partnerpopupdate datetime comment'파트너의 팝업시간',
 	mlist_delete int not null default 0 comment'미션삭제여부',
 	primary key(mlist_no),
 	foreign key(mission_no) references mission(mission_no),
@@ -146,6 +148,8 @@ create table loves(
 	loves_condom int not null comment'피임여부',
 	loves_pregnancy float not null comment'가임률',
 	loves_date datetime not null comment'성관계일',
+	loves_popupdate1 datetime comment'팝업시간1',
+	loves_popupdate2 datetime comment'팝업시간2',
 	loves_delete int not null default 0 comment'삭제여부',
 	primary key(loves_no),
 	foreign key(couple_no) references couple(couple_no)
